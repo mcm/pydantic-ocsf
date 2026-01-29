@@ -35,9 +35,9 @@ dev = ["pytest>=7.0", "pytest-cov>=4.0", "mypy>=1.0", "ruff>=0.1"]
 generator = ["jinja2>=3.0", "httpx>=0.25"]
 
 [project.urls]
-Homepage = "https://github.com/yourorg/pydantic-ocsf"
-Documentation = "https://github.com/yourorg/pydantic-ocsf#readme"
-Repository = "https://github.com/yourorg/pydantic-ocsf"
+Homepage = "https://github.com/mcm/pydantic-ocsf"
+Documentation = "https://github.com/mcm/pydantic-ocsf#readme"
+Repository = "https://github.com/mcm/pydantic-ocsf"
 
 [tool.hatch.build.targets.sdist]
 include = ["/src"]
