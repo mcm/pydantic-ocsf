@@ -1,0 +1,30 @@
+"""{{ description }}"""
+{% for import_line in imports %}
+{{ import_line }}
+{% endfor %}
+
+__all__ = [
+{% for name in exports %}
+    "{{ name }}",
+{% endfor %}
+]
+{% if rebuild_models %}
+
+
+# Rebuild models to resolve forward references
+def _rebuild_models() -> None:
+    """Rebuild all models to resolve forward references after all imports are complete."""
+    import sys
+    # Pass the current module's globals so Pydantic can find all imported types
+    _globals = sys.modules[__name__].__dict__
+    {% for model_info in rebuild_models %}
+    {% if model_info.is_model %}
+    {{ model_info.name }}.model_rebuild(_types_namespace=_globals)
+    {% endif %}
+    {% endfor %}
+
+
+# Only rebuild if this is the first import (not during circular imports)
+if __name__ != "__main__":
+    _rebuild_models()
+{% endif %}

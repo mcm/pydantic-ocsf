@@ -1,0 +1,105 @@
+name: Publish to PyPI
+
+on:
+  push:
+    tags:
+      - "v*.*.*.*" # Match version tags like v1.7.0.20260129
+
+jobs:
+  build:
+    name: Build distribution 📦
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🛎️ Checkout
+        uses: actions/checkout@v4
+
+      - name: 🐍 Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: ✅ Validate version matches tag
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          # Extract version from tag (remove 'v' prefix)
+          TAG_VERSION=${GITHUB_REF#refs/tags/v}
+          echo "Tag version: $TAG_VERSION"
+
+          # Extract version from pyproject.toml
+          PYPROJECT_VERSION=$(grep -E '^version = ' pyproject.toml | cut -d'"' -f2)
+          echo "pyproject.toml version: $PYPROJECT_VERSION"
+
+          # Compare versions
+          if [ "$TAG_VERSION" != "$PYPROJECT_VERSION" ]; then
+            echo "❌ ERROR: Tag version ($TAG_VERSION) does not match pyproject.toml version ($PYPROJECT_VERSION)"
+            exit 1
+          fi
+
+          echo "✅ Version validation passed: $TAG_VERSION"
+
+      - name: 📦 Install build dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install build twine
+
+      - name: 🏗️ Build distribution
+        run: python -m build
+
+      - name: 🔍 Check distribution
+        run: twine check dist/*
+
+      - name: 📤 Store the distribution packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: python-package-distributions
+          path: dist/
+          retention-days: 7
+
+  publish-to-pypi:
+    name: Publish to PyPI 📦
+    needs: [build]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    environment:
+      name: pypi
+      url: https://pypi.org/p/pydantic-ocsf
+    permissions:
+      id-token: write # Required for trusted publishing
+
+    steps:
+      - name: 📥 Download distribution packages
+        uses: actions/download-artifact@v4
+        with:
+          name: python-package-distributions
+          path: dist/
+
+      - name: 📦 Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+
+  create-github-release:
+    name: Create GitHub Release
+    needs: [publish-to-pypi]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    permissions:
+      contents: write
+
+    steps:
+      - name: 🛎️ Checkout
+        uses: actions/checkout@v4
+
+      - name: 📥 Download distribution packages
+        uses: actions/download-artifact@v4
+        with:
+          name: python-package-distributions
+          path: dist/
+
+      - name: 🏷️ Create GitHub Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create ${{ github.ref_name }} \
+            --title "Release ${{ github.ref_name }}" \
+            --notes "See [CHANGELOG](https://github.com/${{ github.repository }}/blob/main/CHANGELOG.md) for details." \
+            dist/*

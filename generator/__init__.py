@@ -1,0 +1,1 @@
+"""OCSF schema code generator."""

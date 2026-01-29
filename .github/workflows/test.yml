@@ -1,0 +1,114 @@
+name: Tests
+
+on:
+    push:
+        branches:
+            - main
+            - master
+            - develop
+    pull_request:
+        branches:
+            - main
+            - master
+    workflow_dispatch:
+
+jobs:
+    test:
+        name: Python ${{ matrix.python-version }} on ${{ matrix.os }}
+        runs-on: ${{ matrix.os }}
+        strategy:
+            fail-fast: false
+            matrix:
+                os: [ubuntu-latest, macos-latest, windows-latest]
+                python-version: ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
+
+        steps:
+            - name: 🛎️ Checkout
+              uses: actions/checkout@v4
+
+            - name: 🐍 Set up Python ${{ matrix.python-version }}
+              uses: actions/setup-python@v5
+              with:
+                  python-version: ${{ matrix.python-version }}
+                  cache: "pip"
+
+            - name: 📦 Install dependencies
+              run: |
+                  python -m pip install --upgrade pip
+                  pip install -e ".[dev]"
+
+            - name: 🧪 Run tests
+              run: pytest tests/ -v --cov=ocsf --cov-report=xml --cov-report=term
+
+            - name: 📊 Upload coverage to Codecov
+              if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.12'
+              uses: codecov/codecov-action@v4
+              with:
+                  file: ./coverage.xml
+                  fail_ci_if_error: false
+                  token: ${{ secrets.CODECOV_TOKEN }}
+
+    lint:
+        name: Linting and type checking
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: 🛎️ Checkout
+              uses: actions/checkout@v4
+
+            - name: 🐍 Set up Python 3.12
+              uses: actions/setup-python@v5
+              with:
+                  python-version: "3.12"
+                  cache: "pip"
+
+            - name: 📦 Install dependencies
+              run: |
+                  python -m pip install --upgrade pip
+                  pip install -e ".[dev]"
+
+            - name: 💅 Check formatting with ruff
+              run: ruff format --check src/ generator/ tests/
+
+            - name: 🔍 Lint with ruff
+              run: ruff check src/ generator/ tests/
+
+            - name: 🔎 Type check with mypy
+              run: mypy src/ocsf/ --ignore-missing-imports
+
+    verify-generation:
+        name: Verify models can be generated
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: 🛎️ Checkout
+              uses: actions/checkout@v4
+
+            - name: 🐍 Set up Python 3.12
+              uses: actions/setup-python@v5
+              with:
+                  python-version: "3.12"
+                  cache: "pip"
+
+            - name: 📦 Install dependencies
+              run: |
+                  python -m pip install --upgrade pip
+                  pip install -e ".[dev,generator]"
+
+            - name: 🏗️ Test schema fetching
+              run: python -m generator.schema_fetcher 1.7.0
+
+            - name: 🔨 Test model generation (sample)
+              run: |
+                  # Test generating a single version to verify generator works
+                  python -c "
+                  from pathlib import Path
+                  from generator.schema_parser import parse_schema
+                  from generator.model_generator import generate_models
+                  import tempfile
+
+                  with tempfile.TemporaryDirectory() as tmpdir:
+                      schema = parse_schema('1.7.0', cache_dir=Path('.schema_cache'))
+                      generate_models(schema, Path(tmpdir))
+                      print('✓ Model generation successful')
+                  "

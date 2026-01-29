@@ -1,0 +1,28 @@
+"""{{ object.caption or object.name }} object."""
+
+from __future__ import annotations
+
+from typing import Any
+
+from pydantic import Field
+
+from ocsf._base import OCSFBaseModel
+
+{% if imports %}
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+{% for import_line in imports %}
+    {{ import_line }}
+{% endfor %}
+{% endif %}
+
+
+class {{ class_name }}(OCSFBaseModel):
+    """{{ object.description or object.caption or 'OCSF object.' }}
+
+    See: https://schema.ocsf.io/{{ version }}/objects/{{ object.name }}
+    """
+{% for attr in attributes %}
+    {{ attr.field_name }}: {{ attr.type_annotation }} = Field({% if attr.is_required %}...{% else %}default=None{% endif %}, description="{{ attr.description }}{% if attr.requirement == 'recommended' %} [Recommended]{% endif %}")
+{% endfor %}
