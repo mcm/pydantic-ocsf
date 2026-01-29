@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "pydantic-ocsf"
-version = "1.7.0.20260129"
+version = "1.7.0.20260129.post1"
 description = "Pydantic models for the Open Cybersecurity Schema Framework (OCSF)"
 readme = "README.md"
 license = "Apache-2.0"
