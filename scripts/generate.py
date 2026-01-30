@@ -53,7 +53,12 @@ def main() -> None:
 
     print(f"\nPackage version: {package_version}")
 
-    # Update top-level __init__.py to export from latest version
+    # Update top-level __init__.py to export from latest version (using lazy imports)
+    # Get the latest version module name
+    latest_version_module = latest_version.replace(".", "_")
+    if not latest_version_module.startswith("v"):
+        latest_version_module = f"v{latest_version_module}"
+
     init_content = f'''"""Pydantic models for the Open Cybersecurity Schema Framework (OCSF).
 
 This package provides type-safe, validated models for OCSF security events.
@@ -77,10 +82,36 @@ The default imports are from OCSF 1.7.0 (latest). For other versions:
     from ocsf.v1_0_0 import FileActivity  # OCSF 1.0.0
 """
 
+from __future__ import annotations
+
+from typing import Any
+
 from ocsf._base import OCSFBaseModel as OCSFBaseModel
-from ocsf.v1_7_0 import *  # noqa: F401, F403
 
 __version__ = "{package_version}"
+
+# Lazy import delegation to latest version ({latest_version})
+# This avoids importing everything at module load time
+
+
+def __getattr__(name: str) -> Any:
+    """Lazy import symbols from the latest OCSF version."""
+    # Delegate to the latest version module
+    import importlib
+
+    try:
+        module = importlib.import_module(f"ocsf.{latest_version_module}")
+        return getattr(module, name)
+    except AttributeError:
+        raise AttributeError(f"module {{__name__!r}} has no attribute {{name!r}}") from None
+
+
+def __dir__() -> list[str]:
+    """Support for dir() and autocomplete."""
+    import importlib
+
+    module = importlib.import_module(f"ocsf.{latest_version_module}")
+    return sorted(["OCSFBaseModel", "__version__"] + list(getattr(module, "__all__", [])))
 '''
     (OUTPUT_DIR / "__init__.py").write_text(init_content)
 

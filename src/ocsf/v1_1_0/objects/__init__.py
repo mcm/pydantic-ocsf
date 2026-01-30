@@ -1,111 +1,9 @@
 """OCSF v1.1.0 objects."""
 
-from ocsf.v1_1_0.objects._dns import Dns
-from ocsf.v1_1_0.objects._entity import Entity
-from ocsf.v1_1_0.objects._resource import Resource
-from ocsf.v1_1_0.objects.account import Account
-from ocsf.v1_1_0.objects.actor import Actor
-from ocsf.v1_1_0.objects.affected_code import AffectedCode
-from ocsf.v1_1_0.objects.affected_package import AffectedPackage
-from ocsf.v1_1_0.objects.analytic import Analytic
-from ocsf.v1_1_0.objects.api import Api
-from ocsf.v1_1_0.objects.attack import Attack
-from ocsf.v1_1_0.objects.authorization import Authorization
-from ocsf.v1_1_0.objects.certificate import Certificate
-from ocsf.v1_1_0.objects.cis_benchmark import CisBenchmark
-from ocsf.v1_1_0.objects.cis_benchmark_result import CisBenchmarkResult
-from ocsf.v1_1_0.objects.cis_control import CisControl
-from ocsf.v1_1_0.objects.cis_csc import CisCsc
-from ocsf.v1_1_0.objects.cloud import Cloud
-from ocsf.v1_1_0.objects.compliance import Compliance
-from ocsf.v1_1_0.objects.container import Container
-from ocsf.v1_1_0.objects.cve import Cve
-from ocsf.v1_1_0.objects.cvss import Cvss
-from ocsf.v1_1_0.objects.cwe import Cwe
-from ocsf.v1_1_0.objects.database import Database
-from ocsf.v1_1_0.objects.databucket import Databucket
-from ocsf.v1_1_0.objects.dce_rpc import DceRpc
-from ocsf.v1_1_0.objects.device import Device
-from ocsf.v1_1_0.objects.device_hw_info import DeviceHwInfo
-from ocsf.v1_1_0.objects.digital_signature import DigitalSignature
-from ocsf.v1_1_0.objects.display import Display
-from ocsf.v1_1_0.objects.dns_answer import DnsAnswer
-from ocsf.v1_1_0.objects.dns_query import DnsQuery
-from ocsf.v1_1_0.objects.email import Email
-from ocsf.v1_1_0.objects.email_auth import EmailAuth
-from ocsf.v1_1_0.objects.endpoint import Endpoint
-from ocsf.v1_1_0.objects.endpoint_connection import EndpointConnection
-from ocsf.v1_1_0.objects.enrichment import Enrichment
-from ocsf.v1_1_0.objects.epss import Epss
-from ocsf.v1_1_0.objects.evidences import Evidences
-from ocsf.v1_1_0.objects.extension import Extension
-from ocsf.v1_1_0.objects.feature import Feature
-from ocsf.v1_1_0.objects.file import File
-from ocsf.v1_1_0.objects.finding import Finding
-from ocsf.v1_1_0.objects.finding_info import FindingInfo
-from ocsf.v1_1_0.objects.fingerprint import Fingerprint
-from ocsf.v1_1_0.objects.firewall_rule import FirewallRule
-from ocsf.v1_1_0.objects.group import Group
-from ocsf.v1_1_0.objects.hassh import Hassh
-from ocsf.v1_1_0.objects.http_cookie import HttpCookie
-from ocsf.v1_1_0.objects.http_header import HttpHeader
-from ocsf.v1_1_0.objects.http_request import HttpRequest
-from ocsf.v1_1_0.objects.http_response import HttpResponse
-from ocsf.v1_1_0.objects.idp import Idp
-from ocsf.v1_1_0.objects.image import Image
-from ocsf.v1_1_0.objects.job import Job
-from ocsf.v1_1_0.objects.kb_article import KbArticle
-from ocsf.v1_1_0.objects.kernel import Kernel
-from ocsf.v1_1_0.objects.kernel_driver import KernelDriver
-from ocsf.v1_1_0.objects.keyboard_info import KeyboardInfo
-from ocsf.v1_1_0.objects.kill_chain_phase import KillChainPhase
-from ocsf.v1_1_0.objects.ldap_person import LdapPerson
-from ocsf.v1_1_0.objects.load_balancer import LoadBalancer
-from ocsf.v1_1_0.objects.location import Location
-from ocsf.v1_1_0.objects.logger import Logger
-from ocsf.v1_1_0.objects.malware import Malware
-from ocsf.v1_1_0.objects.managed_entity import ManagedEntity
-from ocsf.v1_1_0.objects.metadata import Metadata
-from ocsf.v1_1_0.objects.metric import Metric
-from ocsf.v1_1_0.objects.module import Module
-from ocsf.v1_1_0.objects.network_connection_info import NetworkConnectionInfo
-from ocsf.v1_1_0.objects.network_endpoint import NetworkEndpoint
-from ocsf.v1_1_0.objects.network_interface import NetworkInterface
-from ocsf.v1_1_0.objects.network_proxy import NetworkProxy
-from ocsf.v1_1_0.objects.network_traffic import NetworkTraffic
-from ocsf.v1_1_0.objects.object import Object
-from ocsf.v1_1_0.objects.observable import Observable
-from ocsf.v1_1_0.objects.organization import Organization
-from ocsf.v1_1_0.objects.os import Os
-from ocsf.v1_1_0.objects.package import Package
-from ocsf.v1_1_0.objects.peripheral_device import PeripheralDevice
-from ocsf.v1_1_0.objects.policy import Policy
-from ocsf.v1_1_0.objects.process import Process
-from ocsf.v1_1_0.objects.product import Product
-from ocsf.v1_1_0.objects.query_info import QueryInfo
-from ocsf.v1_1_0.objects.related_event import RelatedEvent
-from ocsf.v1_1_0.objects.remediation import Remediation
-from ocsf.v1_1_0.objects.reputation import Reputation
-from ocsf.v1_1_0.objects.request import Request
-from ocsf.v1_1_0.objects.resource_details import ResourceDetails
-from ocsf.v1_1_0.objects.response import Response
-from ocsf.v1_1_0.objects.rpc_interface import RpcInterface
-from ocsf.v1_1_0.objects.rule import Rule
-from ocsf.v1_1_0.objects.san import San
-from ocsf.v1_1_0.objects.scan import Scan
-from ocsf.v1_1_0.objects.security_state import SecurityState
-from ocsf.v1_1_0.objects.service import Service
-from ocsf.v1_1_0.objects.session import Session
-from ocsf.v1_1_0.objects.sub_technique import SubTechnique
-from ocsf.v1_1_0.objects.table import Table
-from ocsf.v1_1_0.objects.tactic import Tactic
-from ocsf.v1_1_0.objects.technique import Technique
-from ocsf.v1_1_0.objects.tls import Tls
-from ocsf.v1_1_0.objects.tls_extension import TlsExtension
-from ocsf.v1_1_0.objects.url import Url
-from ocsf.v1_1_0.objects.user import User
-from ocsf.v1_1_0.objects.vulnerability import Vulnerability
-from ocsf.v1_1_0.objects.web_resource import WebResource
+from __future__ import annotations
+
+import sys
+from typing import Any
 
 __all__ = [
     "Account",
@@ -215,3 +113,157 @@ __all__ = [
     "Vulnerability",
     "WebResource",
 ]
+
+# Mapping of class names to their module file names
+_MODULE_MAP = {
+    "Account": "account",
+    "Actor": "actor",
+    "AffectedCode": "affected_code",
+    "AffectedPackage": "affected_package",
+    "Analytic": "analytic",
+    "Api": "api",
+    "Attack": "attack",
+    "Authorization": "authorization",
+    "Certificate": "certificate",
+    "CisBenchmark": "cis_benchmark",
+    "CisBenchmarkResult": "cis_benchmark_result",
+    "CisControl": "cis_control",
+    "CisCsc": "cis_csc",
+    "Cloud": "cloud",
+    "Compliance": "compliance",
+    "Container": "container",
+    "Cve": "cve",
+    "Cvss": "cvss",
+    "Cwe": "cwe",
+    "Database": "database",
+    "Databucket": "databucket",
+    "DceRpc": "dce_rpc",
+    "Device": "device",
+    "DeviceHwInfo": "device_hw_info",
+    "DigitalSignature": "digital_signature",
+    "Display": "display",
+    "Dns": "_dns",
+    "DnsAnswer": "dns_answer",
+    "DnsQuery": "dns_query",
+    "Email": "email",
+    "EmailAuth": "email_auth",
+    "Endpoint": "endpoint",
+    "EndpointConnection": "endpoint_connection",
+    "Enrichment": "enrichment",
+    "Entity": "_entity",
+    "Epss": "epss",
+    "Evidences": "evidences",
+    "Extension": "extension",
+    "Feature": "feature",
+    "File": "file",
+    "Finding": "finding",
+    "FindingInfo": "finding_info",
+    "Fingerprint": "fingerprint",
+    "FirewallRule": "firewall_rule",
+    "Group": "group",
+    "Hassh": "hassh",
+    "HttpCookie": "http_cookie",
+    "HttpHeader": "http_header",
+    "HttpRequest": "http_request",
+    "HttpResponse": "http_response",
+    "Idp": "idp",
+    "Image": "image",
+    "Job": "job",
+    "KbArticle": "kb_article",
+    "Kernel": "kernel",
+    "KernelDriver": "kernel_driver",
+    "KeyboardInfo": "keyboard_info",
+    "KillChainPhase": "kill_chain_phase",
+    "LdapPerson": "ldap_person",
+    "LoadBalancer": "load_balancer",
+    "Location": "location",
+    "Logger": "logger",
+    "Malware": "malware",
+    "ManagedEntity": "managed_entity",
+    "Metadata": "metadata",
+    "Metric": "metric",
+    "Module": "module",
+    "NetworkConnectionInfo": "network_connection_info",
+    "NetworkEndpoint": "network_endpoint",
+    "NetworkInterface": "network_interface",
+    "NetworkProxy": "network_proxy",
+    "NetworkTraffic": "network_traffic",
+    "Object": "object",
+    "Observable": "observable",
+    "Organization": "organization",
+    "Os": "os",
+    "Package": "package",
+    "PeripheralDevice": "peripheral_device",
+    "Policy": "policy",
+    "Process": "process",
+    "Product": "product",
+    "QueryInfo": "query_info",
+    "RelatedEvent": "related_event",
+    "Remediation": "remediation",
+    "Reputation": "reputation",
+    "Request": "request",
+    "Resource": "_resource",
+    "ResourceDetails": "resource_details",
+    "Response": "response",
+    "RpcInterface": "rpc_interface",
+    "Rule": "rule",
+    "San": "san",
+    "Scan": "scan",
+    "SecurityState": "security_state",
+    "Service": "service",
+    "Session": "session",
+    "SubTechnique": "sub_technique",
+    "Table": "table",
+    "Tactic": "tactic",
+    "Technique": "technique",
+    "Tls": "tls",
+    "TlsExtension": "tls_extension",
+    "Url": "url",
+    "User": "user",
+    "Vulnerability": "vulnerability",
+    "WebResource": "web_resource",
+}
+
+_imported: set[str] = set()
+_rebuild_triggered = False
+
+
+def __getattr__(name: str) -> Any:
+    """Lazily import symbols and trigger model rebuilding if needed."""
+    global _rebuild_triggered
+
+    if name not in __all__:
+        raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+
+    # Check if already imported and cached
+    if name in _imported:
+        return globals()[name]
+
+    # Import from individual module file
+    module_file = _MODULE_MAP[name]
+    module_path = f"{__name__}.{module_file}"
+    module = __import__(module_path, fromlist=[name])
+    symbol = getattr(module, name)
+
+    # Cache in globals
+    globals()[name] = symbol
+    _imported.add(name)
+
+    # For models (objects/events), ensure they're rebuilt via version module
+    # Only trigger once to avoid recursion
+    if True:
+        if not _rebuild_triggered:
+            _rebuild_triggered = True
+            # Trigger version-level batch rebuild
+            version_module_name = ".".join(__name__.split(".")[:-1])
+            version_module = sys.modules.get(version_module_name)
+            if version_module and hasattr(version_module, "_rebuild_all_models"):
+                # Call rebuild function directly to avoid recursion through __getattr__
+                version_module._rebuild_all_models()
+
+    return symbol
+
+
+def __dir__() -> list[str]:
+    """Support for dir() and autocomplete."""
+    return sorted(__all__)

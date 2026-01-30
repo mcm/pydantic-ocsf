@@ -1,228 +1,9 @@
 """OCSF v1.1.0 enumerations."""
 
-from ocsf.v1_1_0.enums.account_change_activity_id import AccountChangeActivityId
-from ocsf.v1_1_0.enums.account_change_severity_id import AccountChangeSeverityId
-from ocsf.v1_1_0.enums.account_change_status_id import AccountChangeStatusId
-from ocsf.v1_1_0.enums.account_type_id import AccountTypeId
-from ocsf.v1_1_0.enums.analytic_type_id import AnalyticTypeId
-from ocsf.v1_1_0.enums.api_activity_activity_id import ApiActivityActivityId
-from ocsf.v1_1_0.enums.api_activity_severity_id import ApiActivitySeverityId
-from ocsf.v1_1_0.enums.api_activity_status_id import ApiActivityStatusId
-from ocsf.v1_1_0.enums.application_lifecycle_activity_id import ApplicationLifecycleActivityId
-from ocsf.v1_1_0.enums.application_lifecycle_severity_id import ApplicationLifecycleSeverityId
-from ocsf.v1_1_0.enums.application_lifecycle_status_id import ApplicationLifecycleStatusId
-from ocsf.v1_1_0.enums.application_severity_id import ApplicationSeverityId
-from ocsf.v1_1_0.enums.application_status_id import ApplicationStatusId
-from ocsf.v1_1_0.enums.authentication_activity_id import AuthenticationActivityId
-from ocsf.v1_1_0.enums.authentication_auth_protocol_id import AuthenticationAuthProtocolId
-from ocsf.v1_1_0.enums.authentication_logon_type_id import AuthenticationLogonTypeId
-from ocsf.v1_1_0.enums.authentication_severity_id import AuthenticationSeverityId
-from ocsf.v1_1_0.enums.authentication_status_id import AuthenticationStatusId
-from ocsf.v1_1_0.enums.authorize_session_activity_id import AuthorizeSessionActivityId
-from ocsf.v1_1_0.enums.authorize_session_severity_id import AuthorizeSessionSeverityId
-from ocsf.v1_1_0.enums.authorize_session_status_id import AuthorizeSessionStatusId
-from ocsf.v1_1_0.enums.base_event_severity_id import BaseEventSeverityId
-from ocsf.v1_1_0.enums.base_event_status_id import BaseEventStatusId
-from ocsf.v1_1_0.enums.compliance_finding_activity_id import ComplianceFindingActivityId
-from ocsf.v1_1_0.enums.compliance_finding_confidence_id import ComplianceFindingConfidenceId
-from ocsf.v1_1_0.enums.compliance_finding_severity_id import ComplianceFindingSeverityId
-from ocsf.v1_1_0.enums.compliance_finding_status_id import ComplianceFindingStatusId
-from ocsf.v1_1_0.enums.compliance_status_id import ComplianceStatusId
-from ocsf.v1_1_0.enums.config_state_activity_id import ConfigStateActivityId
-from ocsf.v1_1_0.enums.config_state_severity_id import ConfigStateSeverityId
-from ocsf.v1_1_0.enums.config_state_status_id import ConfigStateStatusId
-from ocsf.v1_1_0.enums.cvss_depth import CvssDepth
-from ocsf.v1_1_0.enums.database_type_id import DatabaseTypeId
-from ocsf.v1_1_0.enums.databucket_type_id import DatabucketTypeId
-from ocsf.v1_1_0.enums.datastore_activity_activity_id import DatastoreActivityActivityId
-from ocsf.v1_1_0.enums.datastore_activity_severity_id import DatastoreActivitySeverityId
-from ocsf.v1_1_0.enums.datastore_activity_status_id import DatastoreActivityStatusId
-from ocsf.v1_1_0.enums.datastore_activity_type_id import DatastoreActivityTypeId
-from ocsf.v1_1_0.enums.detection_finding_activity_id import DetectionFindingActivityId
-from ocsf.v1_1_0.enums.detection_finding_confidence_id import DetectionFindingConfidenceId
-from ocsf.v1_1_0.enums.detection_finding_impact_id import DetectionFindingImpactId
-from ocsf.v1_1_0.enums.detection_finding_risk_level_id import DetectionFindingRiskLevelId
-from ocsf.v1_1_0.enums.detection_finding_severity_id import DetectionFindingSeverityId
-from ocsf.v1_1_0.enums.detection_finding_status_id import DetectionFindingStatusId
-from ocsf.v1_1_0.enums.device_config_state_change_activity_id import (
-    DeviceConfigStateChangeActivityId,
-)
-from ocsf.v1_1_0.enums.device_config_state_change_prev_security_level_id import (
-    DeviceConfigStateChangePrevSecurityLevelId,
-)
-from ocsf.v1_1_0.enums.device_config_state_change_security_level_id import (
-    DeviceConfigStateChangeSecurityLevelId,
-)
-from ocsf.v1_1_0.enums.device_config_state_change_severity_id import (
-    DeviceConfigStateChangeSeverityId,
-)
-from ocsf.v1_1_0.enums.device_config_state_change_status_id import DeviceConfigStateChangeStatusId
-from ocsf.v1_1_0.enums.device_risk_level_id import DeviceRiskLevelId
-from ocsf.v1_1_0.enums.device_type_id import DeviceTypeId
-from ocsf.v1_1_0.enums.dhcp_activity_activity_id import DhcpActivityActivityId
-from ocsf.v1_1_0.enums.dhcp_activity_severity_id import DhcpActivitySeverityId
-from ocsf.v1_1_0.enums.dhcp_activity_status_id import DhcpActivityStatusId
-from ocsf.v1_1_0.enums.digital_signature_algorithm_id import DigitalSignatureAlgorithmId
-from ocsf.v1_1_0.enums.discovery_activity_id import DiscoveryActivityId
-from ocsf.v1_1_0.enums.discovery_result_activity_id import DiscoveryResultActivityId
-from ocsf.v1_1_0.enums.discovery_result_severity_id import DiscoveryResultSeverityId
-from ocsf.v1_1_0.enums.discovery_result_status_id import DiscoveryResultStatusId
-from ocsf.v1_1_0.enums.discovery_severity_id import DiscoverySeverityId
-from ocsf.v1_1_0.enums.discovery_status_id import DiscoveryStatusId
-from ocsf.v1_1_0.enums.dns_activity_activity_id import DnsActivityActivityId
-from ocsf.v1_1_0.enums.dns_activity_rcode_id import DnsActivityRcodeId
-from ocsf.v1_1_0.enums.dns_activity_severity_id import DnsActivitySeverityId
-from ocsf.v1_1_0.enums.dns_activity_status_id import DnsActivityStatusId
-from ocsf.v1_1_0.enums.dns_answer_flag_ids import DnsAnswerFlagIds
-from ocsf.v1_1_0.enums.dns_query_opcode_id import DnsQueryOpcodeId
-from ocsf.v1_1_0.enums.email_activity_activity_id import EmailActivityActivityId
-from ocsf.v1_1_0.enums.email_activity_direction_id import EmailActivityDirectionId
-from ocsf.v1_1_0.enums.email_activity_severity_id import EmailActivitySeverityId
-from ocsf.v1_1_0.enums.email_activity_status_id import EmailActivityStatusId
-from ocsf.v1_1_0.enums.email_file_activity_activity_id import EmailFileActivityActivityId
-from ocsf.v1_1_0.enums.email_file_activity_severity_id import EmailFileActivitySeverityId
-from ocsf.v1_1_0.enums.email_file_activity_status_id import EmailFileActivityStatusId
-from ocsf.v1_1_0.enums.email_url_activity_activity_id import EmailUrlActivityActivityId
-from ocsf.v1_1_0.enums.email_url_activity_severity_id import EmailUrlActivitySeverityId
-from ocsf.v1_1_0.enums.email_url_activity_status_id import EmailUrlActivityStatusId
-from ocsf.v1_1_0.enums.endpoint_type_id import EndpointTypeId
-from ocsf.v1_1_0.enums.entity_management_activity_id import EntityManagementActivityId
-from ocsf.v1_1_0.enums.entity_management_severity_id import EntityManagementSeverityId
-from ocsf.v1_1_0.enums.entity_management_status_id import EntityManagementStatusId
-from ocsf.v1_1_0.enums.file_activity_activity_id import FileActivityActivityId
-from ocsf.v1_1_0.enums.file_activity_severity_id import FileActivitySeverityId
-from ocsf.v1_1_0.enums.file_activity_status_id import FileActivityStatusId
-from ocsf.v1_1_0.enums.file_confidentiality_id import FileConfidentialityId
-from ocsf.v1_1_0.enums.file_hosting_activity_id import FileHostingActivityId
-from ocsf.v1_1_0.enums.file_hosting_severity_id import FileHostingSeverityId
-from ocsf.v1_1_0.enums.file_hosting_status_id import FileHostingStatusId
-from ocsf.v1_1_0.enums.file_type_id import FileTypeId
-from ocsf.v1_1_0.enums.finding_activity_id import FindingActivityId
-from ocsf.v1_1_0.enums.finding_confidence_id import FindingConfidenceId
-from ocsf.v1_1_0.enums.finding_severity_id import FindingSeverityId
-from ocsf.v1_1_0.enums.finding_status_id import FindingStatusId
-from ocsf.v1_1_0.enums.fingerprint_algorithm_id import FingerprintAlgorithmId
-from ocsf.v1_1_0.enums.ftp_activity_activity_id import FtpActivityActivityId
-from ocsf.v1_1_0.enums.ftp_activity_severity_id import FtpActivitySeverityId
-from ocsf.v1_1_0.enums.ftp_activity_status_id import FtpActivityStatusId
-from ocsf.v1_1_0.enums.group_management_activity_id import GroupManagementActivityId
-from ocsf.v1_1_0.enums.group_management_severity_id import GroupManagementSeverityId
-from ocsf.v1_1_0.enums.group_management_status_id import GroupManagementStatusId
-from ocsf.v1_1_0.enums.http_activity_activity_id import HttpActivityActivityId
-from ocsf.v1_1_0.enums.http_activity_severity_id import HttpActivitySeverityId
-from ocsf.v1_1_0.enums.http_activity_status_id import HttpActivityStatusId
-from ocsf.v1_1_0.enums.http_request_http_method import HttpRequestHttpMethod
-from ocsf.v1_1_0.enums.iam_severity_id import IamSeverityId
-from ocsf.v1_1_0.enums.iam_status_id import IamStatusId
-from ocsf.v1_1_0.enums.incident_finding_activity_id import IncidentFindingActivityId
-from ocsf.v1_1_0.enums.incident_finding_confidence_id import IncidentFindingConfidenceId
-from ocsf.v1_1_0.enums.incident_finding_impact_id import IncidentFindingImpactId
-from ocsf.v1_1_0.enums.incident_finding_priority_id import IncidentFindingPriorityId
-from ocsf.v1_1_0.enums.incident_finding_severity_id import IncidentFindingSeverityId
-from ocsf.v1_1_0.enums.incident_finding_status_id import IncidentFindingStatusId
-from ocsf.v1_1_0.enums.incident_finding_verdict_id import IncidentFindingVerdictId
-from ocsf.v1_1_0.enums.inventory_info_activity_id import InventoryInfoActivityId
-from ocsf.v1_1_0.enums.inventory_info_severity_id import InventoryInfoSeverityId
-from ocsf.v1_1_0.enums.inventory_info_status_id import InventoryInfoStatusId
-from ocsf.v1_1_0.enums.job_run_state_id import JobRunStateId
-from ocsf.v1_1_0.enums.kernel_activity_activity_id import KernelActivityActivityId
-from ocsf.v1_1_0.enums.kernel_activity_severity_id import KernelActivitySeverityId
-from ocsf.v1_1_0.enums.kernel_activity_status_id import KernelActivityStatusId
-from ocsf.v1_1_0.enums.kernel_extension_activity_id import KernelExtensionActivityId
-from ocsf.v1_1_0.enums.kernel_extension_severity_id import KernelExtensionSeverityId
-from ocsf.v1_1_0.enums.kernel_extension_status_id import KernelExtensionStatusId
-from ocsf.v1_1_0.enums.kernel_type_id import KernelTypeId
-from ocsf.v1_1_0.enums.kill_chain_phase_phase_id import KillChainPhasePhaseId
-from ocsf.v1_1_0.enums.malware_classification_ids import MalwareClassificationIds
-from ocsf.v1_1_0.enums.memory_activity_activity_id import MemoryActivityActivityId
-from ocsf.v1_1_0.enums.memory_activity_severity_id import MemoryActivitySeverityId
-from ocsf.v1_1_0.enums.memory_activity_status_id import MemoryActivityStatusId
-from ocsf.v1_1_0.enums.module_activity_activity_id import ModuleActivityActivityId
-from ocsf.v1_1_0.enums.module_activity_severity_id import ModuleActivitySeverityId
-from ocsf.v1_1_0.enums.module_activity_status_id import ModuleActivityStatusId
-from ocsf.v1_1_0.enums.module_load_type_id import ModuleLoadTypeId
-from ocsf.v1_1_0.enums.network_activity_severity_id import NetworkActivitySeverityId
-from ocsf.v1_1_0.enums.network_activity_status_id import NetworkActivityStatusId
-from ocsf.v1_1_0.enums.network_connection_info_boundary_id import NetworkConnectionInfoBoundaryId
-from ocsf.v1_1_0.enums.network_connection_info_direction_id import NetworkConnectionInfoDirectionId
-from ocsf.v1_1_0.enums.network_connection_info_protocol_ver_id import (
-    NetworkConnectionInfoProtocolVerId,
-)
-from ocsf.v1_1_0.enums.network_endpoint_type_id import NetworkEndpointTypeId
-from ocsf.v1_1_0.enums.network_file_activity_activity_id import NetworkFileActivityActivityId
-from ocsf.v1_1_0.enums.network_file_activity_severity_id import NetworkFileActivitySeverityId
-from ocsf.v1_1_0.enums.network_file_activity_status_id import NetworkFileActivityStatusId
-from ocsf.v1_1_0.enums.network_interface_type_id import NetworkInterfaceTypeId
-from ocsf.v1_1_0.enums.network_proxy_type_id import NetworkProxyTypeId
-from ocsf.v1_1_0.enums.network_severity_id import NetworkSeverityId
-from ocsf.v1_1_0.enums.network_status_id import NetworkStatusId
-from ocsf.v1_1_0.enums.ntp_activity_activity_id import NtpActivityActivityId
-from ocsf.v1_1_0.enums.ntp_activity_severity_id import NtpActivitySeverityId
-from ocsf.v1_1_0.enums.ntp_activity_status_id import NtpActivityStatusId
-from ocsf.v1_1_0.enums.ntp_activity_stratum_id import NtpActivityStratumId
-from ocsf.v1_1_0.enums.observable_type_id import ObservableTypeId
-from ocsf.v1_1_0.enums.os_type_id import OsTypeId
-from ocsf.v1_1_0.enums.patch_state_activity_id import PatchStateActivityId
-from ocsf.v1_1_0.enums.patch_state_severity_id import PatchStateSeverityId
-from ocsf.v1_1_0.enums.patch_state_status_id import PatchStateStatusId
-from ocsf.v1_1_0.enums.process_activity_activity_id import ProcessActivityActivityId
-from ocsf.v1_1_0.enums.process_activity_injection_type_id import ProcessActivityInjectionTypeId
-from ocsf.v1_1_0.enums.process_activity_severity_id import ProcessActivitySeverityId
-from ocsf.v1_1_0.enums.process_activity_status_id import ProcessActivityStatusId
-from ocsf.v1_1_0.enums.process_integrity_id import ProcessIntegrityId
-from ocsf.v1_1_0.enums.rdp_activity_activity_id import RdpActivityActivityId
-from ocsf.v1_1_0.enums.rdp_activity_severity_id import RdpActivitySeverityId
-from ocsf.v1_1_0.enums.rdp_activity_status_id import RdpActivityStatusId
-from ocsf.v1_1_0.enums.reputation_score_id import ReputationScoreId
-from ocsf.v1_1_0.enums.scan_activity_activity_id import ScanActivityActivityId
-from ocsf.v1_1_0.enums.scan_activity_severity_id import ScanActivitySeverityId
-from ocsf.v1_1_0.enums.scan_activity_status_id import ScanActivityStatusId
-from ocsf.v1_1_0.enums.scan_type_id import ScanTypeId
-from ocsf.v1_1_0.enums.scheduled_job_activity_activity_id import ScheduledJobActivityActivityId
-from ocsf.v1_1_0.enums.scheduled_job_activity_severity_id import ScheduledJobActivitySeverityId
-from ocsf.v1_1_0.enums.scheduled_job_activity_status_id import ScheduledJobActivityStatusId
-from ocsf.v1_1_0.enums.security_finding_activity_id import SecurityFindingActivityId
-from ocsf.v1_1_0.enums.security_finding_confidence_id import SecurityFindingConfidenceId
-from ocsf.v1_1_0.enums.security_finding_impact_id import SecurityFindingImpactId
-from ocsf.v1_1_0.enums.security_finding_risk_level_id import SecurityFindingRiskLevelId
-from ocsf.v1_1_0.enums.security_finding_severity_id import SecurityFindingSeverityId
-from ocsf.v1_1_0.enums.security_finding_state_id import SecurityFindingStateId
-from ocsf.v1_1_0.enums.security_finding_status_id import SecurityFindingStatusId
-from ocsf.v1_1_0.enums.security_state_state_id import SecurityStateStateId
-from ocsf.v1_1_0.enums.smb_activity_activity_id import SmbActivityActivityId
-from ocsf.v1_1_0.enums.smb_activity_severity_id import SmbActivitySeverityId
-from ocsf.v1_1_0.enums.smb_activity_share_type_id import SmbActivityShareTypeId
-from ocsf.v1_1_0.enums.smb_activity_status_id import SmbActivityStatusId
-from ocsf.v1_1_0.enums.ssh_activity_auth_type_id import SshActivityAuthTypeId
-from ocsf.v1_1_0.enums.ssh_activity_severity_id import SshActivitySeverityId
-from ocsf.v1_1_0.enums.ssh_activity_status_id import SshActivityStatusId
-from ocsf.v1_1_0.enums.system_severity_id import SystemSeverityId
-from ocsf.v1_1_0.enums.system_status_id import SystemStatusId
-from ocsf.v1_1_0.enums.tls_extension_type_id import TlsExtensionTypeId
-from ocsf.v1_1_0.enums.url_category_ids import UrlCategoryIds
-from ocsf.v1_1_0.enums.user_access_activity_id import UserAccessActivityId
-from ocsf.v1_1_0.enums.user_access_severity_id import UserAccessSeverityId
-from ocsf.v1_1_0.enums.user_access_status_id import UserAccessStatusId
-from ocsf.v1_1_0.enums.user_inventory_activity_id import UserInventoryActivityId
-from ocsf.v1_1_0.enums.user_inventory_severity_id import UserInventorySeverityId
-from ocsf.v1_1_0.enums.user_inventory_status_id import UserInventoryStatusId
-from ocsf.v1_1_0.enums.user_type_id import UserTypeId
-from ocsf.v1_1_0.enums.vulnerability_finding_activity_id import VulnerabilityFindingActivityId
-from ocsf.v1_1_0.enums.vulnerability_finding_confidence_id import VulnerabilityFindingConfidenceId
-from ocsf.v1_1_0.enums.vulnerability_finding_severity_id import VulnerabilityFindingSeverityId
-from ocsf.v1_1_0.enums.vulnerability_finding_status_id import VulnerabilityFindingStatusId
-from ocsf.v1_1_0.enums.web_resource_access_activity_activity_id import (
-    WebResourceAccessActivityActivityId,
-)
-from ocsf.v1_1_0.enums.web_resource_access_activity_severity_id import (
-    WebResourceAccessActivitySeverityId,
-)
-from ocsf.v1_1_0.enums.web_resource_access_activity_status_id import (
-    WebResourceAccessActivityStatusId,
-)
-from ocsf.v1_1_0.enums.web_resources_activity_activity_id import WebResourcesActivityActivityId
-from ocsf.v1_1_0.enums.web_resources_activity_severity_id import WebResourcesActivitySeverityId
-from ocsf.v1_1_0.enums.web_resources_activity_status_id import WebResourcesActivityStatusId
+from __future__ import annotations
+
+import sys
+from typing import Any
 
 __all__ = [
     "AccountChangeActivityId",
@@ -433,3 +214,258 @@ __all__ = [
     "WebResourcesActivitySeverityId",
     "WebResourcesActivityStatusId",
 ]
+
+# Mapping of class names to their module file names
+_MODULE_MAP = {
+    "AccountChangeActivityId": "account_change_activity_id",
+    "AccountChangeSeverityId": "account_change_severity_id",
+    "AccountChangeStatusId": "account_change_status_id",
+    "AccountTypeId": "account_type_id",
+    "AnalyticTypeId": "analytic_type_id",
+    "ApiActivityActivityId": "api_activity_activity_id",
+    "ApiActivitySeverityId": "api_activity_severity_id",
+    "ApiActivityStatusId": "api_activity_status_id",
+    "ApplicationLifecycleActivityId": "application_lifecycle_activity_id",
+    "ApplicationLifecycleSeverityId": "application_lifecycle_severity_id",
+    "ApplicationLifecycleStatusId": "application_lifecycle_status_id",
+    "ApplicationSeverityId": "application_severity_id",
+    "ApplicationStatusId": "application_status_id",
+    "AuthenticationActivityId": "authentication_activity_id",
+    "AuthenticationAuthProtocolId": "authentication_auth_protocol_id",
+    "AuthenticationLogonTypeId": "authentication_logon_type_id",
+    "AuthenticationSeverityId": "authentication_severity_id",
+    "AuthenticationStatusId": "authentication_status_id",
+    "AuthorizeSessionActivityId": "authorize_session_activity_id",
+    "AuthorizeSessionSeverityId": "authorize_session_severity_id",
+    "AuthorizeSessionStatusId": "authorize_session_status_id",
+    "BaseEventSeverityId": "base_event_severity_id",
+    "BaseEventStatusId": "base_event_status_id",
+    "ComplianceFindingActivityId": "compliance_finding_activity_id",
+    "ComplianceFindingConfidenceId": "compliance_finding_confidence_id",
+    "ComplianceFindingSeverityId": "compliance_finding_severity_id",
+    "ComplianceFindingStatusId": "compliance_finding_status_id",
+    "ComplianceStatusId": "compliance_status_id",
+    "ConfigStateActivityId": "config_state_activity_id",
+    "ConfigStateSeverityId": "config_state_severity_id",
+    "ConfigStateStatusId": "config_state_status_id",
+    "CvssDepth": "cvss_depth",
+    "DatabaseTypeId": "database_type_id",
+    "DatabucketTypeId": "databucket_type_id",
+    "DatastoreActivityActivityId": "datastore_activity_activity_id",
+    "DatastoreActivitySeverityId": "datastore_activity_severity_id",
+    "DatastoreActivityStatusId": "datastore_activity_status_id",
+    "DatastoreActivityTypeId": "datastore_activity_type_id",
+    "DetectionFindingActivityId": "detection_finding_activity_id",
+    "DetectionFindingConfidenceId": "detection_finding_confidence_id",
+    "DetectionFindingImpactId": "detection_finding_impact_id",
+    "DetectionFindingRiskLevelId": "detection_finding_risk_level_id",
+    "DetectionFindingSeverityId": "detection_finding_severity_id",
+    "DetectionFindingStatusId": "detection_finding_status_id",
+    "DeviceConfigStateChangeActivityId": "device_config_state_change_activity_id",
+    "DeviceConfigStateChangePrevSecurityLevelId": "device_config_state_change_prev_security_level_id",
+    "DeviceConfigStateChangeSecurityLevelId": "device_config_state_change_security_level_id",
+    "DeviceConfigStateChangeSeverityId": "device_config_state_change_severity_id",
+    "DeviceConfigStateChangeStatusId": "device_config_state_change_status_id",
+    "DeviceRiskLevelId": "device_risk_level_id",
+    "DeviceTypeId": "device_type_id",
+    "DhcpActivityActivityId": "dhcp_activity_activity_id",
+    "DhcpActivitySeverityId": "dhcp_activity_severity_id",
+    "DhcpActivityStatusId": "dhcp_activity_status_id",
+    "DigitalSignatureAlgorithmId": "digital_signature_algorithm_id",
+    "DiscoveryActivityId": "discovery_activity_id",
+    "DiscoveryResultActivityId": "discovery_result_activity_id",
+    "DiscoveryResultSeverityId": "discovery_result_severity_id",
+    "DiscoveryResultStatusId": "discovery_result_status_id",
+    "DiscoverySeverityId": "discovery_severity_id",
+    "DiscoveryStatusId": "discovery_status_id",
+    "DnsActivityActivityId": "dns_activity_activity_id",
+    "DnsActivityRcodeId": "dns_activity_rcode_id",
+    "DnsActivitySeverityId": "dns_activity_severity_id",
+    "DnsActivityStatusId": "dns_activity_status_id",
+    "DnsAnswerFlagIds": "dns_answer_flag_ids",
+    "DnsQueryOpcodeId": "dns_query_opcode_id",
+    "EmailActivityActivityId": "email_activity_activity_id",
+    "EmailActivityDirectionId": "email_activity_direction_id",
+    "EmailActivitySeverityId": "email_activity_severity_id",
+    "EmailActivityStatusId": "email_activity_status_id",
+    "EmailFileActivityActivityId": "email_file_activity_activity_id",
+    "EmailFileActivitySeverityId": "email_file_activity_severity_id",
+    "EmailFileActivityStatusId": "email_file_activity_status_id",
+    "EmailUrlActivityActivityId": "email_url_activity_activity_id",
+    "EmailUrlActivitySeverityId": "email_url_activity_severity_id",
+    "EmailUrlActivityStatusId": "email_url_activity_status_id",
+    "EndpointTypeId": "endpoint_type_id",
+    "EntityManagementActivityId": "entity_management_activity_id",
+    "EntityManagementSeverityId": "entity_management_severity_id",
+    "EntityManagementStatusId": "entity_management_status_id",
+    "FileActivityActivityId": "file_activity_activity_id",
+    "FileActivitySeverityId": "file_activity_severity_id",
+    "FileActivityStatusId": "file_activity_status_id",
+    "FileConfidentialityId": "file_confidentiality_id",
+    "FileHostingActivityId": "file_hosting_activity_id",
+    "FileHostingSeverityId": "file_hosting_severity_id",
+    "FileHostingStatusId": "file_hosting_status_id",
+    "FileTypeId": "file_type_id",
+    "FindingActivityId": "finding_activity_id",
+    "FindingConfidenceId": "finding_confidence_id",
+    "FindingSeverityId": "finding_severity_id",
+    "FindingStatusId": "finding_status_id",
+    "FingerprintAlgorithmId": "fingerprint_algorithm_id",
+    "FtpActivityActivityId": "ftp_activity_activity_id",
+    "FtpActivitySeverityId": "ftp_activity_severity_id",
+    "FtpActivityStatusId": "ftp_activity_status_id",
+    "GroupManagementActivityId": "group_management_activity_id",
+    "GroupManagementSeverityId": "group_management_severity_id",
+    "GroupManagementStatusId": "group_management_status_id",
+    "HttpActivityActivityId": "http_activity_activity_id",
+    "HttpActivitySeverityId": "http_activity_severity_id",
+    "HttpActivityStatusId": "http_activity_status_id",
+    "HttpRequestHttpMethod": "http_request_http_method",
+    "IamSeverityId": "iam_severity_id",
+    "IamStatusId": "iam_status_id",
+    "IncidentFindingActivityId": "incident_finding_activity_id",
+    "IncidentFindingConfidenceId": "incident_finding_confidence_id",
+    "IncidentFindingImpactId": "incident_finding_impact_id",
+    "IncidentFindingPriorityId": "incident_finding_priority_id",
+    "IncidentFindingSeverityId": "incident_finding_severity_id",
+    "IncidentFindingStatusId": "incident_finding_status_id",
+    "IncidentFindingVerdictId": "incident_finding_verdict_id",
+    "InventoryInfoActivityId": "inventory_info_activity_id",
+    "InventoryInfoSeverityId": "inventory_info_severity_id",
+    "InventoryInfoStatusId": "inventory_info_status_id",
+    "JobRunStateId": "job_run_state_id",
+    "KernelActivityActivityId": "kernel_activity_activity_id",
+    "KernelActivitySeverityId": "kernel_activity_severity_id",
+    "KernelActivityStatusId": "kernel_activity_status_id",
+    "KernelExtensionActivityId": "kernel_extension_activity_id",
+    "KernelExtensionSeverityId": "kernel_extension_severity_id",
+    "KernelExtensionStatusId": "kernel_extension_status_id",
+    "KernelTypeId": "kernel_type_id",
+    "KillChainPhasePhaseId": "kill_chain_phase_phase_id",
+    "MalwareClassificationIds": "malware_classification_ids",
+    "MemoryActivityActivityId": "memory_activity_activity_id",
+    "MemoryActivitySeverityId": "memory_activity_severity_id",
+    "MemoryActivityStatusId": "memory_activity_status_id",
+    "ModuleActivityActivityId": "module_activity_activity_id",
+    "ModuleActivitySeverityId": "module_activity_severity_id",
+    "ModuleActivityStatusId": "module_activity_status_id",
+    "ModuleLoadTypeId": "module_load_type_id",
+    "NetworkActivitySeverityId": "network_activity_severity_id",
+    "NetworkActivityStatusId": "network_activity_status_id",
+    "NetworkConnectionInfoBoundaryId": "network_connection_info_boundary_id",
+    "NetworkConnectionInfoDirectionId": "network_connection_info_direction_id",
+    "NetworkConnectionInfoProtocolVerId": "network_connection_info_protocol_ver_id",
+    "NetworkEndpointTypeId": "network_endpoint_type_id",
+    "NetworkFileActivityActivityId": "network_file_activity_activity_id",
+    "NetworkFileActivitySeverityId": "network_file_activity_severity_id",
+    "NetworkFileActivityStatusId": "network_file_activity_status_id",
+    "NetworkInterfaceTypeId": "network_interface_type_id",
+    "NetworkProxyTypeId": "network_proxy_type_id",
+    "NetworkSeverityId": "network_severity_id",
+    "NetworkStatusId": "network_status_id",
+    "NtpActivityActivityId": "ntp_activity_activity_id",
+    "NtpActivitySeverityId": "ntp_activity_severity_id",
+    "NtpActivityStatusId": "ntp_activity_status_id",
+    "NtpActivityStratumId": "ntp_activity_stratum_id",
+    "ObservableTypeId": "observable_type_id",
+    "OsTypeId": "os_type_id",
+    "PatchStateActivityId": "patch_state_activity_id",
+    "PatchStateSeverityId": "patch_state_severity_id",
+    "PatchStateStatusId": "patch_state_status_id",
+    "ProcessActivityActivityId": "process_activity_activity_id",
+    "ProcessActivityInjectionTypeId": "process_activity_injection_type_id",
+    "ProcessActivitySeverityId": "process_activity_severity_id",
+    "ProcessActivityStatusId": "process_activity_status_id",
+    "ProcessIntegrityId": "process_integrity_id",
+    "RdpActivityActivityId": "rdp_activity_activity_id",
+    "RdpActivitySeverityId": "rdp_activity_severity_id",
+    "RdpActivityStatusId": "rdp_activity_status_id",
+    "ReputationScoreId": "reputation_score_id",
+    "ScanActivityActivityId": "scan_activity_activity_id",
+    "ScanActivitySeverityId": "scan_activity_severity_id",
+    "ScanActivityStatusId": "scan_activity_status_id",
+    "ScanTypeId": "scan_type_id",
+    "ScheduledJobActivityActivityId": "scheduled_job_activity_activity_id",
+    "ScheduledJobActivitySeverityId": "scheduled_job_activity_severity_id",
+    "ScheduledJobActivityStatusId": "scheduled_job_activity_status_id",
+    "SecurityFindingActivityId": "security_finding_activity_id",
+    "SecurityFindingConfidenceId": "security_finding_confidence_id",
+    "SecurityFindingImpactId": "security_finding_impact_id",
+    "SecurityFindingRiskLevelId": "security_finding_risk_level_id",
+    "SecurityFindingSeverityId": "security_finding_severity_id",
+    "SecurityFindingStateId": "security_finding_state_id",
+    "SecurityFindingStatusId": "security_finding_status_id",
+    "SecurityStateStateId": "security_state_state_id",
+    "SmbActivityActivityId": "smb_activity_activity_id",
+    "SmbActivitySeverityId": "smb_activity_severity_id",
+    "SmbActivityShareTypeId": "smb_activity_share_type_id",
+    "SmbActivityStatusId": "smb_activity_status_id",
+    "SshActivityAuthTypeId": "ssh_activity_auth_type_id",
+    "SshActivitySeverityId": "ssh_activity_severity_id",
+    "SshActivityStatusId": "ssh_activity_status_id",
+    "SystemSeverityId": "system_severity_id",
+    "SystemStatusId": "system_status_id",
+    "TlsExtensionTypeId": "tls_extension_type_id",
+    "UrlCategoryIds": "url_category_ids",
+    "UserAccessActivityId": "user_access_activity_id",
+    "UserAccessSeverityId": "user_access_severity_id",
+    "UserAccessStatusId": "user_access_status_id",
+    "UserInventoryActivityId": "user_inventory_activity_id",
+    "UserInventorySeverityId": "user_inventory_severity_id",
+    "UserInventoryStatusId": "user_inventory_status_id",
+    "UserTypeId": "user_type_id",
+    "VulnerabilityFindingActivityId": "vulnerability_finding_activity_id",
+    "VulnerabilityFindingConfidenceId": "vulnerability_finding_confidence_id",
+    "VulnerabilityFindingSeverityId": "vulnerability_finding_severity_id",
+    "VulnerabilityFindingStatusId": "vulnerability_finding_status_id",
+    "WebResourceAccessActivityActivityId": "web_resource_access_activity_activity_id",
+    "WebResourceAccessActivitySeverityId": "web_resource_access_activity_severity_id",
+    "WebResourceAccessActivityStatusId": "web_resource_access_activity_status_id",
+    "WebResourcesActivityActivityId": "web_resources_activity_activity_id",
+    "WebResourcesActivitySeverityId": "web_resources_activity_severity_id",
+    "WebResourcesActivityStatusId": "web_resources_activity_status_id",
+}
+
+_imported: set[str] = set()
+_rebuild_triggered = False
+
+
+def __getattr__(name: str) -> Any:
+    """Lazily import symbols and trigger model rebuilding if needed."""
+    global _rebuild_triggered
+
+    if name not in __all__:
+        raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+
+    # Check if already imported and cached
+    if name in _imported:
+        return globals()[name]
+
+    # Import from individual module file
+    module_file = _MODULE_MAP[name]
+    module_path = f"{__name__}.{module_file}"
+    module = __import__(module_path, fromlist=[name])
+    symbol = getattr(module, name)
+
+    # Cache in globals
+    globals()[name] = symbol
+    _imported.add(name)
+
+    # For models (objects/events), ensure they're rebuilt via version module
+    # Only trigger once to avoid recursion
+    if False:
+        if not _rebuild_triggered:
+            _rebuild_triggered = True
+            # Trigger version-level batch rebuild
+            version_module_name = ".".join(__name__.split(".")[:-1])
+            version_module = sys.modules.get(version_module_name)
+            if version_module and hasattr(version_module, "_rebuild_all_models"):
+                # Call rebuild function directly to avoid recursion through __getattr__
+                version_module._rebuild_all_models()
+
+    return symbol
+
+
+def __dir__() -> list[str]:
+    """Support for dir() and autocomplete."""
+    return sorted(__all__)

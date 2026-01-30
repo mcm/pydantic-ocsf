@@ -50,9 +50,15 @@ line-length = 100
 target-version = "py39"
 
 [tool.ruff.lint]
-select = ["E", "F", "I", "UP", "B", "SIM"]
-# Skip line-too-long because we're dealing with that in formatting check
-ignore = ["E501"]
+select = ["ANN", "E", "F", "I", "UP", "B", "SIM", "S"]
+# ANN401: Skip because pydantic does enough type checking for us, and Any is actually needed some places for OCSF
+# E501: Skip because we're dealing with that in formatting check
+# S101: Using assert for type narrowing is safe
+ignore = ["ANN401", "E501", "S101"]
+
+[tool.ruff.lint.per-file-ignores]
+# S101: Assertions are fine in tests
+"tests/*" = ["ANN"]
 
 [tool.mypy]
 python_version = "3.9"

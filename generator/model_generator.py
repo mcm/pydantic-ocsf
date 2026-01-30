@@ -35,7 +35,7 @@ class FieldInfo:
 class ModelGenerator:
     """Generate Pydantic models from OCSF schema."""
 
-    def __init__(self, schema: ParsedSchema, output_dir: Path):
+    def __init__(self, schema: ParsedSchema, output_dir: Path) -> None:
         self.schema = schema
         self.output_dir = output_dir
         # Handle both "v1.2.0" and "1.7.0" formats
@@ -520,68 +520,168 @@ class ModelGenerator:
         """Generate __init__.py files for all packages."""
         template = self.env.get_template("init.py.jinja2")
 
-        # Enums __init__.py
-        enum_imports = [
-            f"from ocsf.{self.version_module}.enums.{self._class_to_module(name)} import {name}"
-            for name in sorted(enum_names)
-        ]
-        content = template.render(
-            description=f"OCSF {self.schema.version} enumerations.",
-            imports=enum_imports,
-            exports=sorted(enum_names),
+        # Generate submodule __init__.py files with lazy loading
+        # This ensures models are properly rebuilt even when imported from submodules
+
+        # Enums __init__.py - lazy loading without rebuild
+        enum_exports = sorted(enum_names)
+        enum_name_to_file = {name: self._class_to_module(name) for name in enum_names}
+        content = self._generate_delegating_init(
+            f"OCSF {self.schema.version} enumerations.",
+            enum_exports,
+            "enums",
+            enum_name_to_file,
         )
         (version_dir / "enums" / "__init__.py").write_text(content)
 
-        # Objects __init__.py - use original names for imports
-        object_imports = [
-            f"from ocsf.{self.version_module}.objects.{orig_name} import {class_name}"
-            for class_name, orig_name in sorted(object_names)
-        ]
-        object_exports = [class_name for class_name, _ in object_names]
-        content = template.render(
-            description=f"OCSF {self.schema.version} objects.",
-            imports=object_imports,
-            exports=sorted(object_exports),
+        # Objects __init__.py - lazy loading with rebuild trigger
+        object_exports = sorted([class_name for class_name, _ in object_names])
+        object_name_to_file = {class_name: orig_name for class_name, orig_name in object_names}
+        content = self._generate_delegating_init(
+            f"OCSF {self.schema.version} objects.",
+            object_exports,
+            "objects",
+            object_name_to_file,
         )
         (version_dir / "objects" / "__init__.py").write_text(content)
 
-        # Events __init__.py - use original names for imports
-        event_imports = [
-            f"from ocsf.{self.version_module}.events.{orig_name} import {class_name}"
-            for class_name, orig_name in sorted(event_names)
-        ]
-        event_exports = [class_name for class_name, _ in event_names]
-        content = template.render(
-            description=f"OCSF {self.schema.version} event classes.",
-            imports=event_imports,
-            exports=sorted(event_exports),
+        # Events __init__.py - lazy loading with rebuild trigger
+        event_exports = sorted([class_name for class_name, _ in event_names])
+        event_name_to_file = {class_name: orig_name for class_name, orig_name in event_names}
+        content = self._generate_delegating_init(
+            f"OCSF {self.schema.version} event classes.",
+            event_exports,
+            "events",
+            event_name_to_file,
         )
         (version_dir / "events" / "__init__.py").write_text(content)
 
-        # Version __init__.py
+        # Version __init__.py (with lazy imports for performance)
         all_exports = sorted(enum_names + object_exports + event_exports)
-        # Generate explicit imports instead of star imports
-        version_imports = []
-        # Import enums explicitly
+
+        # Build lazy import map: (name, full_module_path, class_name)
+        lazy_import_map = []
+        # Add enums
         for enum_name in sorted(enum_names):
-            version_imports.append(f"from ocsf.{self.version_module}.enums import {enum_name}")
-        # Import objects explicitly
+            lazy_import_map.append((enum_name, f"ocsf.{self.version_module}.enums", enum_name))
+        # Add objects
         for class_name in sorted(object_exports):
-            version_imports.append(f"from ocsf.{self.version_module}.objects import {class_name}")
-        # Import events explicitly
+            lazy_import_map.append((class_name, f"ocsf.{self.version_module}.objects", class_name))
+        # Add events
         for class_name in sorted(event_exports):
-            version_imports.append(f"from ocsf.{self.version_module}.events import {class_name}")
+            lazy_import_map.append((class_name, f"ocsf.{self.version_module}.events", class_name))
+
         # Build list of models to rebuild (objects and events, not enums)
         rebuild_models = [
             {"name": class_name, "is_model": True} for class_name in object_exports + event_exports
         ]
+
+        # For backward compatibility, we could keep version_imports for TYPE_CHECKING
+        version_imports = []
+        for enum_name in sorted(enum_names):
+            version_imports.append(f"from ocsf.{self.version_module}.enums import {enum_name}")
+        for class_name in sorted(object_exports):
+            version_imports.append(f"from ocsf.{self.version_module}.objects import {class_name}")
+        for class_name in sorted(event_exports):
+            version_imports.append(f"from ocsf.{self.version_module}.events import {class_name}")
+
         content = template.render(
             description=f"OCSF {self.schema.version} Pydantic models.",
             imports=version_imports,
             exports=all_exports,
             rebuild_models=rebuild_models,
+            lazy_imports=True,  # Enable lazy imports for version-level init
+            lazy_import_map=lazy_import_map,
         )
         (version_dir / "__init__.py").write_text(content)
+
+    def _generate_delegating_init(
+        self,
+        description: str,
+        exports: list[str],
+        submodule_type: str,
+        name_to_file: dict[str, str],
+    ) -> str:
+        """Generate a submodule __init__.py that lazily imports with proper rebuild handling.
+
+        Args:
+            description: Module docstring
+            exports: List of exported names
+            submodule_type: Type of submodule ("enums", "objects", or "events")
+            name_to_file: Mapping of class names to their source file names
+        """
+        exports_str = ",\n    ".join(f'"{name}"' for name in exports)
+
+        # Build import map
+        import_map_entries = []
+        for name in exports:
+            file_name = name_to_file.get(name, self._class_to_module(name))
+            import_map_entries.append(f'    "{name}": "{file_name}"')
+        import_map_str = ",\n".join(import_map_entries)
+
+        # Determine if this submodule contains models that need rebuilding
+        needs_rebuild = submodule_type in ("objects", "events")
+
+        return f'''"""{description}"""
+
+from __future__ import annotations
+
+import sys
+from typing import Any
+
+__all__ = [
+    {exports_str},
+]
+
+# Mapping of class names to their module file names
+_MODULE_MAP = {{
+{import_map_str},
+}}
+
+_imported: set[str] = set()
+_rebuild_triggered = False
+
+
+def __getattr__(name: str) -> Any:
+    """Lazily import symbols and trigger model rebuilding if needed."""
+    global _rebuild_triggered
+
+    if name not in __all__:
+        raise AttributeError(f"module {{__name__!r}} has no attribute {{name!r}}")
+
+    # Check if already imported and cached
+    if name in _imported:
+        return globals()[name]
+
+    # Import from individual module file
+    module_file = _MODULE_MAP[name]
+    module_path = f"{{__name__}}.{{module_file}}"
+    module = __import__(module_path, fromlist=[name])
+    symbol = getattr(module, name)
+
+    # Cache in globals
+    globals()[name] = symbol
+    _imported.add(name)
+
+    # For models (objects/events), ensure they're rebuilt via version module
+    # Only trigger once to avoid recursion
+    {"if True:" if needs_rebuild else "if False:"}
+        if not _rebuild_triggered:
+            _rebuild_triggered = True
+            # Trigger version-level batch rebuild
+            version_module_name = ".".join(__name__.split(".")[:-1])
+            version_module = sys.modules.get(version_module_name)
+            if version_module and hasattr(version_module, "_rebuild_all_models"):
+                # Call rebuild function directly to avoid recursion through __getattr__
+                version_module._rebuild_all_models()
+
+    return symbol
+
+
+def __dir__() -> list[str]:
+    """Support for dir() and autocomplete."""
+    return sorted(__all__)
+'''
 
     def _class_to_module(self, class_name: str) -> str:
         """Convert PascalCase class name back to snake_case module name."""

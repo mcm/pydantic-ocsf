@@ -21,7 +21,33 @@ The default imports are from OCSF 1.7.0 (latest). For other versions:
     from ocsf.v1_0_0 import FileActivity  # OCSF 1.0.0
 """
 
+from __future__ import annotations
+
+from typing import Any
+
 from ocsf._base import OCSFBaseModel as OCSFBaseModel
-from ocsf.v1_7_0 import *  # noqa: F401, F403
 
 __version__ = "1.7.0.20260130"
+
+# Lazy import delegation to latest version (1.7.0)
+# This avoids importing everything at module load time
+
+
+def __getattr__(name: str) -> Any:
+    """Lazy import symbols from the latest OCSF version."""
+    # Delegate to the latest version module
+    import importlib
+
+    try:
+        module = importlib.import_module("ocsf.v1_7_0")
+        return getattr(module, name)
+    except AttributeError:
+        raise AttributeError(f"module {__name__!r} has no attribute {name!r}") from None
+
+
+def __dir__() -> list[str]:
+    """Support for dir() and autocomplete."""
+    import importlib
+
+    module = importlib.import_module("ocsf.v1_7_0")
+    return sorted(["OCSFBaseModel", "__version__"] + list(getattr(module, "__all__", [])))

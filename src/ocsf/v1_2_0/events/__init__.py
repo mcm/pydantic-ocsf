@@ -1,63 +1,9 @@
 """OCSF v1.2.0 event classes."""
 
-from ocsf.v1_2_0.events.account_change import AccountChange
-from ocsf.v1_2_0.events.admin_group_query import AdminGroupQuery
-from ocsf.v1_2_0.events.api_activity import ApiActivity
-from ocsf.v1_2_0.events.application_lifecycle import ApplicationLifecycle
-from ocsf.v1_2_0.events.authentication import Authentication
-from ocsf.v1_2_0.events.authorize_session import AuthorizeSession
-from ocsf.v1_2_0.events.compliance_finding import ComplianceFinding
-from ocsf.v1_2_0.events.config_state import ConfigState
-from ocsf.v1_2_0.events.data_security_finding import DataSecurityFinding
-from ocsf.v1_2_0.events.datastore_activity import DatastoreActivity
-from ocsf.v1_2_0.events.detection_finding import DetectionFinding
-from ocsf.v1_2_0.events.device_config_state_change import DeviceConfigStateChange
-from ocsf.v1_2_0.events.dhcp_activity import DhcpActivity
-from ocsf.v1_2_0.events.dns_activity import DnsActivity
-from ocsf.v1_2_0.events.email_activity import EmailActivity
-from ocsf.v1_2_0.events.email_file_activity import EmailFileActivity
-from ocsf.v1_2_0.events.email_url_activity import EmailUrlActivity
-from ocsf.v1_2_0.events.entity_management import EntityManagement
-from ocsf.v1_2_0.events.file_activity import FileActivity
-from ocsf.v1_2_0.events.file_hosting import FileHosting
-from ocsf.v1_2_0.events.file_query import FileQuery
-from ocsf.v1_2_0.events.folder_query import FolderQuery
-from ocsf.v1_2_0.events.ftp_activity import FtpActivity
-from ocsf.v1_2_0.events.group_management import GroupManagement
-from ocsf.v1_2_0.events.http_activity import HttpActivity
-from ocsf.v1_2_0.events.incident_finding import IncidentFinding
-from ocsf.v1_2_0.events.inventory_info import InventoryInfo
-from ocsf.v1_2_0.events.job_query import JobQuery
-from ocsf.v1_2_0.events.kernel_activity import KernelActivity
-from ocsf.v1_2_0.events.kernel_extension import KernelExtension
-from ocsf.v1_2_0.events.kernel_object_query import KernelObjectQuery
-from ocsf.v1_2_0.events.memory_activity import MemoryActivity
-from ocsf.v1_2_0.events.module_activity import ModuleActivity
-from ocsf.v1_2_0.events.module_query import ModuleQuery
-from ocsf.v1_2_0.events.network_activity import NetworkActivity
-from ocsf.v1_2_0.events.network_connection_query import NetworkConnectionQuery
-from ocsf.v1_2_0.events.network_file_activity import NetworkFileActivity
-from ocsf.v1_2_0.events.networks_query import NetworksQuery
-from ocsf.v1_2_0.events.ntp_activity import NtpActivity
-from ocsf.v1_2_0.events.patch_state import PatchState
-from ocsf.v1_2_0.events.peripheral_device_query import PeripheralDeviceQuery
-from ocsf.v1_2_0.events.process_activity import ProcessActivity
-from ocsf.v1_2_0.events.process_query import ProcessQuery
-from ocsf.v1_2_0.events.rdp_activity import RdpActivity
-from ocsf.v1_2_0.events.scan_activity import ScanActivity
-from ocsf.v1_2_0.events.scheduled_job_activity import ScheduledJobActivity
-from ocsf.v1_2_0.events.security_finding import SecurityFinding
-from ocsf.v1_2_0.events.service_query import ServiceQuery
-from ocsf.v1_2_0.events.session_query import SessionQuery
-from ocsf.v1_2_0.events.smb_activity import SmbActivity
-from ocsf.v1_2_0.events.ssh_activity import SshActivity
-from ocsf.v1_2_0.events.tunnel_activity import TunnelActivity
-from ocsf.v1_2_0.events.user_access import UserAccess
-from ocsf.v1_2_0.events.user_inventory import UserInventory
-from ocsf.v1_2_0.events.user_query import UserQuery
-from ocsf.v1_2_0.events.vulnerability_finding import VulnerabilityFinding
-from ocsf.v1_2_0.events.web_resource_access_activity import WebResourceAccessActivity
-from ocsf.v1_2_0.events.web_resources_activity import WebResourcesActivity
+from __future__ import annotations
+
+import sys
+from typing import Any
 
 __all__ = [
     "AccountChange",
@@ -119,3 +65,109 @@ __all__ = [
     "WebResourceAccessActivity",
     "WebResourcesActivity",
 ]
+
+# Mapping of class names to their module file names
+_MODULE_MAP = {
+    "AccountChange": "account_change",
+    "AdminGroupQuery": "admin_group_query",
+    "ApiActivity": "api_activity",
+    "ApplicationLifecycle": "application_lifecycle",
+    "Authentication": "authentication",
+    "AuthorizeSession": "authorize_session",
+    "ComplianceFinding": "compliance_finding",
+    "ConfigState": "config_state",
+    "DataSecurityFinding": "data_security_finding",
+    "DatastoreActivity": "datastore_activity",
+    "DetectionFinding": "detection_finding",
+    "DeviceConfigStateChange": "device_config_state_change",
+    "DhcpActivity": "dhcp_activity",
+    "DnsActivity": "dns_activity",
+    "EmailActivity": "email_activity",
+    "EmailFileActivity": "email_file_activity",
+    "EmailUrlActivity": "email_url_activity",
+    "EntityManagement": "entity_management",
+    "FileActivity": "file_activity",
+    "FileHosting": "file_hosting",
+    "FileQuery": "file_query",
+    "FolderQuery": "folder_query",
+    "FtpActivity": "ftp_activity",
+    "GroupManagement": "group_management",
+    "HttpActivity": "http_activity",
+    "IncidentFinding": "incident_finding",
+    "InventoryInfo": "inventory_info",
+    "JobQuery": "job_query",
+    "KernelActivity": "kernel_activity",
+    "KernelExtension": "kernel_extension",
+    "KernelObjectQuery": "kernel_object_query",
+    "MemoryActivity": "memory_activity",
+    "ModuleActivity": "module_activity",
+    "ModuleQuery": "module_query",
+    "NetworkActivity": "network_activity",
+    "NetworkConnectionQuery": "network_connection_query",
+    "NetworkFileActivity": "network_file_activity",
+    "NetworksQuery": "networks_query",
+    "NtpActivity": "ntp_activity",
+    "PatchState": "patch_state",
+    "PeripheralDeviceQuery": "peripheral_device_query",
+    "ProcessActivity": "process_activity",
+    "ProcessQuery": "process_query",
+    "RdpActivity": "rdp_activity",
+    "ScanActivity": "scan_activity",
+    "ScheduledJobActivity": "scheduled_job_activity",
+    "SecurityFinding": "security_finding",
+    "ServiceQuery": "service_query",
+    "SessionQuery": "session_query",
+    "SmbActivity": "smb_activity",
+    "SshActivity": "ssh_activity",
+    "TunnelActivity": "tunnel_activity",
+    "UserAccess": "user_access",
+    "UserInventory": "user_inventory",
+    "UserQuery": "user_query",
+    "VulnerabilityFinding": "vulnerability_finding",
+    "WebResourceAccessActivity": "web_resource_access_activity",
+    "WebResourcesActivity": "web_resources_activity",
+}
+
+_imported: set[str] = set()
+_rebuild_triggered = False
+
+
+def __getattr__(name: str) -> Any:
+    """Lazily import symbols and trigger model rebuilding if needed."""
+    global _rebuild_triggered
+
+    if name not in __all__:
+        raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+
+    # Check if already imported and cached
+    if name in _imported:
+        return globals()[name]
+
+    # Import from individual module file
+    module_file = _MODULE_MAP[name]
+    module_path = f"{__name__}.{module_file}"
+    module = __import__(module_path, fromlist=[name])
+    symbol = getattr(module, name)
+
+    # Cache in globals
+    globals()[name] = symbol
+    _imported.add(name)
+
+    # For models (objects/events), ensure they're rebuilt via version module
+    # Only trigger once to avoid recursion
+    if True:
+        if not _rebuild_triggered:
+            _rebuild_triggered = True
+            # Trigger version-level batch rebuild
+            version_module_name = ".".join(__name__.split(".")[:-1])
+            version_module = sys.modules.get(version_module_name)
+            if version_module and hasattr(version_module, "_rebuild_all_models"):
+                # Call rebuild function directly to avoid recursion through __getattr__
+                version_module._rebuild_all_models()
+
+    return symbol
+
+
+def __dir__() -> list[str]:
+    """Support for dir() and autocomplete."""
+    return sorted(__all__)
