@@ -17,32 +17,32 @@ install-all:
 check: lint format-check typecheck test
 
 # Run tests with coverage
-test:
-    pytest tests/ -v --cov=ocsf --cov-report=xml --cov-report=term
+test python="3.12":
+    uv run --python {{python}} pytest tests/ -v --cov=ocsf --cov-report=xml --cov-report=term
 
 # Run tests with verbose output
-test-verbose:
-    pytest tests/ -vv --cov=ocsf --cov-report=xml --cov-report=term
+test-verbose python="3.12":
+    uv run --python {{python}} pytest tests/ -vv --cov=ocsf --cov-report=xml --cov-report=term
 
 # Check code formatting without making changes
 format-check:
-    ruff format --check src/ generator/ tests/
+    uv run --python 3.12 ruff format --check src/ generator/ tests/
 
 # Format code (fix formatting issues)
 format:
-    ruff format src/ generator/ tests/
+    uv run --python 3.12 ruff format src/ generator/ tests/
 
 # Lint code with ruff
 lint:
-    ruff check src/ generator/ tests/
+    uv run --python 3.12 ruff check src/ generator/ tests/
 
 # Lint and auto-fix issues where possible
 lint-fix:
-    ruff check --fix src/ generator/ tests/
+    uv run --python 3.12 ruff check --fix src/ generator/ tests/
 
 # Type check with mypy
 typecheck:
-    mypy src/ocsf/ --ignore-missing-imports
+    uv run --python 3.12 mypy src/ocsf/ --ignore-missing-imports
 
 # Fetch OCSF schema (default version 1.7.0)
 fetch-schema version="1.7.0":
