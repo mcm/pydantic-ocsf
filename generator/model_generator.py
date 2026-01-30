@@ -153,7 +153,8 @@ class ModelGenerator:
             if sibling_pairs:
                 enum_mapping = {pair["enum_name"]: pair["enum_class"] for pair in sibling_pairs}
                 filtered_imports = [
-                    imp for imp in imports
+                    imp
+                    for imp in imports
                     if not any(f"enums.{enum_name}" in imp for enum_name in enum_mapping)
                 ]
 
@@ -199,7 +200,7 @@ class ModelGenerator:
         """
         sibling_pairs = []
 
-        for attr_name, attr in attributes.items():
+        for attr_name in attributes:
             # Look for _id fields with enums
             if not attr_name.endswith("_id"):
                 continue
@@ -221,22 +222,21 @@ class ModelGenerator:
 
             # Determine sibling field name
             base_name = attr_name[:-3]  # Remove '_id'
-            if attr_name == "activity_id":
-                label_field = "activity_name"
-            else:
-                label_field = base_name
+            label_field = "activity_name" if attr_name == "activity_id" else base_name
 
             # Check if sibling exists
             if label_field not in attributes:
                 continue
 
-            sibling_pairs.append({
-                "id_field": attr_name,
-                "label_field": label_field,
-                # Use attribute name for nested enum class (StatusId, not IncidentFindingStatusId)
-                "enum_class": snake_to_pascal(attr_name),
-                "enum_name": enum_name,  # Keep full name for lookup in schema.enums
-            })
+            sibling_pairs.append(
+                {
+                    "id_field": attr_name,
+                    "label_field": label_field,
+                    # Use attribute name for nested enum class (StatusId, not IncidentFindingStatusId)
+                    "enum_class": snake_to_pascal(attr_name),
+                    "enum_name": enum_name,  # Keep full name for lookup in schema.enums
+                }
+            )
 
         # Add type_uid/type_name sibling pair for events with activity_id
         # type_uid is calculated as: class_uid * 100 + activity_id
@@ -244,12 +244,14 @@ class ModelGenerator:
             # Check if activity_id enum exists
             activity_enum_name = f"{parent_name}_activity_id"
             if activity_enum_name in self.schema.enums:
-                sibling_pairs.append({
-                    "id_field": "type_uid",
-                    "label_field": "type_name",
-                    "enum_class": "EventTypeId",
-                    "enum_name": f"__type_id_{parent_name}",  # Synthetic name for type_id enum
-                })
+                sibling_pairs.append(
+                    {
+                        "id_field": "type_uid",
+                        "label_field": "type_name",
+                        "enum_class": "EventTypeId",
+                        "enum_name": f"__type_id_{parent_name}",  # Synthetic name for type_id enum
+                    }
+                )
 
         return sibling_pairs
 
@@ -278,11 +280,13 @@ class ModelGenerator:
         members = []
         for value, caption in sorted(enum.values.items()):
             member_name = label_to_enum_name(caption)
-            members.append({
-                "name": member_name,
-                "value": value,
-                "label": caption,
-            })
+            members.append(
+                {
+                    "name": member_name,
+                    "value": value,
+                    "label": caption,
+                }
+            )
 
         return {
             "class_name": class_name,
@@ -316,16 +320,18 @@ class ModelGenerator:
         for activity_value, activity_caption in sorted(activity_enum.values.items()):
             type_uid_value = class_uid * 100 + activity_value
             member_name = label_to_enum_name(activity_caption)
-            members.append({
-                "name": member_name,
-                "value": type_uid_value,
-                "label": activity_caption,  # Same label as activity
-            })
+            members.append(
+                {
+                    "name": member_name,
+                    "value": type_uid_value,
+                    "label": activity_caption,  # Same label as activity
+                }
+            )
 
         return {
             "class_name": "EventTypeId",
             "attribute_name": "type_uid",
-            "description": f"The event type ID, calculated as class_uid * 100 + activity_id. Identifies the event's semantics and structure.",
+            "description": "The event type ID, calculated as class_uid * 100 + activity_id. Identifies the event's semantics and structure.",
             "members": members,
         }
 
@@ -381,9 +387,9 @@ class ModelGenerator:
 
             # Remove enum imports since we're generating nested enums
             # Also update type annotations for _id fields to use nested enums
-            enum_mapping = {pair["enum_name"]: pair["enum_class"] for pair in sibling_pairs}
             filtered_imports = [
-                imp for imp in imports
+                imp
+                for imp in imports
                 if not any(f".enums.{pair['enum_name']}" in imp for pair in sibling_pairs)
             ]
 
@@ -399,6 +405,14 @@ class ModelGenerator:
                         attr.type_annotation = attr.type_annotation.replace(
                             enum_class_name, nested_enum_name
                         )
+
+                        # Special handling for type_uid - make it optional with default=None
+                        # since it's auto-calculated from activity_id
+                        if attr.field_name == "type_uid":
+                            attr.is_required = False  # Change to default=None instead of ...
+                            # Make type annotation optional (int | None)
+                            if " | None" not in attr.type_annotation:
+                                attr.type_annotation = f"{attr.type_annotation} | None"
 
             content = template.render(
                 event=event,

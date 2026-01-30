@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import pytest
-from typing import ClassVar
 
 from ocsf._sibling_enum import SiblingEnum
 

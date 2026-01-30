@@ -132,18 +132,25 @@ class SiblingEnum(IntEnum):
         # Not a string and not a valid member - let the standard error occur
         raise ValueError(f"{value!r} is not a valid {cls.__name__}")
 
-    def __new__(cls, value: int) -> Self:
-        """Create enum member from integer value.
+    def __new__(cls, value: int | str) -> Self:
+        """Create enum member from integer or string value.
 
-        This is called during class definition to create enum members.
-        We override it to ensure proper IntEnum behavior.
+        This is called during class definition to create enum members, and also
+        when constructing enum instances. Accepts both integers and string labels
+        thanks to the _missing_ method which handles string lookup.
+
+        Note: The type signature declares int | str for external callers, but
+        _missing_ ensures only int values reach this method's implementation.
 
         Args:
-            value: Integer enum value
+            value: Integer enum value or string label
 
         Returns:
             The enum member
         """
+        # _missing_ handles string conversion, so by the time we get here,
+        # value should always be an int
         obj = int.__new__(cls, value)
-        obj._value_ = value
+        assert isinstance(value, int)
+        obj._value_ = value  # pyright: ignore[reportAttributeAccessIssue]
         return obj

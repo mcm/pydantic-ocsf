@@ -126,6 +126,7 @@ class ManagedEntity(OCSFBaseModel):
 
             if has_id and has_label:
                 # Both present: validate consistency
+                assert id_val is not None  # Type narrowing for mypy
                 try:
                     enum_member = enum_cls(id_val)
                 except (ValueError, KeyError) as e:
@@ -146,6 +147,7 @@ class ManagedEntity(OCSFBaseModel):
 
             elif has_id:
                 # Only ID provided: extrapolate label
+                assert id_val is not None  # Type narrowing for mypy
                 try:
                     enum_member = enum_cls(id_val)
                     data[label_field] = enum_member.label

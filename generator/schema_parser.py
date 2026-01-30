@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any
 
 from generator.schema_fetcher import fetch_schema
 from generator.schema_types import (

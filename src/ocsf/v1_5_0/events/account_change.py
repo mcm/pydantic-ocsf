@@ -167,8 +167,8 @@ class AccountChange(OCSFBaseModel):
     time: int = Field(
         ..., description="The normalized event occurrence time or the finding creation time."
     )
-    type_uid: int = Field(
-        ...,
+    type_uid: int | None = Field(
+        default=None,
         description="The event/finding type ID. It identifies the event's semantics and structure. The value is calculated by the logging system as: <code>class_uid * 100 + activity_id</code>.",
     )
     user: User = Field(..., description="The user that was a target of an activity.")
@@ -313,6 +313,7 @@ class AccountChange(OCSFBaseModel):
 
             if has_id and has_label:
                 # Both present: validate consistency
+                assert id_val is not None  # Type narrowing for mypy
                 try:
                     enum_member = enum_cls(id_val)
                 except (ValueError, KeyError) as e:
@@ -333,6 +334,7 @@ class AccountChange(OCSFBaseModel):
 
             elif has_id:
                 # Only ID provided: extrapolate label
+                assert id_val is not None  # Type narrowing for mypy
                 try:
                     enum_member = enum_cls(id_val)
                     data[label_field] = enum_member.label
@@ -385,6 +387,7 @@ class AccountChange(OCSFBaseModel):
 
         if has_id and has_label:
             # Both present: validate consistency
+            assert id_val is not None  # Type narrowing for mypy
             try:
                 enum_member = enum_cls(id_val)
             except (ValueError, KeyError) as e:
@@ -405,6 +408,7 @@ class AccountChange(OCSFBaseModel):
 
         elif has_id:
             # Only ID provided: extrapolate label
+            assert id_val is not None  # Type narrowing for mypy
             try:
                 enum_member = enum_cls(id_val)
                 data[label_field] = enum_member.label
