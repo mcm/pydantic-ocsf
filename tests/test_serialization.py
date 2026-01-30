@@ -1,6 +1,5 @@
 """Test serialization round-trips."""
 
-from ocsf.v1_7_0.enums.status_id import StatusId
 from ocsf.v1_7_0.objects.file import File
 
 
@@ -26,7 +25,7 @@ def test_enum_serializes_as_int():
     # Create object with enum
     file_obj = File(
         name="test.txt",
-        type_id=StatusId.APPLICABLE,  # Value 1
+        type_id=File.TypeId.REGULAR_FILE,  # Value 1
     )
 
     data = file_obj.model_dump()

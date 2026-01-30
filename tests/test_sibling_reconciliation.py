@@ -16,7 +16,7 @@ class TestSiblingReconciliation:
         """Minimal valid event data with all required fields."""
         return {
             "time": 1706000000000,
-            "type_uid": 100,
+            # type_uid is auto-calculated from activity_id, not specified here
             "actor": {
                 "user": {"name": "alice", "type_id": 0},  # UNKNOWN
                 "session": {"uid": "session-123"},
@@ -166,7 +166,7 @@ class TestSiblingReconciliation:
         # IncidentFinding.VerdictId HAS OTHER, so unknown labels should map to it
         data = {
             "time": 1706000000000,
-            "type_uid": 5,
+            # type_uid auto-calculated from activity_id (5*100+1=501)
             "activity_id": 1,
             "severity_id": 4,
             "status_id": 1,
@@ -182,6 +182,8 @@ class TestSiblingReconciliation:
         event = IncidentFinding.model_validate(data)
         assert event.verdict_id == 99
         assert event.verdict == "Other"
+        # Verify type_uid was auto-calculated
+        assert event.type_uid == 501  # class_uid=5 * 100 + activity_id=1
 
     def test_direct_enum_construction_is_strict(self):
         """Test that direct enum construction raises ValueError for unknown labels."""
@@ -200,7 +202,7 @@ class TestSiblingReconciliationEdgeCases:
         """Minimal valid event data."""
         return {
             "time": 1706000000000,
-            "type_uid": 100,
+            # type_uid is auto-calculated from activity_id, not specified here
             "actor": {
                 "user": {"name": "alice", "type_id": 0},  # UNKNOWN
                 "session": {"uid": "session-123"},
@@ -234,11 +236,14 @@ class TestSiblingReconciliationEdgeCases:
         """When both are None, no reconciliation should occur."""
         data = {
             **base_event_data,
-            "activity_id": None,
-            "activity_name": None,
+            "activity_id": 1,  # Required for type_uid calculation
+            "status_id": None,  # Test None for optional sibling pair
+            "status": None,
             "severity_id": 4,  # Required field
         }
         event = FileActivity.model_validate(data)
-        # Both should remain None (or be set to None)
-        assert event.activity_id is None
-        assert event.activity_name is None
+        # Status should remain None
+        assert event.status_id is None
+        assert event.status is None
+        # type_uid should be auto-calculated
+        assert event.type_uid == 101  # class_uid=1 * 100 + activity_id=1

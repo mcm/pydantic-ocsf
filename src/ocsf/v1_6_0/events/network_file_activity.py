@@ -127,6 +127,50 @@ class NetworkFileActivity(OCSFBaseModel):
                 99: "Other",
             }
 
+    class EventTypeId(SiblingEnum):
+        """The event type ID, calculated as class_uid * 100 + activity_id. Identifies the event's semantics and structure.
+
+        OCSF Attribute: type_uid
+        """
+
+        UPLOAD = 1001
+        DOWNLOAD = 1002
+        UPDATE = 1003
+        DELETE = 1004
+        RENAME = 1005
+        COPY = 1006
+        MOVE = 1007
+        RESTORE = 1008
+        PREVIEW = 1009
+        LOCK = 1010
+        UNLOCK = 1011
+        SHARE = 1012
+        UNSHARE = 1013
+        OPEN = 1014
+        SYNC = 1015
+        UNSYNC = 1016
+
+        @classmethod
+        def _get_label_map(cls) -> dict[int, str]:
+            return {
+                1001: "Upload",
+                1002: "Download",
+                1003: "Update",
+                1004: "Delete",
+                1005: "Rename",
+                1006: "Copy",
+                1007: "Move",
+                1008: "Restore",
+                1009: "Preview",
+                1010: "Lock",
+                1011: "Unlock",
+                1012: "Share",
+                1013: "Unshare",
+                1014: "Open",
+                1015: "Sync",
+                1016: "Unsync",
+            }
+
     # Class identifiers
     class_uid: Literal[10] = Field(
         default=10, description="The unique identifier of the event class."
@@ -270,18 +314,24 @@ class NetworkFileActivity(OCSFBaseModel):
         - If only ID: extrapolate label from enum
         - If only label: extrapolate ID from enum (unknown → OTHER=99)
         - If neither: leave for field validation to handle required/optional
+
+        Special handling for type_uid:
+        - Auto-calculated as class_uid * 100 + activity_id if not provided
+        - Validated against activity_id if both provided
         """
         if not isinstance(data, dict):
             return data
 
         # Sibling pairs for this event class
-        siblings: list[tuple[str, str, type[SiblingEnum]]] = [
+        # Separate type_uid from other siblings (it needs special handling)
+        regular_siblings: list[tuple[str, str, type[SiblingEnum]]] = [
             ("activity_id", "activity_name", cls.ActivityId),
             ("severity_id", "severity", cls.SeverityId),
             ("status_id", "status", cls.StatusId),
         ]
 
-        for id_field, label_field, enum_cls in siblings:
+        # First, reconcile regular siblings (this ensures activity_id is available)
+        for id_field, label_field, enum_cls in regular_siblings:
             id_val = data.get(id_field)
             label_val = data.get(label_field)
 
@@ -333,5 +383,77 @@ class NetworkFileActivity(OCSFBaseModel):
                             f"Unknown {label_field} value: {label_val!r} "
                             f"and {enum_cls.__name__} has no OTHER member"
                         ) from None
+
+        # Now handle type_uid - auto-calculate from activity_id
+        # (activity_id should be available now after regular sibling reconciliation)
+        activity_id = data.get("activity_id")
+        type_uid = data.get("type_uid")
+
+        if activity_id is not None and type_uid is None:
+            # Auto-calculate type_uid from activity_id
+            data["type_uid"] = 10 * 100 + activity_id
+
+        elif activity_id is not None and type_uid is not None:
+            # Validate type_uid matches activity_id
+            expected_type_uid = 10 * 100 + activity_id
+            if type_uid != expected_type_uid:
+                raise ValueError(
+                    f"type_uid={type_uid} does not match calculated value "
+                    f"(class_uid * 100 + activity_id = 10 * 100 + {activity_id} = {expected_type_uid})"
+                )
+
+        # Now reconcile type_uid/type_name sibling pair
+        id_field, label_field, enum_cls = "type_uid", "type_name", cls.EventTypeId
+        id_val = data.get(id_field)
+        label_val = data.get(label_field)
+
+        has_id = id_val is not None
+        has_label = label_val is not None
+
+        if has_id and has_label:
+            # Both present: validate consistency
+            try:
+                enum_member = enum_cls(id_val)
+            except (ValueError, KeyError) as e:
+                raise ValueError(f"Invalid {id_field} value: {id_val}") from e
+
+            expected_label = enum_member.label
+
+            # OTHER (99) allows any custom label
+            if enum_member.value != 99:
+                if expected_label.lower() != str(label_val).lower():
+                    raise ValueError(
+                        f"{id_field}={id_val} ({expected_label}) "
+                        f"does not match {label_field}={label_val!r}"
+                    )
+                # Use canonical label casing
+                data[label_field] = expected_label
+            # For OTHER, preserve the custom label as-is
+
+        elif has_id:
+            # Only ID provided: extrapolate label
+            try:
+                enum_member = enum_cls(id_val)
+                data[label_field] = enum_member.label
+            except (ValueError, KeyError) as e:
+                raise ValueError(f"Invalid {id_field} value: {id_val}") from e
+
+        elif has_label:
+            # Only label provided: extrapolate ID
+            try:
+                enum_member = enum_cls(str(label_val))
+                data[id_field] = enum_member.value
+                data[label_field] = enum_member.label  # Canonical casing
+            except (ValueError, KeyError):
+                # Unknown label during JSON parsing → map to OTHER (99) if available
+                # This is lenient for untrusted data, unlike direct enum construction
+                if hasattr(enum_cls, "OTHER"):
+                    data[id_field] = 99
+                    data[label_field] = "Other"  # Use canonical OTHER label
+                else:
+                    raise ValueError(
+                        f"Unknown {label_field} value: {label_val!r} "
+                        f"and {enum_cls.__name__} has no OTHER member"
+                    ) from None
 
         return data

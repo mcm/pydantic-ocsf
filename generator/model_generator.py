@@ -185,13 +185,14 @@ class ModelGenerator:
         return generated
 
     def _extract_sibling_pairs(
-        self, attributes: dict[str, SchemaAttribute], parent_name: str
+        self, attributes: dict[str, SchemaAttribute], parent_name: str, class_uid: int | None = None
     ) -> list[dict]:
         """Extract sibling attribute pairs from event/object attributes.
 
         Args:
             attributes: Event/object attributes to analyze
             parent_name: Name of parent class (for namespaced inline enums)
+            class_uid: Event class UID for generating type_uid enum (events only)
 
         Returns:
             List of sibling pair dicts with id_field, label_field, enum_class, enum_name
@@ -201,6 +202,10 @@ class ModelGenerator:
         for attr_name, attr in attributes.items():
             # Look for _id fields with enums
             if not attr_name.endswith("_id"):
+                continue
+
+            # Special handling for type_uid - skip for now, we'll add it below
+            if attr_name == "type_uid":
                 continue
 
             # Check if enum exists (try namespaced first, then bare)
@@ -232,6 +237,19 @@ class ModelGenerator:
                 "enum_class": snake_to_pascal(attr_name),
                 "enum_name": enum_name,  # Keep full name for lookup in schema.enums
             })
+
+        # Add type_uid/type_name sibling pair for events with activity_id
+        # type_uid is calculated as: class_uid * 100 + activity_id
+        if class_uid is not None and "type_uid" in attributes and "type_name" in attributes:
+            # Check if activity_id enum exists
+            activity_enum_name = f"{parent_name}_activity_id"
+            if activity_enum_name in self.schema.enums:
+                sibling_pairs.append({
+                    "id_field": "type_uid",
+                    "label_field": "type_name",
+                    "enum_class": "EventTypeId",
+                    "enum_name": f"__type_id_{parent_name}",  # Synthetic name for type_id enum
+                })
 
         return sibling_pairs
 
@@ -273,6 +291,44 @@ class ModelGenerator:
             "members": members,
         }
 
+    def _generate_type_id_enum_data(
+        self, class_uid: int, activity_enum_name: str, parent_name: str
+    ) -> dict | None:
+        """Generate TypeId enum data based on class_uid and activity_id enum.
+
+        TypeId values are calculated as: class_uid * 100 + activity_id
+
+        Args:
+            class_uid: The event class UID (e.g., 1 for FileActivity)
+            activity_enum_name: Name of the activity_id enum (e.g., 'file_activity_activity_id')
+            parent_name: Name of parent event (e.g., 'file_activity')
+
+        Returns:
+            Dict with TypeId enum data, or None if activity enum doesn't exist
+        """
+        if activity_enum_name not in self.schema.enums:
+            return None
+
+        activity_enum = self.schema.enums[activity_enum_name]
+
+        # Generate TypeId enum members by transforming activity_id values
+        members = []
+        for activity_value, activity_caption in sorted(activity_enum.values.items()):
+            type_uid_value = class_uid * 100 + activity_value
+            member_name = label_to_enum_name(activity_caption)
+            members.append({
+                "name": member_name,
+                "value": type_uid_value,
+                "label": activity_caption,  # Same label as activity
+            })
+
+        return {
+            "class_name": "EventTypeId",
+            "attribute_name": "type_uid",
+            "description": f"The event type ID, calculated as class_uid * 100 + activity_id. Identifies the event's semantics and structure.",
+            "members": members,
+        }
+
     def _generate_events(self, output_dir: Path) -> list[tuple[str, str]]:
         """Generate event class files with nested enums.
 
@@ -294,15 +350,24 @@ class ModelGenerator:
                 k: v for k, v in event.attributes.items() if k not in ("class_uid", "category_uid")
             }
 
-            # Extract sibling pairs (pass name for namespaced enum lookup)
-            sibling_pairs = self._extract_sibling_pairs(event.attributes, name)
+            # Extract sibling pairs (pass name and class_uid for type_uid handling)
+            sibling_pairs = self._extract_sibling_pairs(event.attributes, name, class_uid=event.uid)
 
             # Generate nested enum data
             sibling_enums = []
             for pair in sibling_pairs:
                 enum_name = pair["enum_name"]
                 attr = event.attributes.get(pair["id_field"])
-                if attr:
+
+                # Special handling for type_uid - generate synthetic TypeId enum
+                if pair["id_field"] == "type_uid":
+                    activity_enum_name = f"{name}_activity_id"
+                    type_id_enum_data = self._generate_type_id_enum_data(
+                        event.uid, activity_enum_name, name
+                    )
+                    if type_id_enum_data:
+                        sibling_enums.append(type_id_enum_data)
+                elif attr:
                     enum_data = self._generate_nested_enum_data(
                         enum_name, pair["id_field"], attr.description
                     )

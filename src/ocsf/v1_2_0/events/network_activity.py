@@ -167,6 +167,10 @@ class NetworkActivity(OCSFBaseModel):
         - If only ID: extrapolate label from enum
         - If only label: extrapolate ID from enum (unknown → OTHER=99)
         - If neither: leave for field validation to handle required/optional
+
+        Special handling for type_uid:
+        - Auto-calculated as class_uid * 100 + activity_id if not provided
+        - Validated against activity_id if both provided
         """
         if not isinstance(data, dict):
             return data
