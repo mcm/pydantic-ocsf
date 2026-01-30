@@ -29,3 +29,4 @@ venv/
 htmlcov/
 *.log
 .DS_Store
+coverage.xml
