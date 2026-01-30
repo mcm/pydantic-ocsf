@@ -7,11 +7,11 @@ default:
 
 # Install development dependencies
 install:
-    pip install -e ".[dev]"
+    uv sync --extra dev
 
 # Install all dependencies including generator
 install-all:
-    pip install -e ".[dev,generator]"
+    uv sync --all-extras
 
 # Run all checks (format check, lint, type check, tests)
 check: lint format-check typecheck test
