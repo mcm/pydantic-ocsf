@@ -9,8 +9,8 @@ class ShareTypeId(IntEnum):
     See: https://schema.ocsf.io/1.0.0/data_types/share_type_id
     """
 
-    VALUE_0 = 0  # The share type is not known.
-    VALUE_1 = 1  #
-    VALUE_2 = 2  #
-    VALUE_3 = 3  #
-    VALUE_99 = 99  # The share type is not mapped.
+    UNKNOWN = 0  # The share type is not known.
+    FILE = 1  #
+    PIPE = 2  #
+    PRINT = 3  #
+    OTHER = 99  # The share type is not mapped.

@@ -9,9 +9,9 @@ class RunStateId(IntEnum):
     See: https://schema.ocsf.io/1.1.0/data_types/run_state_id
     """
 
-    VALUE_0 = 0  #
-    VALUE_1 = 1  #
-    VALUE_2 = 2  #
-    VALUE_3 = 3  #
-    VALUE_4 = 4  #
-    VALUE_99 = 99  #
+    UNKNOWN = 0  #
+    READY = 1  #
+    QUEUED = 2  #
+    RUNNING = 3  #
+    STOPPED = 4  #
+    OTHER = 99  #

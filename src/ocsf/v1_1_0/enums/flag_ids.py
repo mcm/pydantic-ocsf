@@ -9,11 +9,11 @@ class FlagIds(IntEnum):
     See: https://schema.ocsf.io/1.1.0/data_types/flag_ids
     """
 
-    VALUE_0 = 0  #
-    VALUE_1 = 1  #
-    VALUE_2 = 2  #
-    VALUE_3 = 3  #
-    VALUE_4 = 4  #
-    VALUE_5 = 5  #
-    VALUE_6 = 6  #
-    VALUE_99 = 99  # The event DNS header flag is not mapped.
+    UNKNOWN = 0  #
+    AUTHORITATIVE_ANSWER = 1  #
+    TRUNCATED_RESPONSE = 2  #
+    RECURSION_DESIRED = 3  #
+    RECURSION_AVAILABLE = 4  #
+    AUTHENTIC_DATA = 5  #
+    CHECKING_DISABLED = 6  #
+    OTHER = 99  # The event DNS header flag is not mapped.

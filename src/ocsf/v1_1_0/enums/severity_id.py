@@ -9,11 +9,11 @@ class SeverityId(IntEnum):
     See: https://schema.ocsf.io/1.1.0/data_types/severity_id
     """
 
-    VALUE_0 = 0  # The event/finding severity is unknown.
-    VALUE_1 = 1  # Informational message. No action required.
-    VALUE_2 = 2  # The user decides if action is needed.
-    VALUE_3 = 3  # Action is required but the situation is not serious at this time.
-    VALUE_4 = 4  # Action is required immediately.
-    VALUE_5 = 5  # Action is required immediately and the scope is broad.
-    VALUE_6 = 6  # An error occurred but it is too late to take remedial action.
-    VALUE_99 = 99  # The event/finding severity is not mapped. See the <code>severity</code> attribute, which contains a data source specific value.
+    UNKNOWN = 0  # The event/finding severity is unknown.
+    INFORMATIONAL = 1  # Informational message. No action required.
+    LOW = 2  # The user decides if action is needed.
+    MEDIUM = 3  # Action is required but the situation is not serious at this time.
+    HIGH = 4  # Action is required immediately.
+    CRITICAL = 5  # Action is required immediately and the scope is broad.
+    FATAL = 6  # An error occurred but it is too late to take remedial action.
+    OTHER = 99  # The event/finding severity is not mapped. See the <code>severity</code> attribute, which contains a data source specific value.

@@ -38,52 +38,55 @@ def parse_schema(version: str, cache_dir: Path | None = None) -> ParsedSchema:
     # Parse objects first (events may reference them)
     for name, obj_data in raw_schema.get("objects", {}).items():
         parsed.objects[name] = SchemaObject.from_dict(name, obj_data, dictionary, available_objects)
-        # Extract inline enums from object attributes
-        _extract_inline_enums(parsed, obj_data, dictionary, available_objects)
 
     # Parse events
     for name, event_data in raw_schema.get("events", {}).items():
         parsed.events[name] = SchemaEvent.from_dict(name, event_data, dictionary, available_objects)
-        # Extract inline enums from event attributes
-        _extract_inline_enums(parsed, event_data, dictionary, available_objects)
 
     # Parse global enums from dictionary
     for name, enum_data in raw_schema.get("enums", {}).items():
         if name not in parsed.enums:
             parsed.enums[name] = SchemaEnum.from_dict(name, enum_data)
 
-    # Resolve inheritance
+    # Resolve inheritance FIRST
     _resolve_object_inheritance(parsed)
     _resolve_event_inheritance(parsed)
+
+    # Extract inline enums AFTER inheritance (so we see all inherited attributes)
+    for name, obj in parsed.objects.items():
+        _extract_inline_enums_from_parsed(parsed, name, obj.attributes)
+
+    for name, event in parsed.events.items():
+        _extract_inline_enums_from_parsed(parsed, name, event.attributes)
 
     return parsed
 
 
-def _extract_inline_enums(
+def _extract_inline_enums_from_parsed(
     parsed: ParsedSchema,
-    data: dict[str, Any],
-    dictionary: dict[str, Any] | None,
-    available_objects: set[str] | None,
+    parent_name: str,
+    attributes: dict[str, SchemaAttribute],
 ) -> None:
-    """Extract inline enum definitions from attributes."""
-    dict_attrs = dictionary.get("attributes", {}) if dictionary else {}
+    """Extract inline enum definitions from parsed attributes.
 
-    for attr_name, attr_data in data.get("attributes", {}).items():
-        # Skip non-dict attributes
-        if not isinstance(attr_data, dict):
-            continue
+    Inline enums are namespaced by their parent class to avoid collisions.
+    For example, incident_finding.status_id becomes 'incident_finding_status_id'.
 
-        # Merge with dictionary definition
-        merged = {}
-        if attr_name in dict_attrs and isinstance(dict_attrs[attr_name], dict):
-            merged.update(dict_attrs[attr_name])
-        merged.update(attr_data)
+    This runs AFTER inheritance resolution so we see all inherited attributes.
+    """
+    for attr_name, attr in attributes.items():
+        # Check if attribute has an inline enum definition
+        if attr.enum and isinstance(attr.enum, dict):
+            # Create namespaced enum name: parent_class_attribute_name
+            enum_name = f"{parent_name}_{attr_name}"
 
-        if "enum" in merged and isinstance(merged["enum"], dict):
-            # Create enum name from attribute name
-            enum_name = attr_name
             if enum_name not in parsed.enums:
-                parsed.enums[enum_name] = SchemaEnum.from_dict(enum_name, merged)
+                # Create a temporary dict with enum structure for SchemaEnum.from_dict
+                enum_dict = {
+                    "enum": attr.enum,
+                    "description": attr.description,
+                }
+                parsed.enums[enum_name] = SchemaEnum.from_dict(enum_name, enum_dict)
 
 
 def _resolve_object_inheritance(parsed: ParsedSchema) -> None:

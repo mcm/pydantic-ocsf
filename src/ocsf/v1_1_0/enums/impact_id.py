@@ -9,9 +9,9 @@ class ImpactId(IntEnum):
     See: https://schema.ocsf.io/1.1.0/data_types/impact_id
     """
 
-    VALUE_0 = 0  # The normalized impact is unknown.
-    VALUE_1 = 1  #
-    VALUE_2 = 2  #
-    VALUE_3 = 3  #
-    VALUE_4 = 4  #
-    VALUE_99 = 99  # The impact is not mapped. See the <code>impact</code> attribute, which contains a data source specific value.
+    UNKNOWN = 0  # The normalized impact is unknown.
+    LOW = 1  #
+    MEDIUM = 2  #
+    HIGH = 3  #
+    CRITICAL = 4  #
+    OTHER = 99  # The impact is not mapped. See the <code>impact</code> attribute, which contains a data source specific value.

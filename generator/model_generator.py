@@ -14,6 +14,7 @@ from generator.schema_types import (
     SchemaEnum,
 )
 from generator.utils import (
+    label_to_enum_name,
     make_valid_identifier,
     ocsf_type_to_python,
     snake_to_pascal,
@@ -111,21 +112,60 @@ class ModelGenerator:
         return generated
 
     def _generate_objects(self, output_dir: Path) -> list[tuple[str, str]]:
-        """Generate object model files.
+        """Generate object model files with nested enums.
 
         Returns:
             List of (class_name, original_name) tuples
         """
-        template = self.env.get_template("object.py.jinja2")
         generated = []
 
         for name, obj in self.schema.objects.items():
             class_name = snake_to_pascal(name)
 
+            # Extract sibling pairs (pass name for namespaced enum lookup)
+            sibling_pairs = self._extract_sibling_pairs(obj.attributes, name)
+
+            # Choose template based on whether object has sibling pairs
+            if sibling_pairs:
+                template = self.env.get_template("object_with_siblings.py.jinja2")
+            else:
+                template = self.env.get_template("object.py.jinja2")
+
+            # Generate nested enum data if needed
+            sibling_enums = []
+            if sibling_pairs:
+                for pair in sibling_pairs:
+                    enum_name = pair["enum_name"]
+                    attr = obj.attributes.get(pair["id_field"])
+                    if attr:
+                        enum_data = self._generate_nested_enum_data(
+                            enum_name, pair["id_field"], attr.description
+                        )
+                        if enum_data:
+                            sibling_enums.append(enum_data)
+
             # Process attributes
             attributes, imports = self._process_attributes(
-                obj.attributes, "objects", current_class_name=class_name
+                obj.attributes, "objects", current_class_name=class_name, parent_name=name
             )
+
+            # Remove enum imports and update type annotations for nested enums
+            if sibling_pairs:
+                enum_mapping = {pair["enum_name"]: pair["enum_class"] for pair in sibling_pairs}
+                filtered_imports = [
+                    imp for imp in imports
+                    if not any(f"enums.{enum_name}" in imp for enum_name in enum_mapping)
+                ]
+
+                # Update type annotations to reference nested enums
+                for attr in attributes:
+                    for enum_name, enum_class in enum_mapping.items():
+                        standalone_class = snake_to_pascal(enum_name)
+                        # Replace standalone enum reference with nested enum
+                        attr.type_annotation = attr.type_annotation.replace(
+                            standalone_class, enum_class
+                        )
+                imports = filtered_imports
 
             content = template.render(
                 object=obj,
@@ -134,6 +174,8 @@ class ModelGenerator:
                 imports=sorted(set(imports)),
                 has_optional_fields=any(not a.is_required for a in attributes),
                 version=self.schema.version.lstrip("v"),
+                sibling_pairs=sibling_pairs,
+                sibling_enums=sibling_enums,
             )
 
             filename = f"{name}.py"
@@ -142,13 +184,102 @@ class ModelGenerator:
 
         return generated
 
+    def _extract_sibling_pairs(
+        self, attributes: dict[str, SchemaAttribute], parent_name: str
+    ) -> list[dict]:
+        """Extract sibling attribute pairs from event/object attributes.
+
+        Args:
+            attributes: Event/object attributes to analyze
+            parent_name: Name of parent class (for namespaced inline enums)
+
+        Returns:
+            List of sibling pair dicts with id_field, label_field, enum_class, enum_name
+        """
+        sibling_pairs = []
+
+        for attr_name, attr in attributes.items():
+            # Look for _id fields with enums
+            if not attr_name.endswith("_id"):
+                continue
+
+            # Check if enum exists (try namespaced first, then bare)
+            # Namespaced: incident_finding_status_id (inline enum)
+            # Bare: severity_id (shared enum from dictionary)
+            namespaced_enum_name = f"{parent_name}_{attr_name}"
+            if namespaced_enum_name in self.schema.enums:
+                enum_name = namespaced_enum_name
+            elif attr_name in self.schema.enums:
+                enum_name = attr_name
+            else:
+                continue
+
+            # Determine sibling field name
+            base_name = attr_name[:-3]  # Remove '_id'
+            if attr_name == "activity_id":
+                label_field = "activity_name"
+            else:
+                label_field = base_name
+
+            # Check if sibling exists
+            if label_field not in attributes:
+                continue
+
+            sibling_pairs.append({
+                "id_field": attr_name,
+                "label_field": label_field,
+                # Use attribute name for nested enum class (StatusId, not IncidentFindingStatusId)
+                "enum_class": snake_to_pascal(attr_name),
+                "enum_name": enum_name,  # Keep full name for lookup in schema.enums
+            })
+
+        return sibling_pairs
+
+    def _generate_nested_enum_data(
+        self, enum_name: str, attribute_name: str, description: str
+    ) -> dict:
+        """Generate nested enum data for template rendering.
+
+        Args:
+            enum_name: Name of the enum in schema.enums
+            attribute_name: Name of the attribute (e.g., 'activity_id')
+            description: Description of the attribute
+
+        Returns:
+            Dict with enum class name, members, and metadata
+        """
+        if enum_name not in self.schema.enums:
+            return {}
+
+        enum = self.schema.enums[enum_name]
+        # Use attribute name for class (StatusId, not IncidentFindingStatusId)
+        # since it's nested under the parent class
+        class_name = snake_to_pascal(attribute_name)
+
+        # Generate enum members
+        members = []
+        for value, caption in sorted(enum.values.items()):
+            member_name = label_to_enum_name(caption)
+            members.append({
+                "name": member_name,
+                "value": value,
+                "label": caption,
+            })
+
+        return {
+            "class_name": class_name,
+            "attribute_name": attribute_name,
+            "description": description or f"Enum for {attribute_name}",
+            "members": members,
+        }
+
     def _generate_events(self, output_dir: Path) -> list[tuple[str, str]]:
-        """Generate event class files.
+        """Generate event class files with nested enums.
 
         Returns:
             List of (class_name, original_name) tuples
         """
-        template = self.env.get_template("event.py.jinja2")
+        template = self.env.get_template("event_with_siblings.py.jinja2")
         generated = []
 
         for name, event in self.schema.events.items():
@@ -162,15 +293,55 @@ class ModelGenerator:
             filtered_attrs = {
                 k: v for k, v in event.attributes.items() if k not in ("class_uid", "category_uid")
             }
+
+            # Extract sibling pairs (pass name for namespaced enum lookup)
+            sibling_pairs = self._extract_sibling_pairs(event.attributes, name)
+
+            # Generate nested enum data
+            sibling_enums = []
+            for pair in sibling_pairs:
+                enum_name = pair["enum_name"]
+                attr = event.attributes.get(pair["id_field"])
+                if attr:
+                    enum_data = self._generate_nested_enum_data(
+                        enum_name, pair["id_field"], attr.description
+                    )
+                    if enum_data:
+                        sibling_enums.append(enum_data)
+
+            # Process attributes for type annotations
             attributes, imports = self._process_attributes(
-                filtered_attrs, "events", current_class_name=class_name
+                filtered_attrs, "events", current_class_name=class_name, parent_name=name
             )
+
+            # Remove enum imports since we're generating nested enums
+            # Also update type annotations for _id fields to use nested enums
+            enum_mapping = {pair["enum_name"]: pair["enum_class"] for pair in sibling_pairs}
+            filtered_imports = [
+                imp for imp in imports
+                if not any(f".enums.{pair['enum_name']}" in imp for pair in sibling_pairs)
+            ]
+
+            # Update type annotations for _id fields to reference nested enums
+            for attr in attributes:
+                # Check if this is an _id field with a nested enum
+                for pair in sibling_pairs:
+                    if attr.field_name == pair["id_field"]:
+                        # Replace standalone enum name with nested enum reference
+                        enum_class_name = snake_to_pascal(pair["enum_name"])
+                        nested_enum_name = pair["enum_class"]
+                        # Update type annotation
+                        attr.type_annotation = attr.type_annotation.replace(
+                            enum_class_name, nested_enum_name
+                        )
 
             content = template.render(
                 event=event,
                 class_name=class_name,
                 attributes=attributes,
-                imports=sorted(set(imports)),
+                imports=sorted(set(filtered_imports)),
+                sibling_enums=sibling_enums,
+                sibling_pairs=sibling_pairs,
                 version=self.schema.version.lstrip("v"),
             )
 
@@ -185,6 +356,7 @@ class ModelGenerator:
         attributes: dict[str, SchemaAttribute],
         context: str,
         current_class_name: str | None = None,
+        parent_name: str | None = None,
     ) -> tuple[list[FieldInfo], list[str]]:
         """Process attributes into FieldInfo objects and collect imports.
 
@@ -192,6 +364,7 @@ class ModelGenerator:
             attributes: Dictionary of attributes to process
             context: Context string (e.g., "objects" or "events")
             current_class_name: Name of the class being generated (to skip self-references)
+            parent_name: Name of parent class (for namespaced inline enums)
         """
         fields = []
         imports = []
@@ -202,7 +375,15 @@ class ModelGenerator:
             # Determine type annotation
             enum_name = None
             if attr.enum:
-                enum_name = name
+                # Check if this is an inline enum (namespaced) or shared enum (bare)
+                if parent_name:
+                    namespaced = f"{parent_name}_{name}"
+                    if namespaced in self.schema.enums:
+                        enum_name = namespaced
+                    elif name in self.schema.enums:
+                        enum_name = name
+                else:
+                    enum_name = name
 
             python_type = ocsf_type_to_python(
                 attr.type,

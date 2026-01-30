@@ -9,17 +9,17 @@ class AuthProtocolId(IntEnum):
     See: https://schema.ocsf.io/1.7.0/data_types/auth_protocol_id
     """
 
-    VALUE_0 = 0  # The authentication protocol is unknown.
-    VALUE_1 = 1  #
-    VALUE_2 = 2  #
-    VALUE_3 = 3  #
-    VALUE_4 = 4  #
-    VALUE_5 = 5  #
-    VALUE_6 = 6  #
-    VALUE_7 = 7  #
-    VALUE_8 = 8  #
-    VALUE_9 = 9  #
-    VALUE_10 = 10  #
-    VALUE_11 = 11  #
-    VALUE_12 = 12  #
-    VALUE_99 = 99  # The authentication protocol is not mapped. See the <code>auth_protocol</code> attribute, which contains a data source specific value.
+    UNKNOWN = 0  # The authentication protocol is unknown.
+    NTLM = 1  #
+    KERBEROS = 2  #
+    DIGEST = 3  #
+    OPENID = 4  #
+    SAML = 5  #
+    OAUTH_2_0 = 6  #
+    PAP = 7  #
+    CHAP = 8  #
+    EAP = 9  #
+    RADIUS = 10  #
+    BASIC_AUTHENTICATION = 11  #
+    LDAP = 12  #
+    OTHER = 99  # The authentication protocol is not mapped. See the <code>auth_protocol</code> attribute, which contains a data source specific value.

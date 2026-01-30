@@ -9,8 +9,8 @@ class SecurityLevelId(IntEnum):
     See: https://schema.ocsf.io/1.6.0/data_types/security_level_id
     """
 
-    VALUE_0 = 0  #
-    VALUE_1 = 1  #
-    VALUE_2 = 2  #
-    VALUE_3 = 3  #
-    VALUE_99 = 99  # The security level is not mapped. See the <code>security_level</code> attribute, which contains data source specific values.
+    UNKNOWN = 0  #
+    SECURE = 1  #
+    AT_RISK = 2  #
+    COMPROMISED = 3  #
+    OTHER = 99  # The security level is not mapped. See the <code>security_level</code> attribute, which contains data source specific values.

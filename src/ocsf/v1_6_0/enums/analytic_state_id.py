@@ -1,0 +1,14 @@
+"""The Analytic state identifier. enumeration."""
+
+from enum import IntEnum
+
+
+class AnalyticStateId(IntEnum):
+    """The Analytic state identifier.
+
+    See: https://schema.ocsf.io/1.6.0/data_types/analytic_state_id
+    """
+
+    ACTIVE = 1  # The Analytic is active.
+    SUPPRESSED = 2  # The Analytic is suppressed. For example, a user/customer has suppressed a particular detection signature in a security product.
+    EXPERIMENTAL = 3  # The Analytic is still under development and considered experimental.

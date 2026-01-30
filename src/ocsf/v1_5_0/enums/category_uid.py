@@ -9,4 +9,4 @@ class CategoryUid(IntEnum):
     See: https://schema.ocsf.io/1.5.0/data_types/category_uid
     """
 
-    VALUE_0 = 0  #
+    UNCATEGORIZED = 0  #

@@ -1,0 +1,16 @@
+"""The normalized identifier of the SMB share type. enumeration."""
+
+from enum import IntEnum
+
+
+class SmbActivityShareTypeId(IntEnum):
+    """The normalized identifier of the SMB share type.
+
+    See: https://schema.ocsf.io/1.0.0/data_types/smb_activity_share_type_id
+    """
+
+    UNKNOWN = 0  # The share type is not known.
+    FILE = 1  #
+    PIPE = 2  #
+    PRINT = 3  #
+    OTHER = 99  # The share type is not mapped.

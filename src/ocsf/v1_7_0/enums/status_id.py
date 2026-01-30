@@ -9,6 +9,6 @@ class StatusId(IntEnum):
     See: https://schema.ocsf.io/1.7.0/data_types/status_id
     """
 
-    VALUE_1 = 1  # This restriction is currently applicable and being enforced.
-    VALUE_2 = 2  # This restriction is not applicable.
-    VALUE_3 = 3  # This restriction could not be properly evaluated due to an error.
+    APPLICABLE = 1  # This restriction is currently applicable and being enforced.
+    INAPPLICABLE = 2  # This restriction is not applicable.
+    EVALUATION_ERROR = 3  # This restriction could not be properly evaluated due to an error.

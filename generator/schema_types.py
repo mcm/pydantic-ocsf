@@ -104,7 +104,8 @@ class SchemaEnum:
                 continue
 
             if isinstance(val_info, dict):
-                values[int_val] = val_info.get("name", f"VALUE_{int_val}")
+                # OCSF uses "caption" for the label, not "name"
+                values[int_val] = val_info.get("caption", val_info.get("name", f"VALUE_{int_val}"))
                 value_descriptions[int_val] = val_info.get("description", "")
             else:
                 values[int_val] = str(val_info)

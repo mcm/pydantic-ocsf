@@ -9,8 +9,8 @@ class CpuArchitectureId(IntEnum):
     See: https://schema.ocsf.io/1.6.0/data_types/cpu_architecture_id
     """
 
-    VALUE_0 = 0  # The CPU architecture is unknown.
-    VALUE_1 = 1  # CPU uses the x86 ISA. For bitness, refer to <code>cpu_bits</code>.
-    VALUE_2 = 2  # CPU uses the ARM ISA. For bitness, refer to <code>cpu_bits</code>.
-    VALUE_3 = 3  # CPU uses the RISC-V ISA. For bitness, refer to <code>cpu_bits</code>.
-    VALUE_99 = 99  # The CPU architecture is not mapped. See the <code>cpu_architecture</code> attribute, which contains a data source specific value.
+    UNKNOWN = 0  # The CPU architecture is unknown.
+    X86 = 1  # CPU uses the x86 ISA. For bitness, refer to <code>cpu_bits</code>.
+    ARM = 2  # CPU uses the ARM ISA. For bitness, refer to <code>cpu_bits</code>.
+    RISC_V = 3  # CPU uses the RISC-V ISA. For bitness, refer to <code>cpu_bits</code>.
+    OTHER = 99  # The CPU architecture is not mapped. See the <code>cpu_architecture</code> attribute, which contains a data source specific value.

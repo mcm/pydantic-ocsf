@@ -9,7 +9,7 @@ class TunnelTypeId(IntEnum):
     See: https://schema.ocsf.io/1.7.0/data_types/tunnel_type_id
     """
 
-    VALUE_0 = 0  #
-    VALUE_1 = 1  #
-    VALUE_2 = 2  #
-    VALUE_99 = 99  #
+    UNKNOWN = 0  #
+    SPLIT_TUNNEL = 1  #
+    FULL_TUNNEL = 2  #
+    OTHER = 99  #

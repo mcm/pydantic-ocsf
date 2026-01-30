@@ -9,19 +9,19 @@ class VerdictId(IntEnum):
     See: https://schema.ocsf.io/1.7.0/data_types/verdict_id
     """
 
-    VALUE_0 = 0  # The type is unknown.
-    VALUE_1 = 1  # The verdict for the evidence has been identified as a False Positive.
-    VALUE_2 = 2  # The verdict for the evidence has been identified as a True Positive.
-    VALUE_3 = 3  # The verdict for the evidence is that is should be Disregarded.
-    VALUE_4 = (
+    UNKNOWN = 0  # The type is unknown.
+    FALSE_POSITIVE = 1  # The verdict for the evidence has been identified as a False Positive.
+    TRUE_POSITIVE = 2  # The verdict for the evidence has been identified as a True Positive.
+    DISREGARD = 3  # The verdict for the evidence is that is should be Disregarded.
+    SUSPICIOUS = (
         4  # The verdict for the evidence is that the behavior has been identified as Suspicious.
     )
-    VALUE_5 = 5  # The verdict for the evidence is that the behavior has been identified as Benign.
-    VALUE_6 = 6  # The evidence is part of a Test, or other sanctioned behavior(s).
-    VALUE_7 = 7  # There is insufficient data to render a verdict on the evidence.
-    VALUE_8 = 8  # The verdict for the evidence is that the behavior has been identified as a Security Risk.
-    VALUE_9 = (
+    BENIGN = 5  # The verdict for the evidence is that the behavior has been identified as Benign.
+    TEST = 6  # The evidence is part of a Test, or other sanctioned behavior(s).
+    INSUFFICIENT_DATA = 7  # There is insufficient data to render a verdict on the evidence.
+    SECURITY_RISK = 8  # The verdict for the evidence is that the behavior has been identified as a Security Risk.
+    MANAGED_EXTERNALLY = (
         9  # The verdict for the evidence is Managed Externally, such as in a case management tool.
     )
-    VALUE_10 = 10  # This evidence duplicates existing evidence related to this finding.
-    VALUE_99 = 99  # The type is not mapped. See the <code>type</code> attribute, which contains a data source specific value.
+    DUPLICATE = 10  # This evidence duplicates existing evidence related to this finding.
+    OTHER = 99  # The type is not mapped. See the <code>type</code> attribute, which contains a data source specific value.

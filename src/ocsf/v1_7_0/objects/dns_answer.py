@@ -9,7 +9,7 @@ from pydantic import Field
 from ocsf._base import OCSFBaseModel
 
 if TYPE_CHECKING:
-    from ocsf.v1_7_0.enums.flag_ids import FlagIds
+    from ocsf.v1_7_0.enums.dns_answer_flag_ids import DnsAnswerFlagIds
 
 
 class DnsAnswer(OCSFBaseModel):
@@ -26,7 +26,7 @@ class DnsAnswer(OCSFBaseModel):
         default=None,
         description="The class of DNS data contained in this resource record. See <a target='_blank' href='https://www.rfc-editor.org/rfc/rfc1035.txt'>RFC1035</a>. For example: <code>IN</code>. [Recommended]",
     )
-    flag_ids: list[FlagIds] | None = Field(
+    flag_ids: list[DnsAnswerFlagIds] | None = Field(
         default=None, description="The list of DNS answer header flag IDs. [Recommended]"
     )
     flags: list[str] | None = Field(

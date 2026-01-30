@@ -9,4 +9,4 @@ class ClassUid(IntEnum):
     See: https://schema.ocsf.io/1.5.0/data_types/class_uid
     """
 
-    VALUE_0 = 0  #
+    BASE_EVENT = 0  #

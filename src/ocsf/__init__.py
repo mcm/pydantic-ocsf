@@ -24,4 +24,4 @@ The default imports are from OCSF 1.7.0 (latest). For other versions:
 from ocsf._base import OCSFBaseModel as OCSFBaseModel
 from ocsf.v1_7_0 import *  # noqa: F401, F403
 
-__version__ = "1.7.0.20260129"
+__version__ = "1.7.0.20260130"

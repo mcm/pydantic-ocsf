@@ -9,7 +9,7 @@ class ActivityId(IntEnum):
     See: https://schema.ocsf.io/1.0.0/data_types/activity_id
     """
 
-    VALUE_1 = 1  # The API call in the event pertains to a 'create' activity.
-    VALUE_2 = 2  # The API call in the event pertains to a 'read' activity.
-    VALUE_3 = 3  # The API call in the event pertains to a 'update' activity.
-    VALUE_4 = 4  # The API call in the event pertains to a 'delete' activity.
+    CREATE = 1  # The API call in the event pertains to a 'create' activity.
+    READ = 2  # The API call in the event pertains to a 'read' activity.
+    UPDATE = 3  # The API call in the event pertains to a 'update' activity.
+    DELETE = 4  # The API call in the event pertains to a 'delete' activity.

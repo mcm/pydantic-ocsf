@@ -9,9 +9,9 @@ class AlgorithmId(IntEnum):
     See: https://schema.ocsf.io/1.5.0/data_types/algorithm_id
     """
 
-    VALUE_0 = 0  #
-    VALUE_1 = 1  # Digital Signature Algorithm (DSA).
-    VALUE_2 = 2  # Rivest-Shamir-Adleman (RSA) Algorithm.
-    VALUE_3 = 3  # Elliptic Curve Digital Signature Algorithm.
-    VALUE_4 = 4  # Microsoft Authenticode Digital Signature Algorithm.
-    VALUE_99 = 99  #
+    UNKNOWN = 0  #
+    DSA = 1  # Digital Signature Algorithm (DSA).
+    RSA = 2  # Rivest-Shamir-Adleman (RSA) Algorithm.
+    ECDSA = 3  # Elliptic Curve Digital Signature Algorithm.
+    AUTHENTICODE = 4  # Microsoft Authenticode Digital Signature Algorithm.
+    OTHER = 99  #

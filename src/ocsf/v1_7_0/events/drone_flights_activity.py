@@ -2,17 +2,14 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING, Any, Literal
 
-from pydantic import Field
+from pydantic import Field, model_validator
 
 from ocsf._base import OCSFBaseModel
+from ocsf._sibling_enum import SiblingEnum
 
 if TYPE_CHECKING:
-    from ocsf.v1_7_0.enums.activity_id import ActivityId
-    from ocsf.v1_7_0.enums.auth_protocol_id import AuthProtocolId
-    from ocsf.v1_7_0.enums.severity_id import SeverityId
-    from ocsf.v1_7_0.enums.status_id import StatusId
     from ocsf.v1_7_0.objects.enrichment import Enrichment
     from ocsf.v1_7_0.objects.fingerprint import Fingerprint
     from ocsf.v1_7_0.objects.metadata import Metadata
@@ -36,6 +33,111 @@ class DroneFlightsActivity(OCSFBaseModel):
 
     See: https://schema.ocsf.io/1.7.0/classes/drone_flights_activity
     """
+
+    # Nested Enums for sibling attribute pairs
+    class ActivityId(SiblingEnum):
+        """The normalized identifier of the activity that triggered the event.
+
+        OCSF Attribute: activity_id
+        """
+
+        UNKNOWN = 0
+        CAPTURE = 1
+        RECORD = 2
+        OTHER = 99
+
+        @classmethod
+        def _get_label_map(cls) -> dict[int, str]:
+            return {
+                0: "Unknown",
+                1: "Capture",
+                2: "Record",
+                99: "Other",
+            }
+
+    class SeverityId(SiblingEnum):
+        """<p>The normalized identifier of the event/finding severity.</p>The normalized severity is a measurement the effort and expense required to manage and resolve an event or incident. Smaller numerical values represent lower impact events, and larger numerical values represent higher impact events.
+
+        OCSF Attribute: severity_id
+        """
+
+        UNKNOWN = 0
+        INFORMATIONAL = 1
+        LOW = 2
+        MEDIUM = 3
+        HIGH = 4
+        CRITICAL = 5
+        FATAL = 6
+        OTHER = 99
+
+        @classmethod
+        def _get_label_map(cls) -> dict[int, str]:
+            return {
+                0: "Unknown",
+                1: "Informational",
+                2: "Low",
+                3: "Medium",
+                4: "High",
+                5: "Critical",
+                6: "Fatal",
+                99: "Other",
+            }
+
+    class StatusId(SiblingEnum):
+        """The normalized Operational status identifier for the Unmanned Aerial System (UAS).
+
+        OCSF Attribute: status_id
+        """
+
+        UNDECLARED = 1
+        GROUND = 2
+        AIRBORNE = 3
+        EMERGENCY = 4
+        REMOTE_ID_SYSTEM_FAILURE = 5
+        RESERVED = 6
+
+        @classmethod
+        def _get_label_map(cls) -> dict[int, str]:
+            return {
+                1: "Undeclared",
+                2: "Ground",
+                3: "Airborne",
+                4: "Emergency",
+                5: "Remote ID System Failure",
+                6: "Reserved",
+            }
+
+    class AuthProtocolId(SiblingEnum):
+        """The normalized identifier of the authentication type used to authorize a flight plan or mission.
+
+        OCSF Attribute: auth_protocol_id
+        """
+
+        UNKNOWN = 0
+        NONE = 1
+        UAS_ID_SIGNATURE = 2
+        OPERATOR_ID_SIGNATURE = 3
+        MESSAGE_SET_SIGNATURE = 4
+        AUTHENTICATION_PROVIDED_BY_NETWORK_REMOTE_ID = 5
+        SPECIFIC_AUTHENTICATION_METHOD = 6
+        RESERVED = 7
+        PRIVATE_USER = 8
+        OTHER = 99
+
+        @classmethod
+        def _get_label_map(cls) -> dict[int, str]:
+            return {
+                0: "Unknown",
+                1: "None",
+                2: "UAS ID Signature",
+                3: "Operator ID Signature",
+                4: "Message Set Signature",
+                5: "Authentication Provided by Network Remote ID",
+                6: "Specific Authentication Method",
+                7: "Reserved",
+                8: "Private User",
+                99: "Other",
+            }
 
     # Class identifiers
     class_uid: Literal[1] = Field(
@@ -189,3 +291,80 @@ class DroneFlightsActivity(OCSFBaseModel):
         default=None,
         description="The attributes that are not mapped to the event schema. The names and values of those attributes are specific to the event source.",
     )
+
+    @model_validator(mode="before")
+    @classmethod
+    def _reconcile_siblings(cls, data: Any) -> Any:
+        """Reconcile sibling attribute pairs during parsing.
+
+        For each sibling pair (e.g., activity_id/activity_name):
+        - If both present: validate they match, use canonical label casing
+        - If only ID: extrapolate label from enum
+        - If only label: extrapolate ID from enum (unknown → OTHER=99)
+        - If neither: leave for field validation to handle required/optional
+        """
+        if not isinstance(data, dict):
+            return data
+
+        # Sibling pairs for this event class
+        siblings: list[tuple[str, str, type[SiblingEnum]]] = [
+            ("activity_id", "activity_name", cls.ActivityId),
+            ("severity_id", "severity", cls.SeverityId),
+            ("status_id", "status", cls.StatusId),
+            ("auth_protocol_id", "auth_protocol", cls.AuthProtocolId),
+        ]
+
+        for id_field, label_field, enum_cls in siblings:
+            id_val = data.get(id_field)
+            label_val = data.get(label_field)
+
+            has_id = id_val is not None
+            has_label = label_val is not None
+
+            if has_id and has_label:
+                # Both present: validate consistency
+                try:
+                    enum_member = enum_cls(id_val)
+                except (ValueError, KeyError) as e:
+                    raise ValueError(f"Invalid {id_field} value: {id_val}") from e
+
+                expected_label = enum_member.label
+
+                # OTHER (99) allows any custom label
+                if enum_member.value != 99:
+                    if expected_label.lower() != str(label_val).lower():
+                        raise ValueError(
+                            f"{id_field}={id_val} ({expected_label}) "
+                            f"does not match {label_field}={label_val!r}"
+                        )
+                    # Use canonical label casing
+                    data[label_field] = expected_label
+                # For OTHER, preserve the custom label as-is
+
+            elif has_id:
+                # Only ID provided: extrapolate label
+                try:
+                    enum_member = enum_cls(id_val)
+                    data[label_field] = enum_member.label
+                except (ValueError, KeyError) as e:
+                    raise ValueError(f"Invalid {id_field} value: {id_val}") from e
+
+            elif has_label:
+                # Only label provided: extrapolate ID
+                try:
+                    enum_member = enum_cls(str(label_val))
+                    data[id_field] = enum_member.value
+                    data[label_field] = enum_member.label  # Canonical casing
+                except (ValueError, KeyError):
+                    # Unknown label during JSON parsing → map to OTHER (99) if available
+                    # This is lenient for untrusted data, unlike direct enum construction
+                    if hasattr(enum_cls, "OTHER"):
+                        data[id_field] = 99
+                        data[label_field] = "Other"  # Use canonical OTHER label
+                    else:
+                        raise ValueError(
+                            f"Unknown {label_field} value: {label_val!r} "
+                            f"and {enum_cls.__name__} has no OTHER member"
+                        ) from None
+
+        return data

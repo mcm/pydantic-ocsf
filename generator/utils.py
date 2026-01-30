@@ -163,3 +163,41 @@ def format_docstring(text: str, indent: int = 4) -> str:
         lines.append(" ".join(current_line))
 
     return "\n".join(lines)
+
+
+def label_to_enum_name(label: str) -> str:
+    """Convert an enum label to a valid Python enum member name.
+
+    Args:
+        label: Enum label from OCSF schema (e.g., "Create", "Does not exist")
+
+    Returns:
+        Valid Python enum member name in UPPER_SNAKE_CASE
+
+    Examples:
+        "Create" -> "CREATE"
+        "Does not exist" -> "DOES_NOT_EXIST"
+        "Cat I" -> "CAT_I"
+        "Unknown" -> "UNKNOWN"
+        "Other" -> "OTHER"
+    """
+    # Replace spaces and hyphens with underscores
+    name = re.sub(r"[\s\-]+", "_", label)
+    # Remove any other special characters
+    name = re.sub(r"[^a-zA-Z0-9_]", "", name)
+    # Convert to uppercase
+    name = name.upper()
+    # Remove leading/trailing underscores
+    name = name.strip("_")
+    # Collapse multiple underscores
+    name = re.sub(r"_+", "_", name)
+
+    # Ensure doesn't start with a number
+    if name and name[0].isdigit():
+        name = f"VALUE_{name}"
+
+    # Fallback for empty or invalid names
+    if not name:
+        name = "UNKNOWN"
+
+    return name

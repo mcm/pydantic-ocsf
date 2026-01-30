@@ -9,8 +9,8 @@ class DirectionId(IntEnum):
     See: https://schema.ocsf.io/1.6.0/data_types/direction_id
     """
 
-    VALUE_0 = 0  # The connection direction is unknown.
-    VALUE_1 = 1  # Inbound network connection. The connection was originated from the Internet or outside network, destined for services on the inside network.
-    VALUE_2 = 2  # Outbound network connection. The connection was originated from inside the network, destined for services on the Internet or outside network.
-    VALUE_3 = 3  # Lateral network connection. The connection was originated from inside the network, destined for services on the inside network.
-    VALUE_99 = 99  # The direction is not mapped. See the <code>direction</code> attribute, which contains a data source specific value.
+    UNKNOWN = 0  # The connection direction is unknown.
+    INBOUND = 1  # Inbound network connection. The connection was originated from the Internet or outside network, destined for services on the inside network.
+    OUTBOUND = 2  # Outbound network connection. The connection was originated from inside the network, destined for services on the Internet or outside network.
+    LATERAL = 3  # Lateral network connection. The connection was originated from inside the network, destined for services on the inside network.
+    OTHER = 99  # The direction is not mapped. See the <code>direction</code> attribute, which contains a data source specific value.

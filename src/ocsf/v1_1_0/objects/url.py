@@ -9,7 +9,7 @@ from pydantic import Field
 from ocsf._base import OCSFBaseModel
 
 if TYPE_CHECKING:
-    from ocsf.v1_1_0.enums.category_ids import CategoryIds
+    from ocsf.v1_1_0.enums.url_category_ids import UrlCategoryIds
 
 
 class Url(OCSFBaseModel):
@@ -22,7 +22,7 @@ class Url(OCSFBaseModel):
         default=None,
         description="The Website categorization names, as defined by <code>category_ids</code> enum values.",
     )
-    category_ids: list[CategoryIds] | None = Field(
+    category_ids: list[UrlCategoryIds] | None = Field(
         default=None, description="The Website categorization identifies. [Recommended]"
     )
     hostname: Any | None = Field(

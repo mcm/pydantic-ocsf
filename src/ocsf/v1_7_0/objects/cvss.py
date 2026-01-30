@@ -9,7 +9,7 @@ from pydantic import Field
 from ocsf._base import OCSFBaseModel
 
 if TYPE_CHECKING:
-    from ocsf.v1_7_0.enums.depth import Depth
+    from ocsf.v1_7_0.enums.cvss_depth import CvssDepth
     from ocsf.v1_7_0.objects.metric import Metric
 
 
@@ -23,7 +23,7 @@ class Cvss(OCSFBaseModel):
         ..., description="The CVSS base score. For example: <code>9.1</code>."
     )
     version: str = Field(..., description="The CVSS version. For example: <code>3.1</code>.")
-    depth: Depth | None = Field(
+    depth: CvssDepth | None = Field(
         default=None,
         description="The CVSS depth represents a depth of the equation used to calculate CVSS score. [Recommended]",
     )

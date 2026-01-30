@@ -9,7 +9,7 @@ class InjectionTypeId(IntEnum):
     See: https://schema.ocsf.io/1.0.0/data_types/injection_type_id
     """
 
-    VALUE_0 = 0  #
-    VALUE_1 = 1  #
-    VALUE_2 = 2  #
-    VALUE_99 = 99  #
+    UNKNOWN = 0  #
+    REMOTE_THREAD = 1  #
+    LOAD_LIBRARY = 2  #
+    OTHER = 99  #

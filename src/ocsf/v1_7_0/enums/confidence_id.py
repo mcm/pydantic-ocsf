@@ -9,8 +9,8 @@ class ConfidenceId(IntEnum):
     See: https://schema.ocsf.io/1.7.0/data_types/confidence_id
     """
 
-    VALUE_0 = 0  # The normalized confidence is unknown.
-    VALUE_1 = 1  #
-    VALUE_2 = 2  #
-    VALUE_3 = 3  #
-    VALUE_99 = 99  # The confidence is not mapped to the defined enum values. See the <code>confidence</code> attribute, which contains a data source specific value.
+    UNKNOWN = 0  # The normalized confidence is unknown.
+    LOW = 1  #
+    MEDIUM = 2  #
+    HIGH = 3  #
+    OTHER = 99  # The confidence is not mapped to the defined enum values. See the <code>confidence</code> attribute, which contains a data source specific value.

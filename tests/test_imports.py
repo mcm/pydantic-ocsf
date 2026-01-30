@@ -9,18 +9,19 @@ def test_import_base_model():
 
 
 def test_import_from_version():
-    """Test importing from specific version."""
-    from ocsf.v1_7_0.enums import StatusId
+    """Test importing event classes with nested enums."""
+    from ocsf.v1_7_0.events import FileActivity
 
-    assert StatusId.VALUE_1 == 1
-    assert StatusId.VALUE_2 == 2
+    # Test nested enum access (only for inline enums)
+    assert FileActivity.ActivityId.CREATE == 1
 
 
 def test_import_from_top_level():
-    """Test importing from top-level (should get v1_7_0)."""
-    from ocsf import StatusId
+    """Test importing from top-level."""
+    from ocsf import FileActivity
 
-    assert StatusId.VALUE_1 == 1
+    # Nested enums are accessible from the event class
+    assert FileActivity.ActivityId.CREATE == 1
 
 
 def test_version_submodules_exist():

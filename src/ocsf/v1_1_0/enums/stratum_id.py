@@ -9,9 +9,9 @@ class StratumId(IntEnum):
     See: https://schema.ocsf.io/1.1.0/data_types/stratum_id
     """
 
-    VALUE_0 = 0  # Unspecified or invalid.
-    VALUE_1 = 1  # The highest precision primary server (e.g atomic clock or GPS).
-    VALUE_2 = 2  # A secondary level server (possible values: 2-15).
-    VALUE_16 = 16  #
-    VALUE_17 = 17  # Reserved stratum (possible values: 17-255).
-    VALUE_99 = 99  # The stratum level is not mapped. See the <code>stratum</code> attribute, which contains a data source specific value.
+    UNKNOWN = 0  # Unspecified or invalid.
+    PRIMARY_SERVER = 1  # The highest precision primary server (e.g atomic clock or GPS).
+    SECONDARY_SERVER = 2  # A secondary level server (possible values: 2-15).
+    UNSYNCHRONIZED = 16  #
+    RESERVED = 17  # Reserved stratum (possible values: 17-255).
+    OTHER = 99  # The stratum level is not mapped. See the <code>stratum</code> attribute, which contains a data source specific value.

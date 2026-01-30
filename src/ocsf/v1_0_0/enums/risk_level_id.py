@@ -9,8 +9,8 @@ class RiskLevelId(IntEnum):
     See: https://schema.ocsf.io/1.0.0/data_types/risk_level_id
     """
 
-    VALUE_0 = 0  #
-    VALUE_1 = 1  #
-    VALUE_2 = 2  #
-    VALUE_3 = 3  #
-    VALUE_4 = 4  #
+    INFO = 0  #
+    LOW = 1  #
+    MEDIUM = 2  #
+    HIGH = 3  #
+    CRITICAL = 4  #

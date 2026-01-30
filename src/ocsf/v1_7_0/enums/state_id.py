@@ -9,6 +9,6 @@ class StateId(IntEnum):
     See: https://schema.ocsf.io/1.7.0/data_types/state_id
     """
 
-    VALUE_1 = 1  # The Analytic is active.
-    VALUE_2 = 2  # The Analytic is suppressed. For example, a user/customer has suppressed a particular detection signature in a security product.
-    VALUE_3 = 3  # The Analytic is still under development and considered experimental.
+    ACTIVE = 1  # The Analytic is active.
+    SUPPRESSED = 2  # The Analytic is suppressed. For example, a user/customer has suppressed a particular detection signature in a security product.
+    EXPERIMENTAL = 3  # The Analytic is still under development and considered experimental.

@@ -1,0 +1,98 @@
+"""The Website categorization identifies. enumeration."""
+
+from enum import IntEnum
+
+
+class UrlCategoryIds(IntEnum):
+    """The Website categorization identifies.
+
+    See: https://schema.ocsf.io/1.0.0/data_types/url_category_ids
+    """
+
+    UNKNOWN = 0  # The Domain/URL category is unknown.
+    ADULT_MATURE_CONTENT = 1  #
+    PORNOGRAPHY = 3  #
+    SEX_EDUCATION = 4  #
+    INTIMATE_APPAREL_SWIMSUIT = 5  #
+    NUDITY = 6  #
+    EXTREME = 7  #
+    SCAM_QUESTIONABLE_ILLEGAL = 9  #
+    GAMBLING = 11  #
+    VIOLENCE_HATE_RACISM = 14  #
+    WEAPONS = 15  #
+    ABORTION = 16  #
+    HACKING = 17  #
+    PHISHING = 18  #
+    ENTERTAINMENT = 20  #
+    BUSINESS_ECONOMY = 21  #
+    ALTERNATIVE_SPIRITUALITY_BELIEF = 22  #
+    ALCOHOL = 23  #
+    TOBACCO = 24  #
+    CONTROLLED_SUBSTANCES = 25  #
+    CHILD_PORNOGRAPHY = 26  #
+    EDUCATION = 27  #
+    CHARITABLE_ORGANIZATIONS = 29  #
+    ART_CULTURE = 30  #
+    FINANCIAL_SERVICES = 31  #
+    BROKERAGE_TRADING = 32  #
+    GAMES = 33  #
+    GOVERNMENT_LEGAL = 34  #
+    MILITARY = 35  #
+    POLITICAL_SOCIAL_ADVOCACY = 36  #
+    HEALTH = 37  #
+    TECHNOLOGY_INTERNET = 38  #
+    SEARCH_ENGINES_PORTALS = 40  #
+    MALICIOUS_SOURCES_MALNETS = 43  #
+    MALICIOUS_OUTBOUND_DATA_BOTNETS = 44  #
+    JOB_SEARCH_CAREERS = 45  #
+    NEWS_MEDIA = 46  #
+    PERSONALS_DATING = 47  #
+    REFERENCE = 49  #
+    MIXED_CONTENT_POTENTIALLY_ADULT = 50  #
+    CHAT__IM__SMS = 51  #
+    EMAIL = 52  #
+    NEWSGROUPS_FORUMS = 53  #
+    RELIGION = 54  #
+    SOCIAL_NETWORKING = 55  #
+    FILE_STORAGE_SHARING = 56  #
+    REMOTE_ACCESS_TOOLS = 57  #
+    SHOPPING = 58  #
+    AUCTIONS = 59  #
+    REAL_ESTATE = 60  #
+    SOCIETY_DAILY_LIVING = 61  #
+    PERSONAL_SITES = 63  #
+    RESTAURANTS_DINING_FOOD = 64  #
+    SPORTS_RECREATION = 65  #
+    TRAVEL = 66  #
+    VEHICLES = 67  #
+    HUMOR_JOKES = 68  #
+    SOFTWARE_DOWNLOADS = 71  #
+    PEER_TO_PEER__P2P_ = 83  #
+    AUDIO_VIDEO_CLIPS = 84  #
+    OFFICE_BUSINESS_APPLICATIONS = 85  #
+    PROXY_AVOIDANCE = 86  #
+    FOR_KIDS = 87  #
+    WEB_ADS_ANALYTICS = 88  #
+    WEB_HOSTING = 89  #
+    UNCATEGORIZED = 90  #
+    SUSPICIOUS = 92  #
+    SEXUAL_EXPRESSION = 93  #
+    TRANSLATION = 95  #
+    NON_VIEWABLE_INFRASTRUCTURE = 96  #
+    CONTENT_SERVERS = 97  #
+    PLACEHOLDERS = 98  #
+    OTHER = 99  # The Domain/URL category is not mapped. See the <code>categories</code> attribute, which may contain a data source specific value.
+    SPAM = 101  #
+    POTENTIALLY_UNWANTED_SOFTWARE = 102  #
+    DYNAMIC_DNS_HOST = 103  #
+    E_CARD_INVITATIONS = 106  #
+    INFORMATIONAL = 107  #
+    COMPUTER_INFORMATION_SECURITY = 108  #
+    INTERNET_CONNECTED_DEVICES = 109  #
+    INTERNET_TELEPHONY = 110  #
+    ONLINE_MEETINGS = 111  #
+    MEDIA_SHARING = 112  #
+    RADIO_AUDIO_STREAMS = 113  #
+    TV_VIDEO_STREAMS = 114  #
+    PIRACY_COPYRIGHT_CONCERNS = 118  #
+    MARIJUANA = 121  #

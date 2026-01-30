@@ -9,6 +9,6 @@ class RunModeIds(IntEnum):
     See: https://schema.ocsf.io/1.6.0/data_types/run_mode_ids
     """
 
-    VALUE_1 = 1  # The startup item interacts with the desktop.
-    VALUE_2 = 2  # The startup item runs in its own process.
-    VALUE_3 = 3  # The startup item runs in a shared process.
+    INTERACTIVE = 1  # The startup item interacts with the desktop.
+    OWN_PROCESS = 2  # The startup item runs in its own process.
+    SHARED_PROCESS = 3  # The startup item runs in a shared process.

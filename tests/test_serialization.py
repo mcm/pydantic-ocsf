@@ -26,7 +26,7 @@ def test_enum_serializes_as_int():
     # Create object with enum
     file_obj = File(
         name="test.txt",
-        type_id=StatusId.VALUE_1,
+        type_id=StatusId.APPLICABLE,  # Value 1
     )
 
     data = file_obj.model_dump()

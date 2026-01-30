@@ -9,7 +9,7 @@ from pydantic import Field
 from ocsf._base import OCSFBaseModel
 
 if TYPE_CHECKING:
-    from ocsf.v1_0_0.enums.http_method import HttpMethod
+    from ocsf.v1_0_0.enums.http_request_http_method import HttpRequestHttpMethod
     from ocsf.v1_0_0.objects.http_header import HttpHeader
     from ocsf.v1_0_0.objects.url import Url
 
@@ -27,7 +27,7 @@ class HttpRequest(OCSFBaseModel):
         default=None,
         description="Additional HTTP headers of an HTTP request or response. [Recommended]",
     )
-    http_method: HttpMethod | None = Field(
+    http_method: HttpRequestHttpMethod | None = Field(
         default=None,
         description="The <a target='_blank' href='https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods'>HTTP request method</a> indicates the desired action to be performed for a given resource.",
     )
