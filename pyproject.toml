@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "pydantic-ocsf"
-version = "1.7.0.20260130"
+version = "2.0.0"
 description = "Pydantic models for the Open Cybersecurity Schema Framework (OCSF)"
 readme = "README.md"
 license = "Apache-2.0"
@@ -40,10 +40,13 @@ Documentation = "https://github.com/mcm/pydantic-ocsf#readme"
 Repository = "https://github.com/mcm/pydantic-ocsf"
 
 [tool.hatch.build.targets.sdist]
-include = ["/src"]
+include = ["/src", "/scripts"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/ocsf"]
+
+# [tool.hatch.build.hooks.custom]
+# path = "scripts/build_hook.py"
 
 [tool.ruff]
 line-length = 100
@@ -58,7 +61,7 @@ ignore = ["ANN401", "E501", "S101"]
 
 [tool.ruff.lint.per-file-ignores]
 # S101: Assertions are fine in tests
-"tests/*" = ["ANN"]
+"tests/*" = ["ANN", "F841"]
 
 [tool.mypy]
 python_version = "3.9"

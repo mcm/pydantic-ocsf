@@ -1,24 +1,25 @@
 """Pydantic models for the Open Cybersecurity Schema Framework (OCSF).
 
-This package provides type-safe, validated models for OCSF security events.
+This package provides type-safe, validated models for OCSF security events
+based on OCSF schema version 1.7.0.
 
-Example:
-    from ocsf import FileActivity, File, SeverityId
+Quick Start:
+    from ocsf import FileActivity, File, User
 
     event = FileActivity(
-        time=1706000000000,
-        activity_id=1,
-        severity_id=SeverityId.INFORMATIONAL,
-        file=File(name="test.txt"),
+        activity_id=FileActivity.ActivityId.CREATE,
+        file=File(name="test.txt", type_id=1),
+        metadata={"version": "1.7.0"}
     )
 
-The default imports are from OCSF 1.7.0 (latest). For other versions:
-    from ocsf.v1_7_0 import FileActivity  # OCSF 1.7.0
-    from ocsf.v1_6_0 import FileActivity  # OCSF 1.6.0
-    from ocsf.v1_5_0 import FileActivity  # OCSF 1.5.0
-    from ocsf.v1_2_0 import FileActivity  # OCSF 1.2.0
-    from ocsf.v1_1_0 import FileActivity  # OCSF 1.1.0
-    from ocsf.v1_0_0 import FileActivity  # OCSF 1.0.0
+Import Patterns:
+    # Primary (recommended):
+    from ocsf import FileActivity, File, User
+
+    # Backward compatible (explicit version):
+    from ocsf.v1_7_0 import FileActivity
+
+For detailed usage, see documentation at https://github.com/mcm/pydantic-ocsf
 """
 
 from __future__ import annotations
@@ -26,8 +27,12 @@ from __future__ import annotations
 from typing import Any
 
 from ocsf._base import OCSFBaseModel as OCSFBaseModel
+from ocsf._import_hook import install_hook
 
-__version__ = "1.7.0.20260130"
+# Install the JIT import hook
+install_hook()
+
+__version__ = "2.0.0"
 
 # Lazy import delegation to latest version (1.7.0)
 # This avoids importing everything at module load time

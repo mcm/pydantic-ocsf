@@ -10,13 +10,11 @@ pip install pydantic-ocsf
 
 ## Version Scheme
 
-This package uses a version format of `{ocsf_version}.{generation_date}`:
-- **OCSF Version**: The latest OCSF schema version included (e.g., `1.7.0`)
-- **Generation Date**: When the models were generated (format: `YYYYMMDD`)
-
-**Example**: `1.7.0.20260129` means OCSF schema v1.7.0 generated on January 29, 2026
-
-This versioning scheme ensures you can track both the OCSF schema version and when the Pydantic models were last regenerated.
+Package versions follow semantic versioning and are independent of OCSF schema versions.
+- This package (v2.x) uses OCSF schema version 1.7.0
+- Patch versions fix bugs or update type stubs
+- Minor versions add features
+- Major versions make breaking changes
 
 ## Quick Start
 
@@ -39,14 +37,229 @@ print(json_str)
 parsed = File.model_validate_json(json_str)
 ```
 
-## Supported OCSF Versions
+## OCSF Schema Version
 
-- `ocsf.v1_7_0` - OCSF 1.7.0 (also available as `from ocsf import ...`)
-- `ocsf.v1_6_0` - OCSF 1.6.0
-- `ocsf.v1_5_0` - OCSF 1.5.0
-- `ocsf.v1_2_0` - OCSF 1.2.0
-- `ocsf.v1_1_0` - OCSF 1.1.0
-- `ocsf.v1_0_0` - OCSF 1.0.0
+This package uses OCSF schema version **1.7.0** (latest stable release).
+
+Import patterns:
+```python
+# Primary import (recommended):
+from ocsf import FileActivity, File, User
+
+# Backward compatible (explicit version):
+from ocsf.v1_7_0 import FileActivity
+```
+
+Both patterns work identically and reference the same models.
+
+## Using Newer Schema Versions
+
+If a newer OCSF schema version is released before this package is updated, you can manually use it by downloading the schema and placing it in the appropriate location.
+
+### Step 1: Download the Schema
+
+Download the schema JSON from the [OCSF Schema Repository](https://github.com/ocsf/ocsf-schema):
+
+```bash
+# Example: Download schema version 1.8.0
+VERSION="1.8.0"
+curl -o "src/ocsf/schemas/v${VERSION//./_}.json" \
+  "https://raw.githubusercontent.com/ocsf/ocsf-schema/v${VERSION}/exports/schema.json"
+```
+
+### Step 2: Regenerate Type Stubs
+
+Generate type stubs for the new schema:
+
+```bash
+python3 scripts/regenerate_stubs.py
+```
+
+### Step 3: Use the New Version
+
+```python
+# Import from the new version
+from ocsf.v1_8_0 import FileActivity, File
+
+# Or make it the default by importing without version
+import sys
+from ocsf.v1_8_0 import *
+```
+
+**Note:** The package maintainers test and validate each bundled schema version. Manually added schemas may have edge cases that aren't fully supported.
+
+## Using Custom Schemas
+
+You can use custom or extended OCSF schemas with this package's JIT (Just-In-Time) model generation system.
+
+### Option 1: Fork and Modify
+
+The simplest approach for custom schemas is to fork this repository:
+
+1. Fork the repository
+2. Replace `src/ocsf/schemas/v1_7_0.json` with your custom schema
+3. Run `python3 scripts/regenerate_stubs.py`
+4. Install from your fork: `pip install git+https://github.com/yourname/pydantic-ocsf.git`
+
+### Option 2: Use the Model Factory Directly
+
+For advanced use cases, you can use the internal model factory with your own schema:
+
+```python
+from pathlib import Path
+import json
+from ocsf._model_factory import ModelFactory
+from ocsf._version_module import OCSFVersionModule
+import sys
+
+# Load your custom schema
+with open("path/to/your/custom_schema.json") as f:
+    custom_schema = json.load(f)
+
+# Create a version module with your schema
+custom_module = OCSFVersionModule("ocsf.custom", "custom")
+custom_module.schema = custom_schema
+custom_module.factory = ModelFactory(custom_schema, "custom")
+
+# Register it so imports work
+sys.modules["ocsf.custom"] = custom_module
+
+# Now you can use it
+from ocsf.custom import FileActivity, File
+```
+
+### Custom Schema Requirements
+
+Your custom schema must follow the OCSF schema structure:
+
+- Top-level keys: `objects`, `events`, `dictionary`
+- Each object/event must have `attributes` and optional `extends`
+- Attributes must specify `type` (e.g., `string_t`, `integer_t`) and optionally `requirement` (`required` or `optional`)
+
+See the [OCSF Schema Documentation](https://schema.ocsf.io/) for details on the schema format.
+
+## Contributing New Schema Versions
+
+Maintainers and contributors can add new OCSF schema versions to the released library by following these steps:
+
+### 1. Update the Version List
+
+Edit `scripts/download_schemas.py` and add the new version:
+
+```python
+VERSIONS = [
+    "1.7.0",
+    "1.8.0",  # Add new version here
+]
+```
+
+### 2. Download and Validate the Schema
+
+Run the download script to fetch the new schema:
+
+```bash
+# First, ensure the schema exists in the .schema_cache directory
+# (You may need to manually download it first)
+
+python3 scripts/download_schemas.py
+```
+
+This will:
+- Copy the schema from `.schema_cache/` to `src/ocsf/schemas/`
+- Compute and store the checksum in `checksums.json`
+- Validate that the schema has the expected structure
+
+### 3. Generate Type Stubs
+
+Generate type stub files for the new version:
+
+```bash
+python3 scripts/regenerate_stubs.py
+```
+
+This creates `src/ocsf/v1_8_0/__init__.pyi` with type hints for all models.
+
+### 4. Test the New Version
+
+Create tests for the new version:
+
+```python
+# tests/test_v1_8_0.py
+def test_import_v1_8_0():
+    """Test that v1.8.0 imports work."""
+    from ocsf.v1_8_0 import FileActivity, File
+
+    assert FileActivity is not None
+    assert File is not None
+
+def test_v1_8_0_basic_usage():
+    """Test basic model creation with v1.8.0."""
+    from ocsf.v1_8_0 import File
+
+    file = File(name="test.txt", type_id=1)
+    assert file.name == "test.txt"
+```
+
+Run all tests to ensure nothing broke:
+
+```bash
+pytest tests/ -v
+```
+
+### 5. Update Documentation
+
+Update the README.md and CLAUDE.md:
+
+```markdown
+## OCSF Schema Versions
+
+This package supports OCSF schema versions:
+- v1.7.0 (stable)
+- v1.8.0 (latest)
+```
+
+### 6. Run Quality Checks
+
+Ensure all quality checks pass:
+
+```bash
+just check
+# Or manually:
+ruff format src/ tests/ scripts/
+ruff check src/ tests/ scripts/
+mypy src/ocsf/ --ignore-missing-imports
+pytest tests/ -v --cov=ocsf
+```
+
+### 7. Create a Pull Request
+
+1. Commit your changes with a descriptive message:
+   ```bash
+   git add .
+   git commit -m "Add support for OCSF schema v1.8.0"
+   ```
+
+2. Push to your fork and create a pull request
+
+3. Include in your PR description:
+   - OCSF schema version added
+   - Link to the OCSF schema release notes
+   - Any breaking changes or schema differences
+   - Test coverage for the new version
+
+### Schema Source
+
+Schemas are typically downloaded from:
+- **Official releases:** `https://github.com/ocsf/ocsf-schema/releases`
+- **Schema exports:** `https://raw.githubusercontent.com/ocsf/ocsf-schema/v{VERSION}/exports/schema.json`
+
+### Versioning Guidelines
+
+When adding a new schema version, consider the package versioning:
+
+- **Patch version** (2.0.x → 2.0.y): Bug fixes, type stub updates for existing versions
+- **Minor version** (2.0.x → 2.1.0): Adding new schema versions (backward compatible)
+- **Major version** (2.x → 3.0): Removing old schema versions or breaking API changes
 
 ## License
 

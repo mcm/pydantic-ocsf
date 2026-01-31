@@ -26,37 +26,34 @@ test-verbose python="3.12":
 
 # Check code formatting without making changes
 format-check:
-    uv run --python 3.12 ruff format --check src/ generator/ tests/
+    uv run --python 3.12 ruff format --check src/ tests/ scripts/
 
 # Format code (fix formatting issues)
 format:
-    uv run --python 3.12 ruff format src/ generator/ tests/
+    uv run --python 3.12 ruff format src/ tests/ scripts/
 
 # Lint code with ruff
 lint:
-    uv run --python 3.12 ruff check src/ generator/ tests/
+    uv run --python 3.12 ruff check src/ tests/ scripts/
 
 # Lint and auto-fix issues where possible
 lint-fix:
-    uv run --python 3.12 ruff check --fix src/ generator/ tests/
+    uv run --python 3.12 ruff check --fix src/ tests/ scripts/
 
 # Type check with mypy
 typecheck:
     uv run --python 3.12 mypy src/ocsf/ --ignore-missing-imports
 
-# Fetch OCSF schema (default version 1.7.0)
-fetch-schema version="1.7.0":
-    python -m generator.schema_fetcher {{version}}
+# Download OCSF schemas (v1.7.0)
+download-schemas:
+    python3 scripts/download_schemas.py
 
-# Generate models for a specific OCSF version
-generate-models version="1.7.0":
-    #!/usr/bin/env python3
-    from pathlib import Path
-    from generator.schema_parser import parse_schema
-    from generator.model_generator import generate_models
-    schema = parse_schema('{{version}}', cache_dir=Path('.schema_cache'))
-    generate_models(schema, Path('src/ocsf'))
-    print('✓ Model generation successful')
+# Regenerate type stub files from schemas
+regenerate-stubs:
+    python3 scripts/regenerate_stubs.py
+
+# Download schemas and regenerate stubs (full rebuild)
+rebuild: download-schemas regenerate-stubs
 
 # Clean build artifacts and caches
 clean:
