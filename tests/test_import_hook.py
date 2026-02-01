@@ -67,12 +67,12 @@ class TestImportHook:
         assert ocsf.v1_7_0 is not None
 
         # From import
-        from ocsf.v1_7_0 import User
+        from ocsf.v1_7_0.objects import User
 
         assert User is not None
 
         # Multiple imports
-        from ocsf.v1_7_0 import Account, File, Process
+        from ocsf.v1_7_0.objects import Account, File, Process
 
         assert Account is not None
         assert File is not None
@@ -104,7 +104,7 @@ class TestImportHook:
 
         # System should still work
         import ocsf.v1_7_0
-        from ocsf.v1_7_0 import User
+        from ocsf.v1_7_0.objects import User
 
         assert ocsf.v1_7_0 is not None
         assert User is not None

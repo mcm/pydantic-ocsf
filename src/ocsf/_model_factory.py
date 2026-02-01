@@ -32,13 +32,17 @@ class ModelFactory:
         self.dict_attributes = self.dictionary.get("attributes", {})
 
     def create_model(
-        self, name: str, model_cache: dict[str, type[OCSFBaseModel]]
+        self,
+        name: str,
+        model_cache: dict[str, type[OCSFBaseModel]],
+        namespace_filter: str | None = None,
     ) -> type[OCSFBaseModel]:
         """Create a Pydantic model for the given OCSF object/event.
 
         Args:
             name: Name of the object/event (e.g., "User", "FileActivity")
             model_cache: Cache of already-created models for reference
+            namespace_filter: Optional filter - "objects", "events", or None
 
         Returns:
             Dynamically created Pydantic model class
@@ -52,19 +56,31 @@ class ModelFactory:
         # Try both the provided name and snake_case version
         schema_name = self._pascal_to_snake(name)
 
-        # Check if it exists in objects or events
-        spec = (
-            self.objects.get(schema_name)
-            or self.events.get(schema_name)
-            or self.objects.get(name)  # Also try original name
-            or self.events.get(name)
-        )
+        # Apply namespace filter
+        if namespace_filter == "objects":
+            spec = self.objects.get(schema_name) or self.objects.get(name)
+        elif namespace_filter == "events":
+            spec = self.events.get(schema_name) or self.events.get(name)
+        else:
+            # No filter - search both (backward compatibility)
+            spec = (
+                self.objects.get(schema_name)
+                or self.events.get(schema_name)
+                or self.objects.get(name)
+                or self.events.get(name)
+            )
+
         if spec is None:
             # Convert all schema names to PascalCase for error message
             available = [
                 snake_to_pascal(k) for k in list(self.objects.keys()) + list(self.events.keys())
             ]
-            raise ModelNotFoundError(name, self.version, available)
+            if namespace_filter:
+                raise ModelNotFoundError(
+                    f"{name} (in {namespace_filter} namespace)", self.version, available
+                )
+            else:
+                raise ModelNotFoundError(name, self.version, available)
 
         # Phase 1: Resolve inheritance - ensure parent exists
         base_class = OCSFBaseModel

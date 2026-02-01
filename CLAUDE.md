@@ -17,6 +17,21 @@ The `ocsf` package provides type-safe Pydantic models for all OCSF schema versio
 pip install pydantic-ocsf
 ```
 
+## Important: Namespace Organization
+
+**As of v2.0.0**, OCSF models are organized into namespaces to avoid name collisions:
+
+```python
+# Import objects from the objects namespace
+from ocsf.v1_7_0.objects import User, Account, File, Process
+
+# Import events from the events namespace
+from ocsf.v1_7_0.events import FileActivity, ApiActivity
+
+# Old style NO LONGER WORKS:
+# from ocsf.v1_7_0 import User, FileActivity  # ❌ Raises AttributeError
+```
+
 ## Quick Start
 
 ### Creating OCSF Events
@@ -75,18 +90,34 @@ print(f"Process {process.name} is running {process.file.name}")
 ### Using Enums
 
 ```python
-from ocsf.v1_7_0.enums import ActivityId, SeverityId, StatusId
+from ocsf.v1_7_0.events import ApiActivity
 
+# Enums are attached to their respective models
 event = ApiActivity(
-    activity_id=ActivityId.CREATE,
-    severity_id=SeverityId.INFORMATIONAL,
-    status_id=StatusId.SUCCESS,
+    activity_id=ApiActivity.ActivityId.CREATE,
+    severity_id=ApiActivity.SeverityId.INFORMATIONAL,
+    status_id=ApiActivity.StatusId.SUCCESS,
     # ... other fields
 )
 
 # Enums serialize as integers
 data = event.model_dump()
 assert isinstance(data['activity_id'], int)
+```
+
+### Handling Name Collisions
+
+Some names exist in both objects and events namespaces. Use aliases to differentiate:
+
+```python
+from ocsf.v1_7_0.objects import Finding as FindingObject
+from ocsf.v1_7_0.events import Finding as FindingEvent
+from ocsf.v1_7_0.objects import Application as AppObject
+from ocsf.v1_7_0.events import Application as AppEvent
+
+# These are different classes with different fields
+finding_obj = FindingObject(title="Security Issue", uid="finding-123")
+finding_evt = FindingEvent(class_uid=2004, category_uid=2, ...)
 ```
 
 ## Type System
@@ -191,15 +222,18 @@ data = event.model_dump(exclude_none=True)
 
 ## Version Support
 
-The package includes multiple OCSF versions:
+The package includes multiple OCSF versions (v1.0.0 through v1.7.0):
 
 ```python
-# Use specific version
+# Use specific version with namespaces
 from ocsf.v1_7_0.events import ApiActivity as ApiActivity_v1_7_0
 from ocsf.v1_3_0.events import ApiActivity as ApiActivity_v1_3_0
 
-# Or import from top-level (defaults to latest)
-from ocsf import ApiActivity  # Same as v1_7_0
+# Access namespace modules from top-level
+from ocsf import objects, events
+
+user = objects.User(name="Alice", uid="123")  # Uses latest v1.7.0
+activity = events.FileActivity(...)  # Uses latest v1.7.0
 ```
 
 ## Advanced Usage

@@ -28,17 +28,17 @@ def label_to_enum_name(label: str) -> str:
     return name or "UNKNOWN"
 
 
-def generate_stub_for_version(version: str, schema: dict[str, Any], output_path: Path) -> None:
-    """Generate stub file for a single version."""
+def generate_objects_stub(version: str, schema: dict[str, Any], output_dir: Path) -> None:
+    """Generate objects.pyi stub file."""
     lines = [
-        '"""Type stubs for OCSF models (auto-generated)."""',
+        '"""OCSF Objects - Type stubs (auto-generated)."""',
         "",
         "from __future__ import annotations",
         "",
         "from typing import Any",
+        "",
         "from typing_extensions import Self",
-        "from enum import IntEnum",
-        "from pydantic import BaseModel, Field",
+        "",
         "from ocsf._base import OCSFBaseModel",
         "from ocsf._sibling_enum import SiblingEnum",
         "",
@@ -46,19 +46,61 @@ def generate_stub_for_version(version: str, schema: dict[str, Any], output_path:
 
     dict_attributes = schema.get("dictionary", {}).get("attributes", {})
 
-    # Generate object stubs
+    # Generate ONLY object stubs
     for obj_name, obj_spec in sorted(schema.get("objects", {}).items()):
         lines.extend(_generate_class_stub(obj_name, obj_spec, dict_attributes))
         lines.append("")
 
-    # Generate event stubs
+    output_path = output_dir / "objects.pyi"
+    output_path.write_text("\n".join(lines))
+    print(f"  Generated objects.pyi: {len(lines)} lines")
+
+
+def generate_events_stub(version: str, schema: dict[str, Any], output_dir: Path) -> None:
+    """Generate events.pyi stub file."""
+    lines = [
+        '"""OCSF Events - Type stubs (auto-generated)."""',
+        "",
+        "from __future__ import annotations",
+        "",
+        "from typing import Any",
+        "",
+        "from typing_extensions import Self",
+        "",
+        "from ocsf._base import OCSFBaseModel",
+        "from ocsf._sibling_enum import SiblingEnum",
+        "",
+    ]
+
+    dict_attributes = schema.get("dictionary", {}).get("attributes", {})
+
+    # Generate ONLY event stubs
     for event_name, event_spec in sorted(schema.get("events", {}).items()):
         lines.extend(_generate_class_stub(event_name, event_spec, dict_attributes))
         lines.append("")
 
-    # Write stub file
+    output_path = output_dir / "events.pyi"
     output_path.write_text("\n".join(lines))
-    print(f"  Generated {output_path.name}: {len(lines)} lines")
+    print(f"  Generated events.pyi: {len(lines)} lines")
+
+
+def generate_init_stub(version: str, schema: dict[str, Any], output_dir: Path) -> None:
+    """Generate __init__.pyi that only exposes namespace modules."""
+    lines = [
+        '"""OCSF Models - Type stubs (auto-generated)."""',
+        "",
+        "from __future__ import annotations",
+        "",
+        "# Namespace modules only - import from .objects or .events",
+        "from . import objects as objects",
+        "from . import events as events",
+        "",
+        "__all__ = ['objects', 'events']",
+    ]
+
+    output_path = output_dir / "__init__.pyi"
+    output_path.write_text("\n".join(lines))
+    print(f"  Generated __init__.pyi: {len(lines)} lines")
 
 
 def _generate_class_stub(
@@ -203,19 +245,22 @@ def main() -> None:
     # Process each version
     for schema_file in sorted(schema_dir.glob("v*.json")):
         version_str = schema_file.stem  # e.g., "v1_7_0"
-        version = version_str.replace("v", "").replace("_", ".")  # e.g., "1.7.0"
+        version = version_str.lstrip("v").replace("_", ".")  # e.g., "1.7.0"
 
         # Load schema
         with open(schema_file) as f:
             schema = json.load(f)
 
-        # Generate stub file
-        stub_dir = schema_dir.parent / version_str
+        # Generate stub files
+        stub_dir = schema_dir.parent / version_str.replace("-", "_")
         stub_dir.mkdir(exist_ok=True)
-        stub_file = stub_dir / "__init__.pyi"
 
         print(f"\n{version_str} (OCSF v{version}):")
-        generate_stub_for_version(version, schema, stub_file)
+
+        # Generate 3 files: objects.pyi, events.pyi, __init__.pyi
+        generate_objects_stub(version, schema, stub_dir)
+        generate_events_stub(version, schema, stub_dir)
+        generate_init_stub(version, schema, stub_dir)
 
     print("\n" + "=" * 70)
     print("✅ Stub generation complete!")

@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""Example usage of pydantic-ocsf v2.0 (JIT Model Factory).
+"""Example usage of pydantic-ocsf v2.0 (JIT Model Factory with Namespaces).
 
 This example demonstrates the key features of pydantic-ocsf v2.0:
 - Just-In-Time model creation (no pre-generated code)
-- Multi-version support (6 OCSF versions available)
+- Namespace organization (objects vs events)
+- Multi-version support (8 OCSF versions available)
 - Sibling attributes (ID + label enum pairs)
 - Nested objects with automatic dependency loading
 - Type hints and IDE autocomplete support
@@ -15,12 +16,24 @@ print(f"pydantic-ocsf v{ocsf.__version__}")
 print("=" * 70)
 
 # =============================================================================
-# Example 1: Basic Model Creation (JIT - models created on first access)
+# Example 1: Namespace Organization (New in v2.0!)
 # =============================================================================
-print("\nExample 1: JIT Model Creation")
+print("\nExample 1: Namespace Organization")
 print("-" * 70)
 
-from ocsf.v1_7_0 import File, User
+# v2.0 separates objects and events into namespaces
+from ocsf.v1_7_0.objects import File, User
+from ocsf.v1_7_0.events import FileActivity
+
+print("✓ Import from objects namespace: File, User")
+print("✓ Import from events namespace: FileActivity")
+print("  (Old style 'from ocsf.v1_7_0 import File' no longer works)")
+
+# =============================================================================
+# Example 2: Basic Model Creation (JIT - models created on first access)
+# =============================================================================
+print("\nExample 2: JIT Model Creation")
+print("-" * 70)
 
 # Models are created on-demand from schema JSON
 file = File(
@@ -35,12 +48,24 @@ print(f"  Size: {file.size:,} bytes")
 print(f"  Path: {file.path}")
 
 # =============================================================================
-# Example 2: Sibling Attributes (Key v2.0 Feature!)
+# Example 3: Name Collision Resolution
 # =============================================================================
-print("\nExample 2: Sibling Enums (ID + Label)")
+print("\nExample 3: Name Collision Resolution")
 print("-" * 70)
 
-from ocsf.v1_7_0 import FileActivity
+# Some names exist in both objects and events namespaces
+from ocsf.v1_7_0.objects import Finding as FindingObject
+from ocsf.v1_7_0.events import Finding as FindingEvent
+
+print(f"✓ FindingObject: {FindingObject.__name__} from objects namespace")
+print(f"✓ FindingEvent: {FindingEvent.__name__} from events namespace")
+print(f"  Different classes: {FindingObject is not FindingEvent}")
+
+# =============================================================================
+# Example 4: Sibling Attributes (Key v2.0 Feature!)
+# =============================================================================
+print("\nExample 4: Sibling Enums (ID + Label)")
+print("-" * 70)
 
 # FileActivity has ActivityId enum as a nested class
 print(f"✓ ActivityId enum: {FileActivity.ActivityId}")
@@ -72,9 +97,9 @@ except AttributeError:
     print("  (from_label method may not be available in all versions)")
 
 # =============================================================================
-# Example 3: Nested Objects with Automatic Dependency Loading
+# Example 5: Nested Objects with Automatic Dependency Loading
 # =============================================================================
-print("\nExample 3: Nested Objects")
+print("\nExample 5: Nested Objects")
 print("-" * 70)
 
 # User references Account, which JIT automatically loads
@@ -107,9 +132,9 @@ if user_with_account.account:
     print(f"  Account UID: {user_with_account.account.uid}")
 
 # =============================================================================
-# Example 4: Serialization (JSON roundtrip)
+# Example 6: Serialization (JSON roundtrip)
 # =============================================================================
-print("\nExample 4: JSON Serialization")
+print("\nExample 6: JSON Serialization")
 print("-" * 70)
 
 # Serialize to JSON
@@ -123,9 +148,9 @@ print(f"\n✓ Deserialized: {restored.name}")
 print(f"  Matches original: {restored.name == file.name}")
 
 # =============================================================================
-# Example 5: Extra Fields (OCSF flexibility)
+# Example 7: Extra Fields (OCSF flexibility)
 # =============================================================================
-print("\nExample 5: Custom/Extra Fields")
+print("\nExample 7: Custom/Extra Fields")
 print("-" * 70)
 
 # OCSF models allow extra fields (ConfigDict extra="allow")
@@ -144,13 +169,13 @@ print(f"✓ Internal ID preserved: {dumped.get('internal_id')}")
 print("  (Extra fields are preserved for forward compatibility)")
 
 # =============================================================================
-# Example 6: Multi-Version Support (Load Multiple Versions)
+# Example 8: Multi-Version Support (Load Multiple Versions)
 # =============================================================================
-print("\nExample 6: Multi-Version Support")
+print("\nExample 8: Multi-Version Support")
 print("-" * 70)
 
-from ocsf.v1_7_0 import File as File_v1_7_0
-from ocsf.v1_0_0 import File as File_v1_0_0
+from ocsf.v1_7_0.objects import File as File_v1_7_0
+from ocsf.v1_0_0.objects import File as File_v1_0_0
 
 # Different versions can be used simultaneously
 file_new = File_v1_7_0(name="new.txt", type_id=1)
@@ -160,22 +185,15 @@ print(f"✓ v1.7.0 File: {file_new.name} (latest)")
 print(f"✓ v1.0.0 File: {file_old.name} (legacy)")
 print(f"  Different classes: {File_v1_7_0 is not File_v1_0_0}")
 
-# Show available versions
-import ocsf.v1_7_0
-import ocsf.v1_6_0
-import ocsf.v1_5_0
-import ocsf.v1_2_0
-import ocsf.v1_1_0
-import ocsf.v1_0_0
-
+# Show available versions (8 versions: v1.0.0 through v1.7.0)
 print(f"\n✓ Available OCSF versions:")
-for v in ["1.7.0", "1.6.0", "1.5.0", "1.2.0", "1.1.0", "1.0.0"]:
+for v in ["1.7.0", "1.6.0", "1.5.0", "1.4.0", "1.3.0", "1.2.0", "1.1.0", "1.0.0"]:
     print(f"  - v{v}")
 
 # =============================================================================
-# Example 7: Type Safety (IDE autocomplete works!)
+# Example 9: Type Safety (IDE autocomplete works!)
 # =============================================================================
-print("\nExample 7: Type Safety & IDE Support")
+print("\nExample 9: Type Safety & IDE Support")
 print("-" * 70)
 
 # With .pyi stub files, IDEs provide full autocomplete
@@ -187,23 +205,23 @@ print(f"  UID: {user.uid}")
 print("  (Your IDE provides autocomplete for all OCSF fields!)")
 
 # =============================================================================
-# Example 8: Performance (JIT is fast!)
+# Example 10: Performance (JIT is fast!)
 # =============================================================================
-print("\nExample 8: JIT Performance")
+print("\nExample 10: JIT Performance")
 print("-" * 70)
 
 import time
 
 # First access creates the model (JIT compilation)
 start = time.perf_counter()
-from ocsf.v1_7_0 import Process
+from ocsf.v1_7_0.objects import Process
 
 end = time.perf_counter()
 first_load_ms = (end - start) * 1000
 
 # Subsequent accesses are cached (instant)
 start = time.perf_counter()
-from ocsf.v1_7_0 import Process as Process2
+from ocsf.v1_7_0.objects import Process as Process2
 
 end = time.perf_counter()
 cached_load_ms = (end - start) * 1000
@@ -225,14 +243,21 @@ print("\n" + "=" * 70)
 print("✅ All examples completed successfully!")
 print("=" * 70)
 print("""
-Key Takeaways:
-  • v2.0 uses Just-In-Time model creation (no pre-generated code)
+Key Takeaways (v2.0):
+  • Namespace organization: objects vs events (resolves name collisions)
+  • Just-In-Time model creation (no pre-generated code)
   • 14.6x faster imports than v1.x
   • 92% smaller package size
-  • All 6 OCSF versions available simultaneously
+  • All 8 OCSF versions available simultaneously (v1.0.0 - v1.7.0)
   • Full IDE type hints and autocomplete via .pyi stubs
   • Sibling enums with dual int/string support
   • Automatic dependency loading (circular refs handled)
+  • Type-safe namespace imports
+
+Breaking Change:
+  • v2.0 requires namespace imports:
+    ✓ from ocsf.v1_7_0.objects import File
+    ✗ from ocsf.v1_7_0 import File (no longer works)
 
 Learn more: https://github.com/mcm/pydantic-ocsf
 """)

@@ -19,10 +19,10 @@ Package versions follow semantic versioning and are independent of OCSF schema v
 ## Quick Start
 
 ```python
-from ocsf import File, StatusId
-import time
+from ocsf.v1_7_0.objects import File
+from ocsf.v1_7_0.events import FileActivity
 
-# Create a file object (using latest v1.7.0 by default)
+# Create a file object
 file = File(
     name="document.pdf",
     type_id=1,
@@ -35,22 +35,78 @@ print(json_str)
 
 # Parse from JSON
 parsed = File.model_validate_json(json_str)
+
+# Create an event
+event = FileActivity(
+    class_uid=1001,
+    category_uid=1,
+    activity_id=1,
+    file=file,
+    metadata={"version": "1.7.0"},
+)
+```
+
+## Namespace Organization
+
+**BREAKING CHANGE in v2.0.0**: OCSF models are now organized into namespaces to resolve name collisions.
+
+### Required Import Pattern
+
+Models must be imported from their respective namespaces:
+
+```python
+# Import objects (User, File, Account, etc.)
+from ocsf.v1_7_0.objects import User, Account, File
+
+# Import events (FileActivity, ApiActivity, etc.)
+from ocsf.v1_7_0.events import FileActivity, ApiActivity
+```
+
+### Migration from v1.x
+
+**Old style imports NO LONGER WORK:**
+
+```python
+# ❌ NO LONGER WORKS
+from ocsf.v1_7_0 import User, FileActivity
+
+# ✅ Use namespace imports instead
+from ocsf.v1_7_0.objects import User
+from ocsf.v1_7_0.events import FileActivity
+```
+
+### Name Collision Resolution
+
+Some names exist in both namespaces. Import them explicitly with aliases:
+
+```python
+from ocsf.v1_7_0.objects import Finding as FindingObject
+from ocsf.v1_7_0.events import Finding as FindingEvent
+from ocsf.v1_7_0.objects import Application as AppObject
+from ocsf.v1_7_0.events import Application as AppEvent
+
+# These are different classes
+assert FindingObject is not FindingEvent
+```
+
+### Top-Level Imports
+
+For convenience, namespace modules are also accessible from the top level:
+
+```python
+from ocsf import objects, events
+
+user = objects.User(name="Alice", uid="123")
+activity = events.FileActivity(class_uid=1001, category_uid=1)
 ```
 
 ## OCSF Schema Version
 
 This package uses OCSF schema version **1.7.0** (latest stable release).
 
-Import patterns:
-```python
-# Primary import (recommended):
-from ocsf import FileActivity, File, User
-
-# Backward compatible (explicit version):
-from ocsf.v1_7_0 import FileActivity
-```
-
-Both patterns work identically and reference the same models.
+The package includes 8 OCSF versions (v1.0.0 through v1.7.0), each organized into `objects` and `events` namespaces:
+- **169 objects**: User, File, Process, Account, etc.
+- **84 events**: FileActivity, ApiActivity, ProcessActivity, etc.
 
 ## Using Newer Schema Versions
 
@@ -78,12 +134,9 @@ python3 scripts/regenerate_stubs.py
 ### Step 3: Use the New Version
 
 ```python
-# Import from the new version
-from ocsf.v1_8_0 import FileActivity, File
-
-# Or make it the default by importing without version
-import sys
-from ocsf.v1_8_0 import *
+# Import from the new version's namespaces
+from ocsf.v1_8_0.objects import File
+from ocsf.v1_8_0.events import FileActivity
 ```
 
 **Note:** The package maintainers test and validate each bundled schema version. Manually added schemas may have edge cases that aren't fully supported.
@@ -124,8 +177,9 @@ custom_module.factory = ModelFactory(custom_schema, "custom")
 # Register it so imports work
 sys.modules["ocsf.custom"] = custom_module
 
-# Now you can use it
-from ocsf.custom import FileActivity, File
+# Now you can use it with namespaces
+from ocsf.custom.objects import File
+from ocsf.custom.events import FileActivity
 ```
 
 ### Custom Schema Requirements
@@ -187,14 +241,15 @@ Create tests for the new version:
 # tests/test_v1_8_0.py
 def test_import_v1_8_0():
     """Test that v1.8.0 imports work."""
-    from ocsf.v1_8_0 import FileActivity, File
+    from ocsf.v1_8_0.objects import File
+    from ocsf.v1_8_0.events import FileActivity
 
     assert FileActivity is not None
     assert File is not None
 
 def test_v1_8_0_basic_usage():
     """Test basic model creation with v1.8.0."""
-    from ocsf.v1_8_0 import File
+    from ocsf.v1_8_0.objects import File
 
     file = File(name="test.txt", type_id=1)
     assert file.name == "test.txt"
@@ -260,6 +315,8 @@ When adding a new schema version, consider the package versioning:
 - **Patch version** (2.0.x → 2.0.y): Bug fixes, type stub updates for existing versions
 - **Minor version** (2.0.x → 2.1.0): Adding new schema versions (backward compatible)
 - **Major version** (2.x → 3.0): Removing old schema versions or breaking API changes
+
+Note: v2.0.0 introduced namespace organization (breaking change from v1.x)
 
 ## License
 

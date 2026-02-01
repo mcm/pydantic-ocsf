@@ -23,7 +23,7 @@ class TestVersionModule:
         import ocsf.v1_7_0
 
         # First access should create the model
-        User = ocsf.v1_7_0.User
+        User = ocsf.v1_7_0.objects.User
         assert User is not None
         assert User.__name__ == "User"
 
@@ -32,10 +32,10 @@ class TestVersionModule:
         import ocsf.v1_7_0
 
         # First access
-        User1 = ocsf.v1_7_0.User
+        User1 = ocsf.v1_7_0.objects.User
 
         # Second access should return cached model
-        User2 = ocsf.v1_7_0.User
+        User2 = ocsf.v1_7_0.objects.User
 
         assert User1 is User2, "Should return same cached instance"
 
@@ -43,7 +43,7 @@ class TestVersionModule:
         """Test that forward references are resolved."""
         import ocsf.v1_7_0
 
-        User = ocsf.v1_7_0.User
+        User = ocsf.v1_7_0.objects.User
 
         # Check field annotations are resolved
         account_field = User.model_fields.get("account")
@@ -60,12 +60,13 @@ class TestVersionModule:
 
         available = dir(ocsf.v1_7_0)
 
-        # Should include common models
-        assert "User" in available
-        assert "Account" in available
-        assert "File" in available
-        assert "Process" in available
-        assert "FileActivity" in available
+        # Should include namespace modules only
+        assert "objects" in available
+        assert "events" in available
+
+        # Should NOT include individual model names
+        assert "User" not in available
+        assert "FileActivity" not in available
 
         # Should be sorted
         assert available == sorted(available)
@@ -99,18 +100,18 @@ class TestVersionModule:
         import ocsf.v1_7_0
 
         # Import a model with dependencies
-        User = ocsf.v1_7_0.User
+        User = ocsf.v1_7_0.objects.User
 
-        # Its dependencies should be loaded
-        assert "Account" in ocsf.v1_7_0._model_cache
+        # Its dependencies should be loaded (with namespaced keys)
+        assert "objects:Account" in ocsf.v1_7_0._model_cache or "Account" in ocsf.v1_7_0._model_cache
 
     def test_rebuild_all(self):
         """Test rebuild_all() method."""
         import ocsf.v1_7_0
 
         # Load some models
-        User = ocsf.v1_7_0.User
-        Account = ocsf.v1_7_0.Account
+        User = ocsf.v1_7_0.objects.User
+        Account = ocsf.v1_7_0.objects.Account
 
         # Rebuild all should not raise errors
         ocsf.v1_7_0.rebuild_all()
@@ -125,11 +126,11 @@ class TestVersionModule:
 
         # Access multiple models
         models = [
-            ocsf.v1_7_0.User,
-            ocsf.v1_7_0.Account,
-            ocsf.v1_7_0.File,
-            ocsf.v1_7_0.Process,
-            ocsf.v1_7_0.Device,
+            ocsf.v1_7_0.objects.User,
+            ocsf.v1_7_0.objects.Account,
+            ocsf.v1_7_0.objects.File,
+            ocsf.v1_7_0.objects.Process,
+            ocsf.v1_7_0.objects.Device,
         ]
 
         # All should be valid model classes
@@ -145,13 +146,13 @@ class TestVersionModule:
         initial_cache_size = len(ocsf.v1_7_0._model_cache)
 
         # Load a new model
-        _ = ocsf.v1_7_0.User
+        _ = ocsf.v1_7_0.objects.User
 
         # Cache should have grown or stayed same (User might already be loaded)
         assert len(ocsf.v1_7_0._model_cache) >= initial_cache_size
 
-        # User should be in cache
-        assert "User" in ocsf.v1_7_0._model_cache
+        # User should be in cache (with namespaced key)
+        assert "objects:User" in ocsf.v1_7_0._model_cache
 
 
 if __name__ == "__main__":

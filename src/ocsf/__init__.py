@@ -43,6 +43,13 @@ def __getattr__(name: str) -> Any:
     # Delegate to the latest version module
     import importlib
 
+    # Handle namespace module access
+    if name in ("objects", "events"):
+        module = importlib.import_module("ocsf.v1_7_0")
+        return getattr(module, name)
+
+    # For backward compatibility during transition, allow direct imports
+    # but they must come from namespace modules
     try:
         module = importlib.import_module("ocsf.v1_7_0")
         return getattr(module, name)
@@ -55,4 +62,4 @@ def __dir__() -> list[str]:
     import importlib
 
     module = importlib.import_module("ocsf.v1_7_0")
-    return sorted(["OCSFBaseModel", "__version__"] + list(getattr(module, "__all__", [])))
+    return sorted(["OCSFBaseModel", "__version__"] + dir(module))

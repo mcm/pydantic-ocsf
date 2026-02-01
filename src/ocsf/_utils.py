@@ -16,6 +16,27 @@ def snake_to_pascal(name: str) -> str:
     return "".join(word.capitalize() for word in name.split("_"))
 
 
+def pascal_to_snake(name: str) -> str:
+    """Convert PascalCase to snake_case.
+
+    Args:
+        name: PascalCase name (e.g., "User", "FileActivity", "Finding")
+
+    Returns:
+        snake_case name (e.g., "user", "file_activity", "finding")
+
+    Examples:
+        FileActivity -> file_activity
+        APIKey -> api_key
+        Finding -> finding
+    """
+    # Insert underscores before uppercase letters that follow lowercase letters
+    s1 = re.sub("(.)([A-Z][a-z]+)", r"\1_\2", name)
+    # Insert underscores before uppercase letters that follow lowercase or uppercase letters
+    s2 = re.sub("([a-z0-9])([A-Z])", r"\1_\2", s1)
+    return s2.lower()
+
+
 def ocsf_type_to_python(
     ocsf_type: str,
     is_array: bool = False,

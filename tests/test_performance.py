@@ -12,7 +12,7 @@ class TestPerformance:
 
     def test_single_model_creation_time(self):
         """Test single model creation is fast (<15ms)."""
-        from ocsf.v1_7_0 import Account
+        from ocsf.v1_7_0.objects import Account
 
         # Measure model creation (Account should be uncached at test start)
         start = time.perf_counter()
@@ -26,7 +26,7 @@ class TestPerformance:
 
     def test_cached_access_time(self):
         """Test cached model access is very fast (<0.1ms)."""
-        from ocsf.v1_7_0 import User
+        from ocsf.v1_7_0.objects import User
 
         # Access multiple times and measure
         times = []
@@ -109,7 +109,7 @@ class TestPerformance:
 
     def test_instance_creation_performance(self):
         """Test creating instances is fast."""
-        from ocsf.v1_7_0 import User
+        from ocsf.v1_7_0.objects import User
 
         # Create 100 instances
         start = time.perf_counter()
@@ -125,7 +125,7 @@ class TestPerformance:
 
     def test_serialization_performance(self):
         """Test serialization is fast."""
-        from ocsf.v1_7_0 import User
+        from ocsf.v1_7_0.objects import User
 
         user = User(name="Test User", uid="test-123")
 
@@ -143,7 +143,7 @@ class TestPerformance:
 
     def test_validation_performance(self):
         """Test validation is fast."""
-        from ocsf.v1_7_0 import User
+        from ocsf.v1_7_0.objects import User
 
         data = {"name": "Test User", "uid": "test-123"}
 
@@ -168,6 +168,7 @@ class TestPerformance:
 
         # Load 10 models (some may already be loaded)
         models = []
+        # Load models from objects namespace
         for name in [
             "User",
             "Account",
@@ -181,7 +182,7 @@ class TestPerformance:
             "Group",
         ]:
             try:
-                model = getattr(ocsf.v1_7_0, name)
+                model = getattr(ocsf.v1_7_0.objects, name)
                 models.append(model)
             except AttributeError:
                 pass
@@ -196,7 +197,7 @@ class TestPerformance:
 
     def test_dependency_loading_performance(self):
         """Test automatic dependency loading doesn't cause slowdown."""
-        from ocsf.v1_7_0 import FileActivity
+        from ocsf.v1_7_0.events import FileActivity
 
         # Load a model with dependencies (FileActivity loads many models)
         start = time.perf_counter()

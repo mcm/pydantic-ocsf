@@ -11,7 +11,7 @@ class TestModelFactory:
 
     def test_simple_model_creation(self):
         """Test creating a simple model."""
-        from ocsf.v1_7_0 import User
+        from ocsf.v1_7_0.objects import User
 
         assert User is not None
         assert issubclass(User, OCSFBaseModel)
@@ -19,7 +19,7 @@ class TestModelFactory:
 
     def test_inheritance_resolution(self):
         """Test that inheritance is resolved correctly."""
-        from ocsf.v1_7_0 import FileActivity
+        from ocsf.v1_7_0.events import FileActivity
 
         # FileActivity should inherit from base classes
         assert issubclass(FileActivity, OCSFBaseModel)
@@ -30,7 +30,7 @@ class TestModelFactory:
 
     def test_field_types(self):
         """Test that field types are correctly mapped."""
-        from ocsf.v1_7_0 import File
+        from ocsf.v1_7_0.objects import File
 
         fields = File.model_fields
 
@@ -49,7 +49,7 @@ class TestModelFactory:
 
     def test_nested_objects(self):
         """Test that nested object references work."""
-        from ocsf.v1_7_0 import User
+        from ocsf.v1_7_0.objects import User
 
         # User has account field that references Account model
         if "account" in User.model_fields:
@@ -59,7 +59,7 @@ class TestModelFactory:
 
     def test_array_fields(self):
         """Test that array/list fields work."""
-        from ocsf.v1_7_0 import Process
+        from ocsf.v1_7_0.objects import Process
 
         # Process may have children which is list[Process]
         if "children" in Process.model_fields:
@@ -69,7 +69,7 @@ class TestModelFactory:
 
     def test_required_vs_optional_fields(self):
         """Test that required/optional fields are handled correctly."""
-        from ocsf.v1_7_0 import File
+        from ocsf.v1_7_0.objects import File
 
         fields = File.model_fields
 
@@ -80,7 +80,7 @@ class TestModelFactory:
 
     def test_inline_enum_extraction(self):
         """Test that inline enums are extracted from schema."""
-        from ocsf.v1_7_0 import FileActivity
+        from ocsf.v1_7_0.events import FileActivity
 
         # FileActivity should have ActivityId enum
         assert hasattr(FileActivity, "ActivityId")
@@ -94,7 +94,7 @@ class TestModelFactory:
 
     def test_enum_attachment_to_model(self):
         """Test that enums are attached as nested classes."""
-        from ocsf.v1_7_0 import FileActivity
+        from ocsf.v1_7_0.events import FileActivity
 
         # Enum should be accessible as attribute
         assert hasattr(FileActivity, "ActivityId")
@@ -122,26 +122,26 @@ class TestModelFactory:
         import ocsf.v1_7_0
 
         # Create several models
-        User = ocsf.v1_7_0.User
-        Account = ocsf.v1_7_0.Account
-        File = ocsf.v1_7_0.File
+        User = ocsf.v1_7_0.objects.User
+        Account = ocsf.v1_7_0.objects.Account
+        File = ocsf.v1_7_0.objects.File
 
-        # All should be in the same cache
+        # All should be in the same cache (with namespaced keys)
         cache = ocsf.v1_7_0._model_cache
-        assert "User" in cache
-        assert "Account" in cache
-        assert "File" in cache
+        assert "objects:User" in cache
+        assert "objects:Account" in cache
+        assert "objects:File" in cache
 
     def test_dictionary_attribute_merging(self):
         """Test that dictionary attributes are merged correctly."""
-        from ocsf.v1_7_0 import User
+        from ocsf.v1_7_0.objects import User
 
         # User should have fields from both local spec and dictionary
         assert len(User.model_fields) > 0
 
     def test_model_instantiation(self):
         """Test that created models can be instantiated."""
-        from ocsf.v1_7_0 import User
+        from ocsf.v1_7_0.objects import User
 
         # Should be able to create instances
         user = User(name="Alice", uid="user-123")
@@ -151,7 +151,7 @@ class TestModelFactory:
     def test_model_validation(self):
         """Test that model validation works."""
 
-        from ocsf.v1_7_0 import User
+        from ocsf.v1_7_0.objects import User
 
         # Valid data should work
         user = User.model_validate({"name": "Bob", "uid": "user-456"})
@@ -159,7 +159,7 @@ class TestModelFactory:
 
     def test_model_serialization(self):
         """Test that models can be serialized."""
-        from ocsf.v1_7_0 import User
+        from ocsf.v1_7_0.objects import User
 
         user = User(name="Charlie", uid="user-789")
 

@@ -35,7 +35,11 @@ class OCSFVersionModule(ModuleType):
         self.version = version
         self._model_cache: dict[str, type[OCSFBaseModel]] = {}
         self.__file__ = f"<ocsf-jit:{version}>"
-        self.__path__ = []
+        self.__path__ = []  # Mark as package
+
+        # Namespace module references
+        self._objects_module: Any = None
+        self._events_module: Any = None
 
         # Load schema
         loader = get_schema_loader()
@@ -45,42 +49,41 @@ class OCSFVersionModule(ModuleType):
         self.factory = ModelFactory(self.schema, version)
 
     def __getattr__(self, name: str) -> Any:
-        """Create models on-demand when accessed.
+        """Only expose namespace modules, not individual models.
 
         Args:
-            name: Model name (e.g., "User", "FileActivity")
+            name: Attribute name ("objects", "events", or model name)
 
         Returns:
-            Dynamically created Pydantic model class
+            Namespace module for "objects" or "events"
 
         Raises:
-            AttributeError: If the model name is not found
+            AttributeError: If accessing a model directly (breaking change)
         """
-        # Check cache first
-        if name in self._model_cache:
-            return self._model_cache[name]
+        # Handle namespace module access
+        if name == "objects":
+            if self._objects_module is None:
+                from ocsf._namespace_module import OCSFNamespaceModule
 
-        # Avoid infinite recursion for private attributes
-        if name.startswith("_"):
-            raise AttributeError(f"module '{self.__name__}' has no attribute '{name}'")
+                self._objects_module = OCSFNamespaceModule(
+                    f"{self.__name__}.objects", self, "objects"
+                )
+            return self._objects_module
+        elif name == "events":
+            if self._events_module is None:
+                from ocsf._namespace_module import OCSFNamespaceModule
 
-        # Create the model
-        try:
-            model = self.factory.create_model(name, self._model_cache)
-        except Exception as e:
-            # Convert to AttributeError for proper import error handling
-            raise AttributeError(f"module '{self.__name__}' has no attribute '{name}'") from e
+                self._events_module = OCSFNamespaceModule(
+                    f"{self.__name__}.events", self, "events"
+                )
+            return self._events_module
 
-        # Cache it
-        self._model_cache[name] = model
-
-        # Load all dependencies for this model
-        self._load_dependencies(model)
-
-        # Rebuild with complete namespace
-        self._try_rebuild_model(model)
-
-        return model
+        # No direct model access - raise helpful error
+        raise AttributeError(
+            f"module '{self.__name__}' has no attribute '{name}'. "
+            f"Use 'from {self.__name__}.objects import {name}' or "
+            f"'from {self.__name__}.events import {name}' instead."
+        )
 
     def _load_dependencies(self, model: type[OCSFBaseModel]) -> None:
         """Recursively load all models that this model references.
@@ -100,11 +103,29 @@ class OCSFVersionModule(ModuleType):
 
         # Load each dependency recursively
         for dep_name in dependencies:
-            if dep_name not in self._model_cache:
-                # Dependency doesn't exist in schema, skip
-                with contextlib.suppress(AttributeError):
-                    # Recursively trigger loading
-                    getattr(self, dep_name)
+            # Check if dependency is already loaded (with any namespace prefix)
+            is_loaded = any(
+                cache_key == dep_name or cache_key.endswith(f":{dep_name}")
+                for cache_key in self._model_cache
+            )
+
+            if not is_loaded:
+                # Try to load from objects namespace first, then events
+                loaded = False
+                for namespace in ("objects", "events"):
+                    try:
+                        namespace_module = getattr(self, namespace)
+                        _ = getattr(namespace_module, dep_name)
+                        loaded = True
+                        break
+                    except AttributeError:
+                        continue
+
+                # If still not loaded, it might be a base class or special model
+                if not loaded:
+                    with contextlib.suppress(AttributeError):
+                        # Try direct access (for base classes like BaseEvent, Object, etc.)
+                        pass
 
     def _extract_dependencies(self, annotation: Any, dependencies: set[str]) -> None:
         """Extract model names from a type annotation.
@@ -166,10 +187,16 @@ class OCSFVersionModule(ModuleType):
         from typing import Any
 
         # Build namespace with all available models + typing imports
-        namespace = {
-            "Any": Any,
-            **dict(self._model_cache),
-        }
+        # Include both namespaced keys and non-namespaced model names
+        namespace: dict[str, Any] = {"Any": Any}
+
+        # Add models with both namespaced and non-namespaced keys
+        for cache_key, model_cls in self._model_cache.items():
+            namespace[cache_key] = model_cls  # e.g., "objects:User"
+            # Also add without namespace prefix for Pydantic's forward ref resolution
+            if ":" in cache_key:
+                _, model_name = cache_key.split(":", 1)
+                namespace[model_name] = model_cls  # e.g., "User"
 
         # Also include any enum classes attached to models
         for model_cls in self._model_cache.values():
@@ -197,10 +224,15 @@ class OCSFVersionModule(ModuleType):
         """
         from typing import Any
 
-        namespace = {
-            "Any": Any,
-            **dict(self._model_cache),
-        }
+        # Build namespace with both namespaced and non-namespaced keys
+        namespace: dict[str, Any] = {"Any": Any}
+
+        for cache_key, model_cls in self._model_cache.items():
+            namespace[cache_key] = model_cls
+            # Also add without namespace prefix for Pydantic's forward ref resolution
+            if ":" in cache_key:
+                _, model_name = cache_key.split(":", 1)
+                namespace[model_name] = model_cls
 
         for model in self._model_cache.values():
             with contextlib.suppress(Exception):
@@ -210,9 +242,9 @@ class OCSFVersionModule(ModuleType):
         """Support for dir() and autocomplete.
 
         Returns:
-            List of all available model names in this version
+            List of namespace modules only
         """
-        return sorted(self.factory.get_all_model_names())
+        return ["objects", "events"]
 
     def __repr__(self) -> str:
         """String representation of the module."""

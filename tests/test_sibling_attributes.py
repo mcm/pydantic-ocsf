@@ -9,7 +9,7 @@ class TestSiblingAttributes:
 
     def test_enum_class_exists(self):
         """Test that sibling enum classes are created."""
-        from ocsf.v1_7_0 import FileActivity
+        from ocsf.v1_7_0.events import FileActivity
 
         # ActivityId enum should exist as nested class
         assert hasattr(FileActivity, "ActivityId")
@@ -19,7 +19,7 @@ class TestSiblingAttributes:
 
     def test_enum_members(self):
         """Test that enum has correct members."""
-        from ocsf.v1_7_0 import FileActivity
+        from ocsf.v1_7_0.events import FileActivity
 
         ActivityId = FileActivity.ActivityId
 
@@ -33,7 +33,7 @@ class TestSiblingAttributes:
 
     def test_enum_int_construction(self):
         """Test constructing enum from integer."""
-        from ocsf.v1_7_0 import FileActivity
+        from ocsf.v1_7_0.events import FileActivity
 
         ActivityId = FileActivity.ActivityId
 
@@ -44,7 +44,7 @@ class TestSiblingAttributes:
 
     def test_enum_string_construction(self):
         """Test constructing enum from label string."""
-        from ocsf.v1_7_0 import FileActivity
+        from ocsf.v1_7_0.events import FileActivity
 
         ActivityId = FileActivity.ActivityId
 
@@ -57,7 +57,7 @@ class TestSiblingAttributes:
 
     def test_enum_case_insensitive(self):
         """Test case-insensitive label lookup."""
-        from ocsf.v1_7_0 import FileActivity
+        from ocsf.v1_7_0.events import FileActivity
 
         ActivityId = FileActivity.ActivityId
 
@@ -77,7 +77,7 @@ class TestSiblingAttributes:
 
     def test_enum_label_property(self):
         """Test enum has label property."""
-        from ocsf.v1_7_0 import FileActivity
+        from ocsf.v1_7_0.events import FileActivity
 
         ActivityId = FileActivity.ActivityId
 
@@ -90,7 +90,7 @@ class TestSiblingAttributes:
 
     def test_field_type_annotations(self):
         """Test that sibling fields have correct type annotations."""
-        from ocsf.v1_7_0 import FileActivity
+        from ocsf.v1_7_0.events import FileActivity
 
         fields = FileActivity.model_fields
 
@@ -104,7 +104,7 @@ class TestSiblingAttributes:
 
     def test_scenario1_both_present_consistent(self):
         """Scenario 1: Both ID and label present and consistent."""
-        from ocsf.v1_7_0 import FileActivity
+        from ocsf.v1_7_0.events import FileActivity
 
         ActivityId = FileActivity.ActivityId
 
@@ -125,7 +125,7 @@ class TestSiblingAttributes:
 
     def test_scenario2_only_id_present(self):
         """Scenario 2: Only ID present, label should be extrapolated."""
-        from ocsf.v1_7_0 import FileActivity
+        from ocsf.v1_7_0.events import FileActivity
 
         # Create with only ID
         activity = FileActivity.model_construct(
@@ -142,7 +142,7 @@ class TestSiblingAttributes:
 
     def test_scenario3_only_label_present(self):
         """Scenario 3: Only label present, ID should be extrapolated."""
-        from ocsf.v1_7_0 import FileActivity
+        from ocsf.v1_7_0.events import FileActivity
 
         ActivityId = FileActivity.ActivityId
 
@@ -163,7 +163,7 @@ class TestSiblingAttributes:
 
     def test_model_validation_with_enums(self):
         """Test that model validation works with enum fields."""
-        from ocsf.v1_7_0 import FileActivity
+        from ocsf.v1_7_0.events import FileActivity
 
         # Should be able to validate with enum ID
         data = {
@@ -184,7 +184,7 @@ class TestSiblingAttributes:
 
     def test_serialization_includes_both_fields(self):
         """Test that serialization includes both ID and label."""
-        from ocsf.v1_7_0 import FileActivity
+        from ocsf.v1_7_0.events import FileActivity
 
         activity = FileActivity.model_construct(
             activity_id=1,
@@ -204,7 +204,7 @@ class TestSiblingAttributes:
 
     def test_enum_value_serialization(self):
         """Test that enum values serialize as integers."""
-        from ocsf.v1_7_0 import FileActivity
+        from ocsf.v1_7_0.events import FileActivity
 
         ActivityId = FileActivity.ActivityId
         test_enum = ActivityId(1)
@@ -223,7 +223,7 @@ class TestSiblingAttributes:
 
     def test_multiple_enum_fields(self):
         """Test models with multiple sibling enum pairs."""
-        from ocsf.v1_7_0 import FileActivity
+        from ocsf.v1_7_0.events import FileActivity
 
         # FileActivity might have multiple enum fields
         # Test they all work independently
@@ -238,7 +238,7 @@ class TestSiblingAttributes:
 
     def test_unknown_label_handling(self):
         """Test handling of unknown label values."""
-        from ocsf.v1_7_0 import FileActivity
+        from ocsf.v1_7_0.events import FileActivity
 
         # Create with unknown label
         activity = FileActivity.model_construct(
@@ -254,7 +254,7 @@ class TestSiblingAttributes:
 
     def test_enum_direct_usage(self):
         """Test using enum directly in model creation."""
-        from ocsf.v1_7_0 import FileActivity
+        from ocsf.v1_7_0.events import FileActivity
 
         ActivityId = FileActivity.ActivityId
 

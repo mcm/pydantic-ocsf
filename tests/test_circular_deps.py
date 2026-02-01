@@ -9,7 +9,7 @@ class TestCircularDependencies:
 
     def test_two_way_circular(self):
         """Test 2-way circular dependency (User ↔ Account)."""
-        from ocsf.v1_7_0 import Account, User
+        from ocsf.v1_7_0.objects import Account, User
 
         # Both should load without errors
         assert User is not None
@@ -27,7 +27,7 @@ class TestCircularDependencies:
 
     def test_nested_object_creation(self):
         """Test creating objects with circular references."""
-        from ocsf.v1_7_0 import User
+        from ocsf.v1_7_0.objects import User
 
         # Should be able to create User with nested Account
         user = User.model_validate(
@@ -44,7 +44,7 @@ class TestCircularDependencies:
 
     def test_deep_nesting(self):
         """Test deep nesting with circular refs."""
-        from ocsf.v1_7_0 import Process
+        from ocsf.v1_7_0.objects import Process
 
         # Process can contain parent Process
         # Should be able to create nested structure
@@ -65,7 +65,7 @@ class TestCircularDependencies:
 
     def test_model_validation_with_circular_refs(self):
         """Test validation works with circular references."""
-        from ocsf.v1_7_0 import User
+        from ocsf.v1_7_0.objects import User
 
         data = {
             "name": "Bob",
@@ -79,7 +79,7 @@ class TestCircularDependencies:
 
     def test_serialization_with_circular_refs(self):
         """Test serialization with circular references."""
-        from ocsf.v1_7_0 import User
+        from ocsf.v1_7_0.objects import User
 
         user = User.model_construct(
             name="Charlie", uid="user-999", account={"uid": "acc-999", "name": "Charlie Account"}
@@ -93,7 +93,7 @@ class TestCircularDependencies:
 
     def test_forward_ref_resolution(self):
         """Test that forward references are properly resolved."""
-        from ocsf.v1_7_0 import User
+        from ocsf.v1_7_0.objects import User
 
         # After loading, forward refs should be resolved
         # Check that model_rebuild has been called
@@ -105,7 +105,7 @@ class TestCircularDependencies:
 
     def test_multiple_circular_deps(self):
         """Test multiple models with circular dependencies."""
-        from ocsf.v1_7_0 import Account, Group, User
+        from ocsf.v1_7_0.objects import Account, Group, User
 
         # All should load
         assert User is not None
@@ -123,7 +123,7 @@ class TestCircularDependencies:
 
     def test_self_referential(self):
         """Test self-referential models (Process → Process)."""
-        from ocsf.v1_7_0 import Process
+        from ocsf.v1_7_0.objects import Process
 
         # Should be able to load
         assert Process is not None
@@ -137,7 +137,7 @@ class TestCircularDependencies:
 
     def test_dependency_chain(self):
         """Test loading a chain of dependencies."""
-        from ocsf.v1_7_0 import FileActivity
+        from ocsf.v1_7_0.events import FileActivity
 
         # FileActivity has many dependencies
         assert FileActivity is not None
@@ -149,7 +149,7 @@ class TestCircularDependencies:
 
     def test_rebuild_triggers_correctly(self):
         """Test that model_rebuild is triggered at right time."""
-        from ocsf.v1_7_0 import Account, User
+        from ocsf.v1_7_0.objects import Account, User
 
         # Load a model - should be usable immediately
         user = User(name="Test", uid="test-123")
