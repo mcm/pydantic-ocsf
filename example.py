@@ -187,8 +187,11 @@ print(f"  Different classes: {File_v1_7_0 is not File_v1_0_0}")
 
 # Show available versions (8 versions: v1.0.0 through v1.7.0)
 print("\n✓ Available OCSF versions:")
-for v in ["1.7.0", "1.6.0", "1.5.0", "1.4.0", "1.3.0", "1.2.0", "1.1.0", "1.0.0"]:
+for v in ocsf.available_versions():
     print(f"  - v{v}")
+
+# for v in ["1.7.0", "1.6.0", "1.5.0", "1.4.0", "1.3.0", "1.2.0", "1.1.0", "1.0.0"]:
+#     print(f"  - v{v}")
 
 # =============================================================================
 # Example 9: Type Safety (IDE autocomplete works!)

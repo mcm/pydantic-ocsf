@@ -143,20 +143,10 @@ class ModelFactory:
                     Field(default=None),
                 )
 
-        # Phase 4: Create the model
-        model = create_model(  # type: ignore[call-overload]
-            name,
-            __base__=base_class,
-            __module__="ocsf.models",
-            **field_defs,
-        )
+        # Phase 4: Prepare validators
+        validators_dict = {}
 
-        # Phase 5: Attach enum classes as nested classes
-        for _field_name, enum_cls in enum_classes.items():
-            # Attach with the PascalCase name (e.g., ActivityId)
-            setattr(model, enum_cls.__name__, enum_cls)
-
-        # Phase 6: Add sibling reconciliation validators
+        # Phase 4a: Add sibling reconciliation validators
         from ocsf._sibling_validator import create_sibling_reconciler
 
         for field_name in enum_classes:
@@ -172,11 +162,39 @@ class ModelFactory:
 
                     enum_cls = enum_classes[field_name]
                     reconciler = create_sibling_reconciler(field_name, label_field, enum_cls)
-
-                    # Attach the validator to the model
-                    # Pydantic will pick up validators defined on the class
                     validator_name = f"_reconcile_{field_name}"
-                    setattr(model, validator_name, reconciler)
+                    validators_dict[validator_name] = reconciler
+
+        # Phase 4b: Add UID pre-fill validator for events only
+        if namespace_filter == "events" or (
+            namespace_filter is None and schema_name in self.events
+        ):
+            from ocsf._uid_validator import create_uid_prefill_validator
+
+            # Resolve category_uid by tracing inheritance
+            category_uid = self._resolve_category_uid(spec)
+
+            # Get class_uid from event's uid field
+            class_uid = spec.get("uid")
+
+            # Only add validator if we have at least one UID to pre-fill
+            if category_uid is not None or class_uid is not None:
+                uid_validator = create_uid_prefill_validator(category_uid, class_uid)
+                validators_dict["_prefill_uids"] = uid_validator
+
+        # Phase 5: Create the model with validators
+        model = create_model(  # type: ignore[call-overload]
+            name,
+            __base__=base_class,
+            __module__="ocsf.models",
+            __validators__=validators_dict if validators_dict else None,
+            **field_defs,
+        )
+
+        # Phase 6: Attach enum classes as nested classes
+        for _field_name, enum_cls in enum_classes.items():
+            # Attach with the PascalCase name (e.g., ActivityId)
+            setattr(model, enum_cls.__name__, enum_cls)
 
         return model  # type: ignore[no-any-return]
 
@@ -260,6 +278,34 @@ class ModelFactory:
             return f"_{snake_name}"
 
         return snake_name
+
+    def _resolve_category_uid(self, spec: dict[str, Any]) -> int | None:
+        """Resolve category UID by tracing inheritance chain.
+
+        Args:
+            spec: Event specification from schema
+
+        Returns:
+            Category UID (1-8) or None if not found/not applicable
+        """
+        # Build category name -> UID mapping from categories_meta
+        categories_meta = self.schema.get("categories_meta", {})
+        category_attrs = categories_meta.get("attributes", {})
+        category_map = {name: info["uid"] for name, info in category_attrs.items()}
+
+        # Check if this event has a category field
+        if "category" in spec and spec["category"]:
+            category_name = spec["category"]
+            return category_map.get(category_name)
+
+        # Trace through inheritance chain to find category
+        if "extends" in spec:
+            parent_name = spec["extends"]
+            parent_spec = self.events.get(parent_name)
+            if parent_spec:
+                return self._resolve_category_uid(parent_spec)
+
+        return None
 
     def get_all_model_names(self) -> list[str]:
         """Get all available model names in this schema (in PascalCase).

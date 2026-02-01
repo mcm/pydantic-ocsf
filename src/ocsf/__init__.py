@@ -28,6 +28,7 @@ from typing import Any
 
 from ocsf._base import OCSFBaseModel as OCSFBaseModel
 from ocsf._import_hook import install_hook
+from ocsf._schema_loader import get_schema_loader
 
 # Install the JIT import hook
 install_hook()
@@ -59,7 +60,14 @@ def __getattr__(name: str) -> Any:
 
 def __dir__() -> list[str]:
     """Support for dir() and autocomplete."""
-    import importlib
+    return sorted(["OCSFBaseModel", "__version__"] + available_versions())
 
-    module = importlib.import_module("ocsf.v1_7_0")
-    return sorted(["OCSFBaseModel", "__version__"] + dir(module))
+    # import importlib
+
+    # module = importlib.import_module("ocsf.v1_7_0")
+    # return sorted(["OCSFBaseModel", "__version__"] + dir(module))
+
+
+def available_versions() -> list[str]:
+    loader = get_schema_loader()
+    return loader.get_available_versions()
