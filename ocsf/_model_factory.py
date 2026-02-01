@@ -143,23 +143,38 @@ class ModelFactory:
                     Field(default=None),
                 )
 
+        # Phase 3b: Infer sibling label fields for enum-backed ID fields
+        # Per OCSF spec, sibling attributes are not explicitly in the schema
+        # and must be inferred from _id enum fields
+        from ocsf._utils import infer_sibling_label_field
+
+        for field_name in enum_classes:
+            if field_name.endswith("_id"):
+                label_field = infer_sibling_label_field(field_name)
+
+                # Only add if not already defined (some are explicit in schema)
+                if label_field not in field_defs:
+                    # Add as optional string field
+                    field_defs[label_field] = (
+                        "str | None",
+                        Field(default=None, description=f"Label for {field_name}"),
+                    )
+
         # Phase 4: Prepare validators
         validators_dict = {}
 
         # Phase 4a: Add sibling reconciliation validators
         from ocsf._sibling_validator import create_sibling_reconciler
+        from ocsf._utils import infer_sibling_label_field
 
         for field_name in enum_classes:
-            # For activity_id, label field is activity_name
             if field_name.endswith("_id"):
-                label_field = field_name[:-3]  # Remove _id
+                # Infer the label field name using the same logic as Phase 3b
+                label_field = infer_sibling_label_field(field_name)
 
-                # Check if label field exists in attributes
-                if label_field in attributes or f"{label_field}_name" in attributes:
-                    # Some use activity_name instead of activity
-                    if f"{label_field}_name" in attributes:
-                        label_field = f"{label_field}_name"
-
+                # Check if label field exists in our field definitions
+                # (either from schema or inferred in Phase 3b)
+                if label_field in field_defs:
                     enum_cls = enum_classes[field_name]
                     reconciler = create_sibling_reconciler(field_name, label_field, enum_cls)
                     validator_name = f"_reconcile_{field_name}"

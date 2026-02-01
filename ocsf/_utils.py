@@ -118,3 +118,57 @@ def label_to_enum_name(label: str) -> str:
         name = "UNKNOWN"
 
     return name
+
+
+def infer_sibling_label_field(id_field: str) -> str:
+    """Infer the sibling label field name for an ID field with an enum.
+
+    Per OCSF specification, sibling attributes follow the pattern where a
+    numeric `_id` field (e.g., activity_id, type_id) has a corresponding
+    string label field. The label field name is inferred by removing the
+    `_id` suffix, with special handling for Python reserved keywords.
+
+    Args:
+        id_field: The ID field name ending in "_id" (e.g., "activity_id", "type_id")
+
+    Returns:
+        The inferred label field name (e.g., "activity", "type_")
+
+    Raises:
+        ValueError: If field name doesn't end with "_id"
+
+    Examples:
+        >>> infer_sibling_label_field("activity_id")
+        "activity"
+        >>> infer_sibling_label_field("type_id")
+        "type_"
+        >>> infer_sibling_label_field("severity_id")
+        "severity"
+        >>> infer_sibling_label_field("class_id")
+        "class_"
+
+    Note:
+        For Python reserved keywords (type, class, import, etc.), an underscore
+        suffix is appended to avoid syntax errors.
+    """
+    if not id_field.endswith("_id"):
+        raise ValueError(f"Expected field ending in '_id', got {id_field!r}")
+
+    # Remove "_id" suffix to get base name
+    base = id_field[:-3]
+
+    # Python reserved keywords that need underscore suffix
+    # This is a comprehensive list of Python 3.x keywords
+    RESERVED_KEYWORDS = {
+        "False", "None", "True", "and", "as", "assert", "async", "await",
+        "break", "class", "continue", "def", "del", "elif", "else", "except",
+        "finally", "for", "from", "global", "if", "import", "in", "is",
+        "lambda", "nonlocal", "not", "or", "pass", "raise", "return", "try",
+        "while", "with", "yield", "type"
+    }
+
+    # Check if base name is a reserved keyword (case-insensitive check)
+    if base in RESERVED_KEYWORDS or base.lower() in {k.lower() for k in RESERVED_KEYWORDS}:
+        return f"{base}_"
+
+    return base

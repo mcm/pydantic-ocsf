@@ -6,4 +6,8 @@ from __future__ import annotations
 from . import events as events
 from . import objects as objects
 
-__all__ = ['objects', 'events']
+__version__: str
+
+def available_versions() -> list[str]: ...
+
+__all__ = ["available_versions", "objects", "events", "__version__"]

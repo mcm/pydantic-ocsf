@@ -34,6 +34,7 @@ class AccountChange(Iam):
     policy: Any | None = None
     user: Any
     user_result: Any | None = None
+    activity: str | None = None
 
 class AdminGroupQuery(DiscoveryResult):
     group: Any
@@ -60,6 +61,7 @@ class AirborneBroadcastActivity(UnmannedSystems):
     unmanned_aerial_system: Any
     unmanned_system_operating_area: Any | None = None
     unmanned_system_operator: Any
+    activity: str | None = None
 
 class ApiActivity(Application):
     class ActivityId(SiblingEnum):
@@ -80,6 +82,7 @@ class ApiActivity(Application):
     http_response: Any | None = None
     resources: list[Any] | None = None
     src_endpoint: Any
+    activity: str | None = None
 
 class Application(BaseEvent):
     pass
@@ -95,6 +98,7 @@ class ApplicationError(Application):
         def from_label(cls, label: str) -> Self: ...
 
     message: str | None = None
+    activity: str | None = None
 
 class ApplicationLifecycle(Application):
     class ActivityId(SiblingEnum):
@@ -114,6 +118,7 @@ class ApplicationLifecycle(Application):
 
     activity_id: int
     app: Any
+    activity: str | None = None
 
 class ApplicationSecurityPostureFinding(Finding):
     application: Any | None = None
@@ -206,6 +211,7 @@ class Authentication(Iam):
     session: Any | None = None
     status_detail: str | None = None
     user: Any
+    activity: str | None = None
 
 class AuthorizeSession(Iam):
     class ActivityId(SiblingEnum):
@@ -222,6 +228,7 @@ class AuthorizeSession(Iam):
     privileges: list[str] | None = None
     session: Any | None = None
     user: Any
+    activity: str | None = None
 
 class BaseEvent(OCSFBaseModel):
     class ActivityId(SiblingEnum):
@@ -284,6 +291,7 @@ class BaseEvent(OCSFBaseModel):
     type_name: str | None = None
     type_uid: int | None = None
     unmapped: Any | None = None
+    activity: str | None = None
 
 class CloudResourcesInventoryInfo(Discovery):
     cloud: Any | None = None
@@ -378,6 +386,7 @@ class DataSecurityFinding(Finding):
     risk_score: int | None = None
     src_endpoint: Any | None = None
     table: Any | None = None
+    activity: str | None = None
 
 class DatastoreActivity(Application):
     class ActivityId(SiblingEnum):
@@ -418,6 +427,8 @@ class DatastoreActivity(Application):
     src_endpoint: Any
     table: Any | None = None
     type_id: int | None = None
+    activity: str | None = None
+    type_: str | None = None
 
 class DetectionFinding(Finding):
     class ConfidenceId(SiblingEnum):
@@ -542,6 +553,7 @@ class DhcpActivity(Network):
     relay: Any | None = None
     src_endpoint: Any | None = None
     transaction_uid: str | None = None
+    activity: str | None = None
 
 class Discovery(BaseEvent):
     class ActivityId(SiblingEnum):
@@ -553,6 +565,7 @@ class Discovery(BaseEvent):
         @classmethod
         def from_label(cls, label: str) -> Self: ...
 
+    activity: str | None = None
 
 class DiscoveryResult(BaseEvent):
     class ActivityId(SiblingEnum):
@@ -579,6 +592,7 @@ class DiscoveryResult(BaseEvent):
     query_info: Any | None = None
     query_result: str | None = None
     query_result_id: int
+    activity: str | None = None
 
 class DnsActivity(Network):
     class ActivityId(SiblingEnum):
@@ -629,6 +643,7 @@ class DnsActivity(Network):
     rcode_id: int | None = None
     response_time: int | None = None
     traffic: Any | None = None
+    activity: str | None = None
 
 class DroneFlightsActivity(UnmannedSystems):
     class ActivityId(SiblingEnum):
@@ -683,6 +698,7 @@ class DroneFlightsActivity(UnmannedSystems):
     unmanned_aerial_system: Any
     unmanned_system_operating_area: Any | None = None
     unmanned_system_operator: Any
+    activity: str | None = None
 
 class EmailActivity(BaseEvent):
     class ActivityId(SiblingEnum):
@@ -722,6 +738,7 @@ class EmailActivity(BaseEvent):
     smtp_hello: str | None = None
     src_endpoint: Any | None = None
     to: list[Any] | None = None
+    activity: str | None = None
 
 class EmailFileActivity(BaseEvent):
     class ActivityId(SiblingEnum):
@@ -737,6 +754,7 @@ class EmailFileActivity(BaseEvent):
     activity_id: int
     email_uid: str
     file: Any
+    activity: str | None = None
 
 class EmailUrlActivity(BaseEvent):
     class ActivityId(SiblingEnum):
@@ -752,6 +770,7 @@ class EmailUrlActivity(BaseEvent):
     activity_id: int
     email_uid: str
     url: Any
+    activity: str | None = None
 
 class EntityManagement(Iam):
     class ActivityId(SiblingEnum):
@@ -779,6 +798,7 @@ class EntityManagement(Iam):
     comment: str | None = None
     entity: Any
     entity_result: Any | None = None
+    activity: str | None = None
 
 class EventLogActvity(System):
     class ActivityId(SiblingEnum):
@@ -819,6 +839,7 @@ class EventLogActvity(System):
     src_endpoint: Any | None = None
     status_code: str | None = None
     status_detail: str | None = None
+    activity: str | None = None
 
 class EvidenceInfo(DiscoveryResult):
     device: Any
@@ -854,6 +875,7 @@ class FileActivity(System):
     file: Any
     file_diff: str | None = None
     file_result: Any | None = None
+    activity: str | None = None
 
 class FileHosting(Application):
     class ActivityId(SiblingEnum):
@@ -906,6 +928,7 @@ class FileHosting(Application):
     share_type: str | None = None
     share_type_id: int | None = None
     src_endpoint: Any
+    activity: str | None = None
 
 class FileQuery(DiscoveryResult):
     file: Any
@@ -960,6 +983,7 @@ class Finding(BaseEvent):
     status: str | None = None
     status_id: int | None = None
     vendor_attributes: Any | None = None
+    activity: str | None = None
 
 class FolderQuery(DiscoveryResult):
     folder: Any
@@ -984,6 +1008,7 @@ class FtpActivity(Network):
     file: Any | None = None
     name: str | None = None
     port: Any | None = None
+    activity: str | None = None
 
 class GroupManagement(Iam):
     class ActivityId(SiblingEnum):
@@ -1006,6 +1031,7 @@ class GroupManagement(Iam):
     resource: Any | None = None
     subgroup: Any | None = None
     user: Any | None = None
+    activity: str | None = None
 
 class HttpActivity(Network):
     class ActivityId(SiblingEnum):
@@ -1029,6 +1055,7 @@ class HttpActivity(Network):
     http_request: Any | None = None
     http_response: Any | None = None
     http_status: int | None = None
+    activity: str | None = None
 
 class Iam(BaseEvent):
     actor: Any | None = None
@@ -1148,6 +1175,7 @@ class IncidentFinding(BaseEvent):
     vendor_attributes: Any | None = None
     verdict: str | None = None
     verdict_id: int | None = None
+    activity: str | None = None
 
 class InventoryInfo(Discovery):
     actor: Any | None = None
@@ -1169,6 +1197,7 @@ class KernelActivity(System):
         def from_label(cls, label: str) -> Self: ...
 
     kernel: Any
+    activity: str | None = None
 
 class KernelExtensionActivity(System):
     class ActivityId(SiblingEnum):
@@ -1182,6 +1211,7 @@ class KernelExtensionActivity(System):
 
     actor: Any
     driver: Any
+    activity: str | None = None
 
 class KernelObjectQuery(DiscoveryResult):
     kernel: Any
@@ -1208,6 +1238,7 @@ class MemoryActivity(System):
     process: Any
     requested_permissions: int | None = None
     size: int | None = None
+    activity: str | None = None
 
 class ModuleActivity(System):
     class ActivityId(SiblingEnum):
@@ -1222,6 +1253,7 @@ class ModuleActivity(System):
 
     actor: Any
     module: Any
+    activity: str | None = None
 
 class ModuleQuery(DiscoveryResult):
     module: Any
@@ -1271,6 +1303,7 @@ class NetworkActivity(Network):
     is_src_dst_assignment_known: bool | None = None
     src_endpoint: Any | None = None
     url: Any | None = None
+    activity: str | None = None
 
 class NetworkConnectionQuery(DiscoveryResult):
     class StateId(SiblingEnum):
@@ -1327,6 +1360,7 @@ class NetworkFileActivity(Network):
     expiration_time: int | None = None
     file: Any
     src_endpoint: Any
+    activity: str | None = None
 
 class NetworkRemediationActivity(RemediationActivity):
     connection_info: Any
@@ -1368,6 +1402,7 @@ class NtpActivity(Network):
     stratum: str | None = None
     stratum_id: int | None = None
     version: str
+    activity: str | None = None
 
 class OsintInventoryInfo(Discovery):
     actor: Any | None = None
@@ -1391,6 +1426,7 @@ class PeripheralActivity(System):
         def from_label(cls, label: str) -> Self: ...
 
     peripheral_device: Any
+    activity: str | None = None
 
 class PeripheralDeviceQuery(DiscoveryResult):
     peripheral_device: Any
@@ -1440,6 +1476,7 @@ class ProcessActivity(System):
     module: Any | None = None
     process: Any
     requested_permissions: int | None = None
+    activity: str | None = None
 
 class ProcessQuery(DiscoveryResult):
     process: Any
@@ -1475,6 +1512,7 @@ class RdpActivity(Network):
     request: Any | None = None
     response: Any | None = None
     user: Any | None = None
+    activity: str | None = None
 
 class RemediationActivity(BaseEvent):
     class ActivityId(SiblingEnum):
@@ -1504,6 +1542,8 @@ class RemediationActivity(BaseEvent):
     countermeasures: list[Any] | None = None
     remediation: Any | None = None
     scan: Any | None = None
+    activity: str | None = None
+    status: str | None = None
 
 class ScanActivity(Application):
     class ActivityId(SiblingEnum):
@@ -1540,6 +1580,7 @@ class ScanActivity(Application):
     schedule_uid: str | None = None
     start_time: int | None = None
     total: int | None = None
+    activity: str | None = None
 
 class ScheduledJobActivity(System):
     class ActivityId(SiblingEnum):
@@ -1557,6 +1598,7 @@ class ScheduledJobActivity(System):
 
     actor: Any | None = None
     job: Any
+    activity: str | None = None
 
 class ScriptActivity(System):
     class ActivityId(SiblingEnum):
@@ -1568,6 +1610,7 @@ class ScriptActivity(System):
         def from_label(cls, label: str) -> Self: ...
 
     script: Any
+    activity: str | None = None
 
 class SecurityFinding(BaseEvent):
     class ActivityId(SiblingEnum):
@@ -1650,6 +1693,7 @@ class SecurityFinding(BaseEvent):
     state: str | None = None
     state_id: int
     vulnerabilities: list[Any] | None = None
+    activity: str | None = None
 
 class ServiceQuery(DiscoveryResult):
     service: Any
@@ -1693,6 +1737,7 @@ class SmbActivity(Network):
     share_type: str | None = None
     share_type_id: int | None = None
     tree_uid: str | None = None
+    activity: str | None = None
 
 class SoftwareInfo(Discovery):
     actor: Any | None = None
@@ -1736,6 +1781,7 @@ class SshActivity(Network):
     file: Any | None = None
     protocol_ver: str | None = None
     server_hassh: Any | None = None
+    activity: str | None = None
 
 class StartupItemQuery(DiscoveryResult):
     startup_item: Any
@@ -1778,6 +1824,7 @@ class TunnelActivity(Network):
     tunnel_type: str | None = None
     tunnel_type_id: int | None = None
     user: Any | None = None
+    activity: str | None = None
 
 class UnmannedSystems(BaseEvent):
     connection_info: Any | None = None
@@ -1801,6 +1848,7 @@ class UserAccess(Iam):
     resource: Any | None = None
     resources: list[Any] | None = None
     user: Any
+    activity: str | None = None
 
 class UserInventory(Discovery):
     actor: Any | None = None
@@ -1832,6 +1880,7 @@ class WebResourceAccessActivity(Application):
     src_endpoint: Any | None = None
     tls: Any | None = None
     web_resources: list[Any]
+    activity: str | None = None
 
 class WebResourcesActivity(Application):
     class ActivityId(SiblingEnum):
@@ -1856,3 +1905,4 @@ class WebResourcesActivity(Application):
     tls: Any | None = None
     web_resources: list[Any]
     web_resources_result: list[Any] | None = None
+    activity: str | None = None

@@ -28,6 +28,94 @@ def label_to_enum_name(label: str) -> str:
     return name or "UNKNOWN"
 
 
+def infer_sibling_label_field(id_field: str) -> str:
+    """Infer the sibling label field name for an ID field with an enum.
+
+    Per OCSF specification, sibling attributes follow the pattern where a
+    numeric `_id` field (e.g., activity_id, type_id) has a corresponding
+    string label field. The label field name is inferred by removing the
+    `_id` suffix, with special handling for Python reserved keywords.
+
+    Args:
+        id_field: The ID field name ending in "_id" (e.g., "activity_id", "type_id")
+
+    Returns:
+        The inferred label field name (e.g., "activity", "type_")
+
+    Raises:
+        ValueError: If field name doesn't end with "_id"
+
+    Examples:
+        >>> infer_sibling_label_field("activity_id")
+        "activity"
+        >>> infer_sibling_label_field("type_id")
+        "type_"
+    """
+    if not id_field.endswith("_id"):
+        raise ValueError(f"Expected field ending in '_id', got {id_field!r}")
+
+    # Remove "_id" suffix to get base name
+    base = id_field[:-3]
+
+    # Python reserved keywords that need underscore suffix
+    RESERVED_KEYWORDS = {
+        "False",
+        "None",
+        "True",
+        "and",
+        "as",
+        "assert",
+        "async",
+        "await",
+        "break",
+        "class",
+        "continue",
+        "def",
+        "del",
+        "elif",
+        "else",
+        "except",
+        "finally",
+        "for",
+        "from",
+        "global",
+        "if",
+        "import",
+        "in",
+        "is",
+        "lambda",
+        "nonlocal",
+        "not",
+        "or",
+        "pass",
+        "raise",
+        "return",
+        "try",
+        "while",
+        "with",
+        "yield",
+        "type",
+    }
+
+    # Check if base name is a reserved keyword
+    if base in RESERVED_KEYWORDS or base.lower() in {k.lower() for k in RESERVED_KEYWORDS}:
+        return f"{base}_"
+
+    return base
+
+
+def pascal_to_snake(name: str) -> str:
+    """Convert PascalCase to snake_case.
+
+    Examples:
+        ActivityId -> activity_id
+        SeverityId -> severity_id
+        TypeId -> type_id
+    """
+    s1 = re.sub("(.)([A-Z][a-z]+)", r"\1_\2", name)
+    return re.sub("([a-z0-9])([A-Z])", r"\1_\2", s1).lower()
+
+
 def generate_objects_stub(version: str, schema: dict[str, Any], output_dir: Path) -> None:
     """Generate objects.pyi stub file."""
     lines = [
@@ -180,7 +268,8 @@ def _generate_class_stub(
             enum_values = merged_spec["enum"]
             enums_to_generate.append((enum_name, enum_values))
 
-    # Generate nested enum classes
+    # Generate nested enum classes and track sibling ID fields
+    sibling_id_fields = []  # Track ID fields that have enums
     for enum_name, enum_values in enums_to_generate:
         lines.append(f"    class {enum_name}(SiblingEnum):")
 
@@ -204,8 +293,14 @@ def _generate_class_stub(
         lines.append("        def from_label(cls, label: str) -> Self: ...")
         lines.append("")
 
+        # Track the field name this enum is for (e.g., ActivityId -> activity_id)
+        field_name = pascal_to_snake(enum_name)
+        if field_name.endswith("_id"):
+            sibling_id_fields.append(field_name)
+
     # Generate field stubs
     has_fields = False
+    processed_fields = set()  # Track which fields we've already generated
     RESERVED = {"class", "type", "import", "from", "def", "return", "if", "else"}
 
     for field_name, field_spec in sorted(attributes.items()):
@@ -253,6 +348,18 @@ def _generate_class_stub(
             lines.append(f"    {field_name}: {type_annotation} = None")
 
         has_fields = True
+        processed_fields.add(field_name)
+
+    # After all schema fields, add inferred sibling label fields
+    for id_field in sibling_id_fields:
+        label_field = infer_sibling_label_field(id_field)
+
+        # Only add if not already processed (some are explicit in schema)
+        if label_field not in processed_fields:
+            # Add as optional string field
+            lines.append(f"    {label_field}: str | None = None")
+            has_fields = True
+            processed_fields.add(label_field)
 
     # If no fields or enums, add pass
     if not has_fields and not enums_to_generate:

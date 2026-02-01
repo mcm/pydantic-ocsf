@@ -66,6 +66,7 @@ class Account(Entity):
     tags: list[Any] | None = None
     type_id: int | None = None
     uid: str | None = None
+    type_: str | None = None
 
 class Actor(Object):
     app_name: str | None = None
@@ -162,6 +163,7 @@ class Agent(Object):
     uid_alt: str | None = None
     vendor_name: str | None = None
     version: str | None = None
+    type_: str | None = None
 
 class Aircraft(Entity):
     location: Any | None = None
@@ -218,6 +220,7 @@ class Analytic(Entity):
     type_id: int
     uid: str | None = None
     version: str | None = None
+    type_: str | None = None
 
 class Anomaly(Object):
     observation_parameter: str
@@ -337,6 +340,7 @@ class AuthenticationToken(Object):
     is_renewable: bool | None = None
     kerberos_flags: str | None = None
     type_id: int | None = None
+    type_: str | None = None
 
 class Authorization(Object):
     decision: str | None = None
@@ -641,6 +645,7 @@ class Database(Entity):
     size: int | None = None
     type_id: int
     uid: str | None = None
+    type_: str | None = None
 
 class Databucket(Resource):
     class TypeId(SiblingEnum):
@@ -679,6 +684,7 @@ class Databucket(Resource):
     uid: str | None = None
     version: str | None = None
     zone: str | None = None
+    type_: str | None = None
 
 class DceRpc(Object):
     command: str | None = None
@@ -751,6 +757,7 @@ class Device(Endpoint):
     uid: str | None = None
     uid_alt: str | None = None
     vendor_name: str | None = None
+    type_: str | None = None
 
 class DeviceHwInfo(Object):
     class CpuArchitectureId(SiblingEnum):
@@ -878,6 +885,7 @@ class DomainContact(Object):
     phone_number: str | None = None
     type_id: int
     uid: str | None = None
+    type_: str | None = None
 
 class Edge(Entity):
     data: dict[str, Any] | None = None
@@ -987,6 +995,7 @@ class Endpoint(Entity):
     vlan_uid: str | None = None
     vpc_uid: str | None = None
     zone: str | None = None
+    type_: str | None = None
 
 class EndpointConnection(Object):
     code: int | None = None
@@ -1154,6 +1163,7 @@ class File(Entity):
     version: str | None = None
     volume: str | None = None
     xattributes: Any | None = None
+    type_: str | None = None
 
 class Finding(Object):
     created_time: int | None = None
@@ -1379,6 +1389,7 @@ class Ja4Fingerprint(Object):
     section_d: str | None = None
     type_id: int
     value: str
+    type_: str | None = None
 
 class Job(Object):
     class RunStateId(SiblingEnum):
@@ -1446,6 +1457,7 @@ class Kernel(Object):
     path: Any | None = None
     system_call: str | None = None
     type_id: int
+    type_: str | None = None
 
 class KernelDriver(Object):
     file: Any
@@ -1622,6 +1634,7 @@ class ManagedEntity(Entity):
     uid: str | None = None
     user: Any | None = None
     version: str | None = None
+    type_: str | None = None
 
 class Metadata(Object):
     correlation_uid: str | None = None
@@ -1772,6 +1785,7 @@ class NetworkEndpoint(Endpoint):
     proxy_endpoint: Any | None = None
     svc_name: str | None = None
     uid: str | None = None
+    type_: str | None = None
 
 class NetworkInterface(Entity):
     class TypeId(SiblingEnum):
@@ -1795,6 +1809,7 @@ class NetworkInterface(Entity):
     subnet_prefix: int | None = None
     type_id: int | None = None
     uid: str | None = None
+    type_: str | None = None
 
 class NetworkProxy(NetworkEndpoint):
     pass
@@ -1838,6 +1853,7 @@ class Observable(Object):
     type_id: int
     type_uid: int | None = None
     value: str | None = None
+    type_: str | None = None
 
 class Observation(Object):
     count: int | None = None
@@ -1891,6 +1907,7 @@ class Os(Object):
     sp_ver: int | None = None
     type_id: int
     version: str | None = None
+    type_: str | None = None
 
 class Osint(Object):
     class ConfidenceId(SiblingEnum):
@@ -2000,6 +2017,7 @@ class Osint(Object):
     vendor_name: str | None = None
     vulnerabilities: list[Any] | None = None
     whois: Any | None = None
+    type_: str | None = None
 
 class Package(Object):
     class TypeId(SiblingEnum):
@@ -2027,6 +2045,7 @@ class Package(Object):
     uid: str | None = None
     vendor_name: str | None = None
     version: str
+    type_: str | None = None
 
 class Parameter(Object):
     name: str | None = None
@@ -2056,6 +2075,7 @@ class PeripheralDevice(Entity):
     uid: str | None = None
     vendor_id_list: list[str] | None = None
     vendor_name: str | None = None
+    type_: str | None = None
 
 class PermissionAnalysisResult(Object):
     condition_keys: list[Any] | None = None
@@ -2199,6 +2219,7 @@ class QueryEvidence(OCSFBaseModel):
     tcp_state_id: int | None = None
     user: Any | None = None
     users: list[Any] | None = None
+    tcp_state: str | None = None
 
 class QueryInfo(Entity):
     bytes: int | None = None
@@ -2360,6 +2381,7 @@ class Sbom(Object):
     type_id: int | None = None
     uid: str | None = None
     version: str | None = None
+    type_: str | None = None
 
 class Scan(Entity):
     class TypeId(SiblingEnum):
@@ -2380,6 +2402,7 @@ class Scan(Entity):
     name: str | None = None
     type_id: int
     uid: str | None = None
+    type_: str | None = None
 
 class Scim(Object):
     class AuthProtocolId(SiblingEnum):
@@ -2458,6 +2481,7 @@ class Script(Object):
     script_content: Any
     type_id: int
     uid: str | None = None
+    type_: str | None = None
 
 class SecurityState(Object):
     class StateId(SiblingEnum):
@@ -2546,6 +2570,7 @@ class SoftwareComponent(Object):
     relationship_id: int | None = None
     type_id: int | None = None
     version: str
+    type_: str | None = None
 
 class Span(Object):
     duration: int | None = None
@@ -2654,6 +2679,7 @@ class StartupItem(OCSFBaseModel):
     start_type: str | None = None
     start_type_id: int
     type_id: int | None = None
+    type_: str | None = None
 
 class SubTechnique(Entity):
     name: str | None = None
@@ -2694,6 +2720,7 @@ class ThreatActor(Object):
 
     name: str
     type_id: int | None = None
+    type_: str | None = None
 
 class Ticket(Object):
     class StatusId(SiblingEnum):
@@ -2728,6 +2755,7 @@ class Ticket(Object):
     title: str | None = None
     type_id: int | None = None
     uid: str | None = None
+    type_: str | None = None
 
 class Timespan(Object):
     class TypeId(SiblingEnum):
@@ -2758,6 +2786,7 @@ class Timespan(Object):
     end_time: int | None = None
     start_time: int | None = None
     type_id: int | None = None
+    type_: str | None = None
 
 class Tls(Object):
     alert: int | None = None
@@ -2808,6 +2837,7 @@ class TlsExtension(Object):
 
     data: dict[str, Any] | None = None
     type_id: int
+    type_: str | None = None
 
 class Trace(Object):
     duration: int | None = None
@@ -2863,6 +2893,7 @@ class UnmannedAerialSystem(Aircraft):
     uid: str | None = None
     uid_alt: str | None = None
     uuid: Any | None = None
+    type_: str | None = None
 
 class UnmannedSystemOperatingArea(Location):
     class TypeId(SiblingEnum):
@@ -2884,6 +2915,7 @@ class UnmannedSystemOperatingArea(Location):
     radius: str | None = None
     start_time: int | None = None
     type_id: int | None = None
+    type_: str | None = None
 
 class Url(Object):
     categories: list[str] | None = None
@@ -2943,6 +2975,7 @@ class User(Entity):
     type_id: int | None = None
     uid: str | None = None
     uid_alt: str | None = None
+    type_: str | None = None
 
 class VendorAttributes(Object):
     class SeverityId(SiblingEnum):

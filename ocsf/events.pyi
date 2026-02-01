@@ -20,8 +20,6 @@ class AccountChange(Iam):
         ATTACH_POLICY = 7
         DETACH_POLICY = 8
         LOCK = 9
-        MFA_FACTOR_ENABLE = 10
-        MFA_FACTOR_DISABLE = 11
         OTHER = 99
         @property
         def label(self) -> str: ...
@@ -31,10 +29,10 @@ class AccountChange(Iam):
     activity_id: int | None = None
     actor: Any | None = None
     http_request: Any | None = None
-    policy: Any | None = None
     src_endpoint: Any | None = None
     user: Any
     user_result: Any | None = None
+    activity: str | None = None
 
 class ApiActivity(Application):
     class ActivityId(SiblingEnum):
@@ -55,6 +53,7 @@ class ApiActivity(Application):
     http_request: Any | None = None
     resources: list[Any] | None = None
     src_endpoint: Any
+    activity: str | None = None
 
 class Application(BaseEvent):
     pass
@@ -73,14 +72,14 @@ class ApplicationLifecycle(Application):
 
     activity_id: int
     app: Any
+    activity: str | None = None
 
 class Authentication(Iam):
     class ActivityId(SiblingEnum):
         LOGON = 1
         LOGOFF = 2
         AUTHENTICATION_TICKET = 3
-        SERVICE_TICKET_REQUEST = 4
-        SERVICE_TICKET_RENEW = 5
+        SERVICE_TICKET = 4
         OTHER = 99
         @property
         def label(self) -> str: ...
@@ -143,11 +142,11 @@ class Authentication(Iam):
     src_endpoint: Any | None = None
     status_detail: str | None = None
     user: Any
+    activity: str | None = None
 
 class AuthorizeSession(Iam):
     class ActivityId(SiblingEnum):
-        ASSIGN_PRIVILEGES = 1
-        ASSIGN_GROUPS = 2
+        UNKNOWN = 0
         OTHER = 99
         @property
         def label(self) -> str: ...
@@ -160,6 +159,7 @@ class AuthorizeSession(Iam):
     privileges: list[str] | None = None
     session: Any | None = None
     user: Any
+    activity: str | None = None
 
 class BaseEvent(OCSFBaseModel):
     class SeverityId(SiblingEnum):
@@ -199,122 +199,12 @@ class BaseEvent(OCSFBaseModel):
     status_id: int | None = None
     unmapped: Any | None = None
 
-class ComplianceFinding(Finding):
-    compliance: Any
-    remediation: Any | None = None
-    resource: Any | None = None
-
 class ConfigState(Discovery):
     actor: Any | None = None
     cis_benchmark_result: Any | None = None
     device: Any
 
-class DatastoreActivity(Application):
-    class ActivityId(SiblingEnum):
-        READ = 1
-        UPDATE = 2
-        CONNECT = 3
-        QUERY = 4
-        WRITE = 5
-        CREATE = 6
-        DELETE = 7
-        OTHER = 99
-        @property
-        def label(self) -> str: ...
-        @classmethod
-        def from_label(cls, label: str) -> Self: ...
-
-    class TypeId(SiblingEnum):
-        UNKNOWN = 0
-        DATABASE = 1
-        DATABUCKET = 2
-        TABLE = 3
-        OTHER = 99
-        @property
-        def label(self) -> str: ...
-        @classmethod
-        def from_label(cls, label: str) -> Self: ...
-
-    activity_id: int | None = None
-    actor: Any
-    database: Any | None = None
-    databucket: Any | None = None
-    dst_endpoint: Any | None = None
-    http_request: Any | None = None
-    query_info: Any | None = None
-    src_endpoint: Any
-    table: Any | None = None
-    type_id: int | None = None
-
-class DetectionFinding(Finding):
-    class ImpactId(SiblingEnum):
-        UNKNOWN = 0
-        LOW = 1
-        MEDIUM = 2
-        HIGH = 3
-        CRITICAL = 4
-        OTHER = 99
-        @property
-        def label(self) -> str: ...
-        @classmethod
-        def from_label(cls, label: str) -> Self: ...
-
-    class RiskLevelId(SiblingEnum):
-        INFO = 0
-        LOW = 1
-        MEDIUM = 2
-        HIGH = 3
-        CRITICAL = 4
-        OTHER = 99
-        @property
-        def label(self) -> str: ...
-        @classmethod
-        def from_label(cls, label: str) -> Self: ...
-
-    evidences: list[Any] | None = None
-    impact: str | None = None
-    impact_id: int | None = None
-    impact_score: int | None = None
-    remediation: Any | None = None
-    resources: list[Any] | None = None
-    risk_level: str | None = None
-    risk_level_id: int | None = None
-    risk_score: int | None = None
-    vulnerabilities: list[Any] | None = None
-
-class DeviceConfigStateChange(Discovery):
-    class SecurityLevelId(SiblingEnum):
-        UNKNOWN = 0
-        SECURE = 1
-        AT_RISK = 2
-        COMPROMISED = 3
-        OTHER = 99
-        @property
-        def label(self) -> str: ...
-        @classmethod
-        def from_label(cls, label: str) -> Self: ...
-
-    class PrevSecurityLevelId(SiblingEnum):
-        UNKNOWN = 0
-        SECURE = 1
-        AT_RISK = 2
-        COMPROMISED = 3
-        OTHER = 99
-        @property
-        def label(self) -> str: ...
-        @classmethod
-        def from_label(cls, label: str) -> Self: ...
-
-    actor: Any | None = None
-    device: Any
-    prev_security_level: str | None = None
-    prev_security_level_id: int | None = None
-    prev_security_states: list[Any] | None = None
-    security_level: str | None = None
-    security_level_id: int | None = None
-    security_states: list[Any] | None = None
-
-class DhcpActivity(Network):
+class DhcpActivity(BaseEvent):
     class ActivityId(SiblingEnum):
         DISCOVER = 1
         OFFER = 2
@@ -338,6 +228,7 @@ class DhcpActivity(Network):
     relay: Any | None = None
     src_endpoint: Any | None = None
     transaction_uid: str | None = None
+    activity: str | None = None
 
 class Discovery(BaseEvent):
     class ActivityId(SiblingEnum):
@@ -350,27 +241,11 @@ class Discovery(BaseEvent):
         def from_label(cls, label: str) -> Self: ...
 
     activity_id: int | None = None
+    activity: str | None = None
 
-class DiscoveryResult(BaseEvent):
+class DnsActivity(NetworkActivity):
     class ActivityId(SiblingEnum):
-        EXISTS = 1
-        PARTIAL = 2
-        DOES_NOT_EXIST = 3
-        ERROR = 4
-        UNSUPPORTED = 5
-        OTHER = 99
-        @property
-        def label(self) -> str: ...
-        @classmethod
-        def from_label(cls, label: str) -> Self: ...
-
-    activity_id: int | None = None
-
-class DnsActivity(Network):
-    class ActivityId(SiblingEnum):
-        QUERY = 1
-        RESPONSE = 2
-        TRAFFIC = 6
+        UNKNOWN = 0
         OTHER = 99
         @property
         def label(self) -> str: ...
@@ -409,13 +284,14 @@ class DnsActivity(Network):
     activity_id: int | None = None
     answers: list[Any] | None = None
     connection_info: Any | None = None
-    dst_endpoint: Any | None = None
+    proxy: Any | None = None
     query: Any | None = None
     query_time: int | None = None
     rcode: str | None = None
     rcode_id: int | None = None
     response_time: int | None = None
     traffic: Any | None = None
+    activity: str | None = None
 
 class EmailActivity(BaseEvent):
     class ActivityId(SiblingEnum):
@@ -449,6 +325,7 @@ class EmailActivity(BaseEvent):
     email_auth: Any | None = None
     smtp_hello: str | None = None
     src_endpoint: Any | None = None
+    activity: str | None = None
 
 class EmailFileActivity(BaseEvent):
     class ActivityId(SiblingEnum):
@@ -464,6 +341,7 @@ class EmailFileActivity(BaseEvent):
     activity_id: int | None = None
     email_uid: str
     file: Any
+    activity: str | None = None
 
 class EmailUrlActivity(BaseEvent):
     class ActivityId(SiblingEnum):
@@ -479,6 +357,7 @@ class EmailUrlActivity(BaseEvent):
     activity_id: int | None = None
     email_uid: str
     url: Any
+    activity: str | None = None
 
 class EntityManagement(Iam):
     class ActivityId(SiblingEnum):
@@ -497,23 +376,11 @@ class EntityManagement(Iam):
     comment: str | None = None
     entity: Any
     entity_result: Any | None = None
+    activity: str | None = None
 
 class FileActivity(System):
     class ActivityId(SiblingEnum):
-        CREATE = 1
-        READ = 2
-        UPDATE = 3
-        DELETE = 4
-        RENAME = 5
-        SET_ATTRIBUTES = 6
-        SET_SECURITY = 7
-        GET_ATTRIBUTES = 8
-        GET_SECURITY = 9
-        ENCRYPT = 10
-        DECRYPT = 11
-        MOUNT = 12
-        UNMOUNT = 13
-        OPEN = 14
+        UNKNOWN = 0
         OTHER = 99
         @property
         def label(self) -> str: ...
@@ -529,66 +396,12 @@ class FileActivity(System):
     file: Any
     file_diff: str | None = None
     file_result: Any | None = None
+    activity: str | None = None
 
-class FileHosting(Application):
-    class ActivityId(SiblingEnum):
-        UPLOAD = 1
-        DOWNLOAD = 2
-        UPDATE = 3
-        DELETE = 4
-        RENAME = 5
-        COPY = 6
-        MOVE = 7
-        RESTORE = 8
-        PREVIEW = 9
-        LOCK = 10
-        UNLOCK = 11
-        SHARE = 12
-        UNSHARE = 13
-        OPEN = 14
-        SYNC = 15
-        UNSYNC = 16
-        OTHER = 99
-        @property
-        def label(self) -> str: ...
-        @classmethod
-        def from_label(cls, label: str) -> Self: ...
-
-    activity_id: int | None = None
-    actor: Any
-    connection_info: Any | None = None
-    dst_endpoint: Any | None = None
-    expiration_time: int | None = None
-    file: Any
-    src_endpoint: Any
-
-class Finding(BaseEvent):
+class Findings(BaseEvent):
     class ActivityId(SiblingEnum):
         CREATE = 1
         UPDATE = 2
-        CLOSE = 3
-        OTHER = 99
-        @property
-        def label(self) -> str: ...
-        @classmethod
-        def from_label(cls, label: str) -> Self: ...
-
-    class ConfidenceId(SiblingEnum):
-        UNKNOWN = 0
-        LOW = 1
-        MEDIUM = 2
-        HIGH = 3
-        OTHER = 99
-        @property
-        def label(self) -> str: ...
-        @classmethod
-        def from_label(cls, label: str) -> Self: ...
-
-    class StatusId(SiblingEnum):
-        NEW = 1
-        IN_PROGRESS = 2
-        SUPPRESSED = 3
-        RESOLVED = 4
         OTHER = 99
         @property
         def label(self) -> str: ...
@@ -596,19 +409,9 @@ class Finding(BaseEvent):
         def from_label(cls, label: str) -> Self: ...
 
     activity_id: int | None = None
-    activity_name: str | None = None
-    comment: str | None = None
-    confidence: str | None = None
-    confidence_id: int | None = None
-    confidence_score: int | None = None
-    device: Any | None = None
-    end_time: int | None = None
-    finding_info: Any
-    start_time: int | None = None
-    status: str | None = None
-    status_id: int | None = None
+    activity: str | None = None
 
-class FtpActivity(Network):
+class FtpActivity(NetworkActivity):
     class ActivityId(SiblingEnum):
         PUT = 1
         GET = 2
@@ -628,6 +431,7 @@ class FtpActivity(Network):
     command_responses: list[str] | None = None
     name: str | None = None
     port: Any | None = None
+    activity: str | None = None
 
 class GroupManagement(Iam):
     class ActivityId(SiblingEnum):
@@ -635,8 +439,6 @@ class GroupManagement(Iam):
         REVOKE_PRIVILEGES = 2
         ADD_USER = 3
         REMOVE_USER = 4
-        DELETE = 5
-        CREATE = 6
         OTHER = 99
         @property
         def label(self) -> str: ...
@@ -648,17 +450,11 @@ class GroupManagement(Iam):
     privileges: list[str] | None = None
     resource: Any | None = None
     user: Any | None = None
+    activity: str | None = None
 
-class HttpActivity(Network):
+class HttpActivity(NetworkActivity):
     class ActivityId(SiblingEnum):
-        CONNECT = 1
-        DELETE = 2
-        GET = 3
-        HEAD = 4
-        OPTIONS = 5
-        POST = 6
-        PUT = 7
-        TRACE = 8
+        UNKNOWN = 0
         OTHER = 99
         @property
         def label(self) -> str: ...
@@ -666,114 +462,13 @@ class HttpActivity(Network):
         def from_label(cls, label: str) -> Self: ...
 
     activity_id: int | None = None
-    http_cookies: list[Any] | None = None
     http_request: Any
     http_response: Any
     http_status: int | None = None
+    activity: str | None = None
 
 class Iam(BaseEvent):
     pass
-
-class IncidentFinding(BaseEvent):
-    class ActivityId(SiblingEnum):
-        CREATE = 1
-        UPDATE = 2
-        CLOSE = 3
-        OTHER = 99
-        @property
-        def label(self) -> str: ...
-        @classmethod
-        def from_label(cls, label: str) -> Self: ...
-
-    class ConfidenceId(SiblingEnum):
-        UNKNOWN = 0
-        LOW = 1
-        MEDIUM = 2
-        HIGH = 3
-        OTHER = 99
-        @property
-        def label(self) -> str: ...
-        @classmethod
-        def from_label(cls, label: str) -> Self: ...
-
-    class ImpactId(SiblingEnum):
-        UNKNOWN = 0
-        LOW = 1
-        MEDIUM = 2
-        HIGH = 3
-        CRITICAL = 4
-        OTHER = 99
-        @property
-        def label(self) -> str: ...
-        @classmethod
-        def from_label(cls, label: str) -> Self: ...
-
-    class PriorityId(SiblingEnum):
-        UNKNOWN = 0
-        LOW = 1
-        MEDIUM = 2
-        HIGH = 3
-        CRITICAL = 4
-        OTHER = 99
-        @property
-        def label(self) -> str: ...
-        @classmethod
-        def from_label(cls, label: str) -> Self: ...
-
-    class StatusId(SiblingEnum):
-        NEW = 1
-        IN_PROGRESS = 2
-        ON_HOLD = 3
-        RESOLVED = 4
-        CLOSED = 5
-        OTHER = 99
-        @property
-        def label(self) -> str: ...
-        @classmethod
-        def from_label(cls, label: str) -> Self: ...
-
-    class VerdictId(SiblingEnum):
-        UNKNOWN = 0
-        FALSE_POSITIVE = 1
-        TRUE_POSITIVE = 2
-        DISREGARD = 3
-        SUSPICIOUS = 4
-        BENIGN = 5
-        TEST = 6
-        INSUFFICIENT_DATA = 7
-        SECURITY_RISK = 8
-        MANAGED_EXTERNALLY = 9
-        DUPLICATE = 10
-        OTHER = 99
-        @property
-        def label(self) -> str: ...
-        @classmethod
-        def from_label(cls, label: str) -> Self: ...
-
-    activity_id: int
-    activity_name: str | None = None
-    assignee: Any | None = None
-    assignee_group: Any | None = None
-    attacks: list[Any] | None = None
-    comment: str | None = None
-    confidence: str | None = None
-    confidence_id: int | None = None
-    confidence_score: int | None = None
-    desc: str | None = None
-    end_time: int | None = None
-    finding_info_list: list[Any]
-    impact: str | None = None
-    impact_id: int | None = None
-    impact_score: int | None = None
-    is_suspected_breach: bool | None = None
-    priority: int | None = None
-    priority_id: int | None = None
-    src_url: Any | None = None
-    start_time: int | None = None
-    status: str | None = None
-    status_id: int
-    verdict: str | None = None
-    verdict_id: int | None = None
 
 class InventoryInfo(Discovery):
     actor: Any | None = None
@@ -781,10 +476,7 @@ class InventoryInfo(Discovery):
 
 class KernelActivity(System):
     class ActivityId(SiblingEnum):
-        CREATE = 1
-        READ = 2
-        DELETE = 3
-        INVOKE = 4
+        UNKNOWN = 0
         OTHER = 99
         @property
         def label(self) -> str: ...
@@ -793,11 +485,11 @@ class KernelActivity(System):
 
     activity_id: int | None = None
     kernel: Any
+    activity: str | None = None
 
 class KernelExtension(System):
     class ActivityId(SiblingEnum):
-        LOAD = 1
-        UNLOAD = 2
+        UNKNOWN = 0
         OTHER = 99
         @property
         def label(self) -> str: ...
@@ -807,17 +499,11 @@ class KernelExtension(System):
     activity_id: int | None = None
     actor: Any
     driver: Any
+    activity: str | None = None
 
 class MemoryActivity(System):
     class ActivityId(SiblingEnum):
-        ALLOCATE_PAGE = 1
-        MODIFY_PAGE = 2
-        DELETE_PAGE = 3
-        BUFFER_OVERFLOW = 4
-        DISABLE_DEP = 5
-        ENABLE_DEP = 6
-        READ = 7
-        WRITE = 8
+        UNKNOWN = 0
         OTHER = 99
         @property
         def label(self) -> str: ...
@@ -830,11 +516,11 @@ class MemoryActivity(System):
     process: Any
     requested_permissions: int | None = None
     size: int | None = None
+    activity: str | None = None
 
 class ModuleActivity(System):
     class ActivityId(SiblingEnum):
-        LOAD = 1
-        UNLOAD = 2
+        UNKNOWN = 0
         OTHER = 99
         @property
         def label(self) -> str: ...
@@ -844,20 +530,21 @@ class ModuleActivity(System):
     activity_id: int | None = None
     actor: Any
     module: Any
+    activity: str | None = None
 
-class Network(BaseEvent):
-    app_name: str | None = None
-    connection_info: Any | None = None
-    dst_endpoint: Any
-    proxy: Any | None = None
-    src_endpoint: Any
-    tls: Any | None = None
-    traffic: Any | None = None
+class NetworkActivity(BaseEvent):
+    class ActivityId(SiblingEnum):
+        UNKNOWN = 0
+        OTHER = 99
+        @property
+        def label(self) -> str: ...
+        @classmethod
+        def from_label(cls, label: str) -> Self: ...
 
-class NetworkActivity(Network):
-    url: Any | None = None
+    activity_id: int | None = None
+    activity: str | None = None
 
-class NetworkFileActivity(Network):
+class NetworkFileActivity(BaseEvent):
     class ActivityId(SiblingEnum):
         UPLOAD = 1
         DOWNLOAD = 2
@@ -873,8 +560,6 @@ class NetworkFileActivity(Network):
         SHARE = 12
         UNSHARE = 13
         OPEN = 14
-        SYNC = 15
-        UNSYNC = 16
         OTHER = 99
         @property
         def label(self) -> str: ...
@@ -883,59 +568,14 @@ class NetworkFileActivity(Network):
 
     activity_id: int | None = None
     actor: Any
-    connection_info: Any | None = None
-    dst_endpoint: Any | None = None
     expiration_time: int | None = None
     file: Any
     src_endpoint: Any
-
-class NtpActivity(Network):
-    class ActivityId(SiblingEnum):
-        UNKNOWN = 0
-        SYMMETRIC_ACTIVE_EXCHANGE = 1
-        SYMMETRIC_PASSIVE_RESPONSE = 2
-        CLIENT_SYNCHRONIZATION = 3
-        SERVER_RESPONSE = 4
-        BROADCAST = 5
-        CONTROL = 6
-        PRIVATE_USE_CASE = 7
-        OTHER = 99
-        @property
-        def label(self) -> str: ...
-        @classmethod
-        def from_label(cls, label: str) -> Self: ...
-
-    class StratumId(SiblingEnum):
-        UNKNOWN = 0
-        PRIMARY_SERVER = 1
-        SECONDARY_SERVER = 2
-        UNSYNCHRONIZED = 16
-        RESERVED = 17
-        OTHER = 99
-        @property
-        def label(self) -> str: ...
-        @classmethod
-        def from_label(cls, label: str) -> Self: ...
-
-    activity_id: int | None = None
-    delay: int | None = None
-    dispersion: int | None = None
-    precision: int | None = None
-    stratum: str | None = None
-    stratum_id: int | None = None
-    version: str
-
-class PatchState(Discovery):
-    device: Any
-    kb_article_list: list[Any] | None = None
+    activity: str | None = None
 
 class ProcessActivity(System):
     class ActivityId(SiblingEnum):
-        LAUNCH = 1
-        TERMINATE = 2
-        OPEN = 3
-        INJECT = 4
-        SET_USER_ID = 5
+        UNKNOWN = 0
         OTHER = 99
         @property
         def label(self) -> str: ...
@@ -961,8 +601,9 @@ class ProcessActivity(System):
     module: Any | None = None
     process: Any
     requested_permissions: int | None = None
+    activity: str | None = None
 
-class RdpActivity(Network):
+class RdpActivity(NetworkActivity):
     class ActivityId(SiblingEnum):
         INITIAL_REQUEST = 1
         INITIAL_RESPONSE = 2
@@ -985,43 +626,7 @@ class RdpActivity(Network):
     remote_display: Any | None = None
     request: Any | None = None
     response: Any | None = None
-
-class ScanActivity(BaseEvent):
-    class ActivityId(SiblingEnum):
-        STARTED = 1
-        COMPLETED = 2
-        CANCELLED = 3
-        DURATION_VIOLATION = 4
-        PAUSE_VIOLATION = 5
-        ERROR = 6
-        PAUSED = 7
-        RESUMED = 8
-        RESTARTED = 9
-        DELAYED = 10
-        OTHER = 99
-        @property
-        def label(self) -> str: ...
-        @classmethod
-        def from_label(cls, label: str) -> Self: ...
-
-    activity_id: int | None = None
-    command_uid: str | None = None
-    duration: int | None = None
-    end_time: int | None = None
-    num_detections: int | None = None
-    num_files: int | None = None
-    num_folders: int | None = None
-    num_network_items: int | None = None
-    num_processes: int | None = None
-    num_registry_items: int | None = None
-    num_resolutions: int | None = None
-    num_skipped_items: int | None = None
-    num_trusted_items: int | None = None
-    policy: Any | None = None
-    scan: Any
-    schedule_uid: str | None = None
-    start_time: int | None = None
-    total: int | None = None
+    activity: str | None = None
 
 class ScheduledJobActivity(System):
     class ActivityId(SiblingEnum):
@@ -1040,18 +645,9 @@ class ScheduledJobActivity(System):
     activity_id: int | None = None
     actor: Any | None = None
     job: Any
+    activity: str | None = None
 
-class SecurityFinding(BaseEvent):
-    class ActivityId(SiblingEnum):
-        CREATE = 1
-        UPDATE = 2
-        CLOSE = 3
-        OTHER = 99
-        @property
-        def label(self) -> str: ...
-        @classmethod
-        def from_label(cls, label: str) -> Self: ...
-
+class SecurityFinding(Findings):
     class ConfidenceId(SiblingEnum):
         UNKNOWN = 0
         LOW = 1
@@ -1098,7 +694,6 @@ class SecurityFinding(BaseEvent):
         @classmethod
         def from_label(cls, label: str) -> Self: ...
 
-    activity_id: int | None = None
     analytic: Any | None = None
     attacks: list[Any] | None = None
     cis_csc: list[Any] | None = None
@@ -1124,7 +719,7 @@ class SecurityFinding(BaseEvent):
     state_id: int
     vulnerabilities: list[Any] | None = None
 
-class SmbActivity(Network):
+class SmbActivity(NetworkActivity):
     class ActivityId(SiblingEnum):
         FILE_SUPERSEDE = 1
         FILE_OPEN = 2
@@ -1161,24 +756,9 @@ class SmbActivity(Network):
     share_type: str | None = None
     share_type_id: int | None = None
     tree_uid: str | None = None
+    activity: str | None = None
 
-class SshActivity(Network):
-    class AuthTypeId(SiblingEnum):
-        UNKNOWN = 0
-        CERTIFICATE_BASED = 1
-        GSSAPI = 2
-        HOST_BASED = 3
-        KEYBOARD_INTERACTIVE = 4
-        PASSWORD = 5
-        PUBLIC_KEY = 6
-        OTHER = 99
-        @property
-        def label(self) -> str: ...
-        @classmethod
-        def from_label(cls, label: str) -> Self: ...
-
-    auth_type: str | None = None
-    auth_type_id: int | None = None
+class SshActivity(NetworkActivity):
     client_hassh: Any | None = None
     protocol_ver: str | None = None
     server_hassh: Any | None = None
@@ -1201,14 +781,7 @@ class UserAccess(Iam):
     privileges: list[str]
     resource: Any | None = None
     user: Any
-
-class UserInventory(Discovery):
-    actor: Any | None = None
-    user: Any
-
-class VulnerabilityFinding(Finding):
-    resource: Any | None = None
-    vulnerabilities: list[Any]
+    activity: str | None = None
 
 class WebResourceAccessActivity(Application):
     class ActivityId(SiblingEnum):
@@ -1229,6 +802,7 @@ class WebResourceAccessActivity(Application):
     src_endpoint: Any | None = None
     tls: Any | None = None
     web_resources: list[Any]
+    activity: str | None = None
 
 class WebResourcesActivity(BaseEvent):
     class ActivityId(SiblingEnum):
@@ -1248,9 +822,7 @@ class WebResourcesActivity(BaseEvent):
 
     activity_id: int | None = None
     dst_endpoint: Any | None = None
-    http_request: Any | None = None
-    http_response: Any | None = None
     src_endpoint: Any | None = None
-    tls: Any | None = None
     web_resources: list[Any]
     web_resources_result: list[Any] | None = None
+    activity: str | None = None

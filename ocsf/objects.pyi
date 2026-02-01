@@ -41,14 +41,12 @@ class Account(Entity):
         @classmethod
         def from_label(cls, label: str) -> Self: ...
 
-    labels: list[str] | None = None
     name: str | None = None
     type_id: int | None = None
     uid: str | None = None
+    type_: str | None = None
 
 class Actor(Object):
-    app_name: str | None = None
-    app_uid: str | None = None
     authorizations: list[Any] | None = None
     idp: Any | None = None
     invoked_by: str | None = None
@@ -56,57 +54,13 @@ class Actor(Object):
     session: Any | None = None
     user: Any | None = None
 
-class AffectedCode(Object):
-    end_line: int | None = None
-    file: Any
-    owner: Any | None = None
-    remediation: Any | None = None
-    start_line: int | None = None
-
-class AffectedPackage(Package):
-    fixed_in_version: str | None = None
-    package_manager: str | None = None
-    path: str | None = None
-    remediation: Any | None = None
-
-class Agent(Object):
-    class TypeId(SiblingEnum):
-        ENDPOINT_DETECTION_AND_RESPONSE = 1
-        DATA_LOSS_PREVENTION = 2
-        BACKUP_RECOVERY = 3
-        PERFORMANCE_MONITORING_OBSERVABILITY = 4
-        VULNERABILITY_MANAGEMENT = 5
-        LOG_FORWARDING = 6
-        MOBILE_DEVICE_MANAGEMENT = 7
-        CONFIGURATION_MANAGEMENT = 8
-        REMOTE_ACCESS = 9
-        OTHER = 99
-        @property
-        def label(self) -> str: ...
-        @classmethod
-        def from_label(cls, label: str) -> Self: ...
-
-    name: str | None = None
-    policies: list[Any] | None = None
-    type_id: int | None = None
-    uid: str | None = None
-    uid_alt: str | None = None
-    vendor_name: str | None = None
-    version: str | None = None
-
 class Analytic(Entity):
     class TypeId(SiblingEnum):
         UNKNOWN = 0
         RULE = 1
         BEHAVIORAL = 2
         STATISTICAL = 3
-        FINGERPRINTING = 5
-        TAGGING = 6
-        KEYWORD_MATCH = 7
-        REGULAR_EXPRESSIONS = 8
-        EXACT_DATA_MATCH = 9
-        PARTIAL_DATA_MATCH = 10
-        INDEXED_DATA_MATCH = 11
+        LEARNING_MLDL = 4
         OTHER = 99
         @property
         def label(self) -> str: ...
@@ -115,14 +69,14 @@ class Analytic(Entity):
 
     category: str | None = None
     desc: str | None = None
-    name: str | None = None
+    name: str
     related_analytics: list[Any] | None = None
     type_id: int
     uid: str | None = None
     version: str | None = None
+    type_: str | None = None
 
 class Api(Object):
-    group: Any | None = None
     operation: str
     request: Any | None = None
     response: Any | None = None
@@ -130,49 +84,13 @@ class Api(Object):
     version: str | None = None
 
 class Attack(Object):
-    sub_technique: Any | None = None
-    tactic: Any | None = None
-    tactics: list[Any] | None = None
-    technique: Any | None = None
-    version: str | None = None
-
-class AuthFactor(Object):
-    class FactorTypeId(SiblingEnum):
-        UNKNOWN = 0
-        SMS = 1
-        SECURITY_QUESTION = 2
-        PHONE_CALL = 3
-        BIOMETRIC = 4
-        PUSH_NOTIFICATION = 5
-        HARDWARE_TOKEN = 6
-        OTP = 7
-        EMAIL = 8
-        U2F = 9
-        WEBAUTHN = 10
-        PASSWORD = 11
-        OTHER = 99
-        @property
-        def label(self) -> str: ...
-        @classmethod
-        def from_label(cls, label: str) -> Self: ...
-
-    device: Any | None = None
-    email_addr: Any | None = None
-    factor_type: str | None = None
-    factor_type_id: int
-    is_hotp: bool | None = None
-    is_totp: bool | None = None
-    phone_number: str | None = None
-    provider: str | None = None
-    security_questions: list[str] | None = None
+    tactics: list[Any]
+    technique: Any
+    version: str
 
 class Authorization(Object):
     decision: str | None = None
     policy: Any | None = None
-
-class AutonomousSystem(Object):
-    name: str | None = None
-    number: int | None = None
 
 class Certificate(Object):
     created_time: int | None = None
@@ -181,13 +99,7 @@ class Certificate(Object):
     issuer: str
     serial_number: str
     subject: str | None = None
-    uid: str | None = None
     version: str | None = None
-
-class CisBenchmark(Object):
-    cis_controls: list[Any] | None = None
-    desc: str | None = None
-    name: str
 
 class CisBenchmarkResult(Object):
     desc: str | None = None
@@ -196,11 +108,6 @@ class CisBenchmarkResult(Object):
     rule: Any | None = None
 
 class CisControl(Object):
-    desc: str | None = None
-    name: str
-    version: str | None = None
-
-class CisCsc(Object):
     control: str
     version: str | None = None
 
@@ -213,23 +120,9 @@ class Cloud(Object):
     zone: str | None = None
 
 class Compliance(Object):
-    class StatusId(SiblingEnum):
-        PASS = 1
-        WARNING = 2
-        FAIL = 3
-        OTHER = 99
-        @property
-        def label(self) -> str: ...
-        @classmethod
-        def from_label(cls, label: str) -> Self: ...
-
-    control: str | None = None
     requirements: list[str] | None = None
-    standards: list[str]
     status: str | None = None
-    status_code: str | None = None
     status_detail: str | None = None
-    status_id: int | None = None
 
 class Container(Object):
     hash: Any | None = None
@@ -241,20 +134,15 @@ class Container(Object):
     runtime: str | None = None
     size: int | None = None
     tag: str | None = None
-    uid: str | None = None
+    uid: str
 
 class Cve(Object):
     created_time: int | None = None
-    cvss: list[Any] | None = None
-    cwe: Any | None = None
+    cvss: Any | None = None
     cwe_uid: str | None = None
     cwe_url: Any | None = None
-    desc: str | None = None
-    epss: Any | None = None
     modified_time: int | None = None
     product: Any | None = None
-    references: list[str] | None = None
-    title: str | None = None
     uid: str
 
 class Cvss(Object):
@@ -265,132 +153,6 @@ class Cvss(Object):
     severity: str | None = None
     vector_string: str | None = None
     version: str
-
-class Cwe(Object):
-    caption: str | None = None
-    src_url: Any | None = None
-    uid: str
-
-class DataClassification(Object):
-    class CategoryId(SiblingEnum):
-        UNKNOWN = 0
-        PERSONAL = 1
-        GOVERNMENTAL = 2
-        FINANCIAL = 3
-        BUSINESS = 4
-        MILITARY_AND_LAW_ENFORCEMENT = 5
-        SECURITY = 6
-        OTHER = 99
-        @property
-        def label(self) -> str: ...
-        @classmethod
-        def from_label(cls, label: str) -> Self: ...
-
-    class ConfidentialityId(SiblingEnum):
-        UNKNOWN = 0
-        NOT_CONFIDENTIAL = 1
-        CONFIDENTIAL = 2
-        SECRET = 3
-        TOP_SECRET = 4
-        PRIVATE = 5
-        RESTRICTED = 6
-        OTHER = 99
-        @property
-        def label(self) -> str: ...
-        @classmethod
-        def from_label(cls, label: str) -> Self: ...
-
-    category: str | None = None
-    category_id: int | None = None
-    confidentiality: str | None = None
-    confidentiality_id: int | None = None
-    policy: Any | None = None
-
-class DataSecurity(DataClassification):
-    class DataLifecycleStateId(SiblingEnum):
-        UNKNOWN = 0
-        DATA_AT_REST = 1
-        DATA_IN_TRANSIT = 2
-        DATA_IN_USE = 3
-        OTHER = 99
-        @property
-        def label(self) -> str: ...
-        @classmethod
-        def from_label(cls, label: str) -> Self: ...
-
-    class DetectionSystemId(SiblingEnum):
-        UNKNOWN = 0
-        ENDPOINT = 1
-        DLP_GATEWAY = 2
-        MOBILE_DEVICE_MANAGEMENT = 3
-        DATA_DISCOVERY_CLASSIFICATION = 4
-        SECURE_WEB_GATEWAY = 5
-        SECURE_EMAIL_GATEWAY = 6
-        DIGITAL_RIGHTS_MANAGEMENT = 7
-        CLOUD_ACCESS_SECURITY_BROKER = 8
-        DATABASE_ACTIVITY_MONITORING = 9
-        APPLICATION_LEVEL_DLP = 10
-        DEVELOPER_SECURITY = 11
-        DATA_SECURITY_POSTURE_MANAGEMENT = 12
-        OTHER = 99
-        @property
-        def label(self) -> str: ...
-        @classmethod
-        def from_label(cls, label: str) -> Self: ...
-
-    data_lifecycle_state: str | None = None
-    data_lifecycle_state_id: int | None = None
-    detection_pattern: str | None = None
-    detection_system: str | None = None
-    detection_system_id: int | None = None
-    pattern_match: str | None = None
-    policy: Any | None = None
-
-class Database(Entity):
-    class TypeId(SiblingEnum):
-        UNKNOWN = 0
-        RELATIONAL = 1
-        NETWORK = 2
-        OBJECT_ORIENTED = 3
-        CENTRALIZED = 4
-        OPERATIONAL = 5
-        NOSQL = 6
-        OTHER = 99
-        @property
-        def label(self) -> str: ...
-        @classmethod
-        def from_label(cls, label: str) -> Self: ...
-
-    created_time: int | None = None
-    desc: str | None = None
-    groups: list[Any] | None = None
-    modified_time: int | None = None
-    name: str | None = None
-    size: int | None = None
-    type_id: int
-    uid: str | None = None
-
-class Databucket(Entity):
-    class TypeId(SiblingEnum):
-        UNKNOWN = 0
-        S3 = 1
-        AZURE_BLOB = 2
-        GCP_BUCKET = 3
-        OTHER = 99
-        @property
-        def label(self) -> str: ...
-        @classmethod
-        def from_label(cls, label: str) -> Self: ...
-
-    created_time: int | None = None
-    desc: str | None = None
-    file: Any | None = None
-    groups: list[Any] | None = None
-    modified_time: int | None = None
-    name: str | None = None
-    size: int | None = None
-    type_id: int
-    uid: str | None = None
 
 class DceRpc(Object):
     command: str | None = None
@@ -413,7 +175,14 @@ class Device(Endpoint):
         def from_label(cls, label: str) -> Self: ...
 
     class TypeId(SiblingEnum):
-        UNKNOWN = 0
+        SERVER = 1
+        DESKTOP = 2
+        LAPTOP = 3
+        TABLET = 4
+        MOBILE = 5
+        VIRTUAL = 6
+        IOT = 7
+        BROWSER = 8
         OTHER = 99
         @property
         def label(self) -> str: ...
@@ -427,6 +196,7 @@ class Device(Endpoint):
     first_seen_time: int | None = None
     groups: list[Any] | None = None
     hostname: Any | None = None
+    hw_info: Any | None = None
     hypervisor: str | None = None
     image: Any | None = None
     imei: str | None = None
@@ -437,10 +207,12 @@ class Device(Endpoint):
     is_trusted: bool | None = None
     last_seen_time: int | None = None
     location: Any | None = None
+    mac: Any | None = None
     modified_time: int | None = None
     name: str | None = None
     network_interfaces: list[Any] | None = None
     org: Any | None = None
+    os: Any | None = None
     region: str | None = None
     risk_level: str | None = None
     risk_level_id: int | None = None
@@ -449,6 +221,7 @@ class Device(Endpoint):
     type_id: int
     uid: str | None = None
     uid_alt: str | None = None
+    type_: str | None = None
 
 class DeviceHwInfo(Object):
     bios_date: str | None = None
@@ -541,28 +314,8 @@ class EmailAuth(Object):
     spf: str | None = None
 
 class Endpoint(Entity):
-    class TypeId(SiblingEnum):
-        SERVER = 1
-        DESKTOP = 2
-        LAPTOP = 3
-        TABLET = 4
-        MOBILE = 5
-        VIRTUAL = 6
-        IOT = 7
-        BROWSER = 8
-        FIREWALL = 9
-        SWITCH = 10
-        HUB = 11
-        OTHER = 99
-        @property
-        def label(self) -> str: ...
-        @classmethod
-        def from_label(cls, label: str) -> Self: ...
-
-    agent_list: list[Any] | None = None
     domain: str | None = None
     hostname: Any | None = None
-    hw_info: Any | None = None
     instance_uid: str | None = None
     interface_name: str | None = None
     interface_uid: str | None = None
@@ -570,44 +323,16 @@ class Endpoint(Entity):
     location: Any | None = None
     mac: Any | None = None
     name: str | None = None
-    os: Any | None = None
-    owner: Any | None = None
     subnet_uid: str | None = None
-    type_id: int | None = None
     uid: str | None = None
     vlan_uid: str | None = None
     vpc_uid: str | None = None
-    zone: str | None = None
-
-class EndpointConnection(Object):
-    code: int | None = None
-    network_endpoint: Any | None = None
 
 class Enrichment(Object):
     data: dict[str, Any]
     name: str
     provider: str | None = None
     value: str
-
-class Epss(Object):
-    created_time: int | None = None
-    percentile: float | None = None
-    score: str
-    version: str | None = None
-
-class Evidences(Object):
-    actor: Any | None = None
-    api: Any | None = None
-    connection_info: Any | None = None
-    container: Any | None = None
-    data: dict[str, Any] | None = None
-    database: Any | None = None
-    databucket: Any | None = None
-    dst_endpoint: Any | None = None
-    file: Any | None = None
-    process: Any | None = None
-    query: Any | None = None
-    src_endpoint: Any | None = None
 
 class Extension(Entity):
     name: str
@@ -626,8 +351,6 @@ class File(Entity):
         CONFIDENTIAL = 2
         SECRET = 3
         TOP_SECRET = 4
-        PRIVATE = 5
-        RESTRICTED = 6
         OTHER = 99
         @property
         def label(self) -> str: ...
@@ -675,6 +398,7 @@ class File(Entity):
     uid: str | None = None
     version: str | None = None
     xattributes: Any | None = None
+    type_: str | None = None
 
 class Finding(Object):
     created_time: int | None = None
@@ -687,24 +411,6 @@ class Finding(Object):
     remediation: Any | None = None
     src_url: Any | None = None
     supporting_data: dict[str, Any] | None = None
-    title: str
-    types: list[str] | None = None
-    uid: str
-
-class FindingInfo(Object):
-    analytic: Any | None = None
-    attacks: list[Any] | None = None
-    created_time: int | None = None
-    data_sources: list[str] | None = None
-    desc: str | None = None
-    first_seen_time: int | None = None
-    kill_chain: list[Any] | None = None
-    last_seen_time: int | None = None
-    modified_time: int | None = None
-    product_uid: str | None = None
-    related_analytics: list[Any] | None = None
-    related_events: list[Any] | None = None
-    src_url: Any | None = None
     title: str
     types: list[str] | None = None
     uid: str
@@ -729,17 +435,8 @@ class Fingerprint(Object):
     algorithm_id: int
     value: Any
 
-class FirewallRule(Rule):
-    condition: str | None = None
-    duration: int | None = None
-    match_details: list[str] | None = None
-    match_location: str | None = None
-    rate_limit: int | None = None
-    sensitivity: str | None = None
-
 class Group(Entity):
     desc: str | None = None
-    domain: str | None = None
     name: str | None = None
     privileges: list[str] | None = None
     uid: str | None = None
@@ -752,8 +449,6 @@ class HttpCookie(Object):
     domain: str | None = None
     expiration_time: int | None = None
     http_only: bool | None = None
-    is_http_only: bool | None = None
-    is_secure: bool | None = None
     name: str
     path: str | None = None
     samesite: str | None = None
@@ -768,7 +463,6 @@ class HttpRequest(Object):
     args: str | None = None
     http_headers: list[Any] | None = None
     http_method: str | None = None
-    length: int | None = None
     referrer: str | None = None
     uid: str | None = None
     url: Any | None = None
@@ -779,7 +473,6 @@ class HttpRequest(Object):
 class HttpResponse(Object):
     code: int
     content_type: str | None = None
-    http_headers: list[Any] | None = None
     latency: int | None = None
     length: int | None = None
     message: str | None = None
@@ -820,19 +513,6 @@ class Job(Object):
     run_state_id: int | None = None
     user: Any | None = None
 
-class KbArticle(Object):
-    bulletin: str | None = None
-    classification: str | None = None
-    created_time: int | None = None
-    is_superseded: bool | None = None
-    os: Any | None = None
-    product: Any | None = None
-    severity: str | None = None
-    size: int | None = None
-    src_url: Any | None = None
-    title: str | None = None
-    uid: str
-
 class Kernel(Object):
     class TypeId(SiblingEnum):
         SHARED_MUTEX = 1
@@ -848,6 +528,7 @@ class Kernel(Object):
     path: str | None = None
     system_call: str | None = None
     type_id: int
+    type_: str | None = None
 
 class KernelDriver(Object):
     file: Any
@@ -859,7 +540,7 @@ class KeyboardInfo(Object):
     keyboard_subtype: int | None = None
     keyboard_type: str | None = None
 
-class KillChainPhase(Object):
+class KillChain(Object):
     class PhaseId(SiblingEnum):
         UNKNOWN = 0
         RECONNAISSANCE = 1
@@ -878,65 +559,17 @@ class KillChainPhase(Object):
     phase: str | None = None
     phase_id: int
 
-class LdapPerson(Object):
-    cost_center: str | None = None
-    created_time: int | None = None
-    deleted_time: int | None = None
-    email_addrs: list[Any] | None = None
-    employee_uid: str | None = None
-    given_name: str | None = None
-    hire_time: int | None = None
-    job_title: str | None = None
-    labels: list[str] | None = None
-    last_login_time: int | None = None
-    ldap_cn: str | None = None
-    ldap_dn: str | None = None
-    leave_time: int | None = None
-    location: Any | None = None
-    manager: Any | None = None
-    modified_time: int | None = None
-    office_location: str | None = None
-    surname: str | None = None
-
-class LoadBalancer(Entity):
-    classification: str | None = None
-    code: int | None = None
-    dst_endpoint: Any | None = None
-    endpoint_connections: list[Any] | None = None
-    error_message: str | None = None
-    message: str | None = None
-    metrics: list[Any] | None = None
-    name: str | None = None
-    status_detail: str | None = None
-    uid: str | None = None
-
 class Location(Object):
     city: str | None = None
     continent: str | None = None
-    coordinates: list[float] | None = None
+    coordinates: list[float]
     country: str | None = None
     desc: str | None = None
-    geohash: str | None = None
     is_on_premises: bool | None = None
     isp: str | None = None
-    lat: float | None = None
-    long: float | None = None
     postal_code: str | None = None
     provider: str | None = None
     region: str | None = None
-
-class Logger(Entity):
-    device: Any | None = None
-    log_level: str | None = None
-    log_name: str | None = None
-    log_provider: str | None = None
-    log_version: str | None = None
-    logged_time: int | None = None
-    name: str | None = None
-    product: Any | None = None
-    transmit_time: int | None = None
-    uid: str | None = None
-    version: str | None = None
 
 class Malware(Entity):
     classification_ids: list[int]
@@ -957,21 +590,17 @@ class Metadata(Object):
     correlation_uid: str | None = None
     event_code: str | None = None
     extension: Any | None = None
-    extensions: list[Any] | None = None
     labels: list[str] | None = None
-    log_level: str | None = None
     log_name: str | None = None
     log_provider: str | None = None
     log_version: str | None = None
     logged_time: int | None = None
-    loggers: list[Any] | None = None
     modified_time: int | None = None
     original_time: str | None = None
     processed_time: int | None = None
     product: Any
     profiles: list[str] | None = None
     sequence: int | None = None
-    tenant_uid: str | None = None
     uid: str | None = None
     version: str
 
@@ -1049,23 +678,12 @@ class NetworkConnectionInfo(Object):
     protocol_num: int | None = None
     protocol_ver: str | None = None
     protocol_ver_id: int | None = None
-    session: Any | None = None
     tcp_flags: int | None = None
     uid: str | None = None
 
 class NetworkEndpoint(Endpoint):
-    class TypeId(SiblingEnum):
-        UNKNOWN = 0
-        OTHER = 99
-        @property
-        def label(self) -> str: ...
-        @classmethod
-        def from_label(cls, label: str) -> Self: ...
-
-    autonomous_system: Any | None = None
     intermediate_ips: list[Any] | None = None
     port: Any | None = None
-    proxy_endpoint: Any | None = None
     svc_name: str | None = None
 
 class NetworkInterface(Entity):
@@ -1089,6 +707,7 @@ class NetworkInterface(Entity):
     subnet_prefix: int | None = None
     type_id: int
     uid: str | None = None
+    type_: str | None = None
 
 class NetworkProxy(NetworkEndpoint):
     pass
@@ -1097,9 +716,6 @@ class NetworkTraffic(Object):
     bytes: int | None = None
     bytes_in: int | None = None
     bytes_out: int | None = None
-    chunks: int | None = None
-    chunks_in: int | None = None
-    chunks_out: int | None = None
     packets: int | None = None
     packets_in: int | None = None
     packets_out: int | None = None
@@ -1120,6 +736,7 @@ class Observable(Object):
     reputation: Any | None = None
     type_id: int
     value: str | None = None
+    type_: str | None = None
 
 class Organization(Entity):
     name: str | None = None
@@ -1147,7 +764,6 @@ class Os(Object):
 
     build: str | None = None
     country: str | None = None
-    cpe_name: str | None = None
     cpu_bits: int | None = None
     edition: str | None = None
     lang: str | None = None
@@ -1156,27 +772,19 @@ class Os(Object):
     sp_ver: int | None = None
     type_id: int
     version: str | None = None
+    type_: str | None = None
 
 class Package(Object):
     architecture: str | None = None
     epoch: int | None = None
     license: str | None = None
     name: str
-    purl: str | None = None
     release: str | None = None
     version: str
-
-class PeripheralDevice(Entity):
-    model: str | None = None
-    name: str
-    serial_number: str | None = None
-    uid: str | None = None
-    vendor_name: str | None = None
 
 class Policy(Entity):
     desc: str | None = None
     group: Any | None = None
-    is_applied: bool | None = None
     name: str | None = None
     uid: str | None = None
     version: str | None = None
@@ -1215,7 +823,6 @@ class Process(Entity):
     xattributes: Any | None = None
 
 class Product(Entity):
-    cpe_name: str | None = None
     feature: Any | None = None
     lang: str | None = None
     name: str | None = None
@@ -1225,28 +832,14 @@ class Product(Entity):
     vendor_name: str
     version: str | None = None
 
-class QueryInfo(Entity):
-    bytes: int | None = None
-    data: dict[str, Any] | None = None
-    name: str | None = None
-    query_string: str
-    query_time: int | None = None
-    uid: str | None = None
-
 class RelatedEvent(Object):
-    attacks: list[Any] | None = None
-    kill_chain: list[Any] | None = None
-    observables: list[Any] | None = None
     product_uid: str | None = None
-    type_name: str | None = None
     type_uid: int | None = None
     uid: str
 
 class Remediation(Object):
-    desc: str
-    kb_article_list: list[Any] | None = None
+    desc: str | None = None
     kb_articles: list[str] | None = None
-    references: list[str] | None = None
 
 class Reputation(Object):
     class ScoreId(SiblingEnum):
@@ -1273,25 +866,19 @@ class Reputation(Object):
     score_id: int
 
 class Request(Object):
-    containers: list[Any] | None = None
-    data: dict[str, Any] | None = None
     flags: list[str] | None = None
     uid: str
 
 class ResourceDetails(Resource):
-    agent_list: list[Any] | None = None
     cloud_partition: str | None = None
     criticality: str | None = None
     group: Any | None = None
-    namespace: str | None = None
     owner: Any | None = None
     region: str | None = None
     version: str | None = None
 
 class Response(Object):
     code: int | None = None
-    containers: list[Any] | None = None
-    data: dict[str, Any] | None = None
     error: str | None = None
     error_message: str | None = None
     flags: list[str] | None = None
@@ -1313,61 +900,6 @@ class Rule(Entity):
 class San(Object):
     name: str
 
-class Scan(Entity):
-    class TypeId(SiblingEnum):
-        UNKNOWN = 0
-        MANUAL = 1
-        SCHEDULED = 2
-        UPDATED_CONTENT = 3
-        QUARANTINED_ITEMS = 4
-        ATTACHED_MEDIA = 5
-        USER_LOGON = 6
-        ELAM = 7
-        OTHER = 99
-        @property
-        def label(self) -> str: ...
-        @classmethod
-        def from_label(cls, label: str) -> Self: ...
-
-    name: str | None = None
-    type_id: int
-    uid: str | None = None
-
-class SecurityState(Object):
-    class StateId(SiblingEnum):
-        UNKNOWN = 0
-        MISSING_OR_OUTDATED_CONTENT = 1
-        POLICY_MISMATCH = 2
-        IN_NETWORK_QUARANTINE = 3
-        PROTECTION_OFF = 4
-        PROTECTION_MALFUNCTION = 5
-        PROTECTION_NOT_LICENSED = 6
-        UNREMEDIATED_THREAT = 7
-        SUSPICIOUS_REPUTATION = 8
-        REBOOT_PENDING = 9
-        CONTENT_IS_LOCKED = 10
-        NOT_INSTALLED = 11
-        WRITABLE_SYSTEM_PARTITION = 12
-        SAFETYNET_FAILURE = 13
-        FAILED_BOOT_VERIFY = 14
-        MODIFIED_EXECUTION_ENVIRONMENT = 15
-        SELINUX_DISABLED = 16
-        ELEVATED_PRIVILEGE_SHELL = 17
-        IOS_FILE_SYSTEM_ALTERED = 18
-        OPEN_REMOTE_ACCESS = 19
-        OTA_UPDATES_DISABLED = 20
-        ROOTED = 21
-        ANDROID_PARTITION_MODIFIED = 22
-        COMPLIANCE_FAILURE = 23
-        OTHER = 99
-        @property
-        def label(self) -> str: ...
-        @classmethod
-        def from_label(cls, label: str) -> Self: ...
-
-    state: str | None = None
-    state_id: int | None = None
-
 class Service(Entity):
     labels: list[str] | None = None
     name: str | None = None
@@ -1375,42 +907,20 @@ class Service(Entity):
     version: str | None = None
 
 class Session(Object):
-    count: int | None = None
     created_time: int | None = None
     credential_uid: str | None = None
-    expiration_reason: str | None = None
     expiration_time: int | None = None
-    is_mfa: bool | None = None
     is_remote: bool | None = None
-    is_vpn: bool | None = None
     issuer: str | None = None
-    terminal: str | None = None
     uid: str | None = None
-    uid_alt: str | None = None
     uuid: Any | None = None
-
-class SubTechnique(Entity):
-    name: str | None = None
-    src_url: Any | None = None
-    uid: str | None = None
-
-class Table(Entity):
-    created_time: int | None = None
-    desc: str | None = None
-    groups: list[Any] | None = None
-    modified_time: int | None = None
-    name: str | None = None
-    size: int | None = None
-    uid: str | None = None
 
 class Tactic(Entity):
     name: str | None = None
-    src_url: Any | None = None
     uid: str | None = None
 
 class Technique(Entity):
     name: str | None = None
-    src_url: Any | None = None
     uid: str | None = None
 
 class Tls(Object):
@@ -1427,7 +937,6 @@ class Tls(Object):
     sans: list[Any] | None = None
     server_ciphers: list[str] | None = None
     sni: str | None = None
-    tls_extension_list: list[Any] | None = None
     version: str
 
 class TlsExtension(Object):
@@ -1462,6 +971,7 @@ class TlsExtension(Object):
 
     data: dict[str, Any] | None = None
     type_id: int
+    type_: str | None = None
 
 class Url(Object):
     categories: list[str] | None = None
@@ -1476,18 +986,6 @@ class Url(Object):
     url_string: Any | None = None
 
 class User(Entity):
-    class RiskLevelId(SiblingEnum):
-        INFO = 0
-        LOW = 1
-        MEDIUM = 2
-        HIGH = 3
-        CRITICAL = 4
-        OTHER = 99
-        @property
-        def label(self) -> str: ...
-        @classmethod
-        def from_label(cls, label: str) -> Self: ...
-
     class TypeId(SiblingEnum):
         UNKNOWN = 0
         USER = 1
@@ -1505,33 +1003,21 @@ class User(Entity):
     email_addr: Any | None = None
     full_name: str | None = None
     groups: list[Any] | None = None
-    ldap_person: Any | None = None
     name: Any | None = None
     org: Any | None = None
-    risk_level: str | None = None
-    risk_level_id: int | None = None
-    risk_score: int | None = None
-    type_id: int | None = None
+    type_id: int
     uid: str | None = None
     uid_alt: str | None = None
+    type_: str | None = None
 
 class Vulnerability(Object):
-    affected_code: list[Any] | None = None
-    affected_packages: list[Any] | None = None
-    cve: Any | None = None
-    cwe: Any | None = None
+    cve: Any
     desc: str | None = None
-    first_seen_time: int | None = None
     fix_available: bool | None = None
-    is_exploit_available: bool | None = None
-    is_fix_available: bool | None = None
-    kb_article_list: list[Any] | None = None
     kb_articles: list[str] | None = None
-    last_seen_time: int | None = None
     packages: list[Any] | None = None
     references: list[str] | None = None
     related_vulnerabilities: list[str] | None = None
-    remediation: Any | None = None
     severity: str | None = None
     title: str | None = None
     vendor_name: str | None = None
