@@ -25,12 +25,12 @@ test-verbose python="3.12":
     uv run --python {{python}} pytest tests/ -vv --cov=ocsf --cov-report=xml --cov-report=term
 
 # Check code formatting without making changes
-format-check:
-    uv run --python 3.12 ruff format --check src/ tests/ scripts/
+format-check python="3.12":
+    uv run --python {{python}} ruff format --check src/ tests/ scripts/
 
 # Format code (fix formatting issues)
-format:
-    uv run --python 3.12 ruff format src/ tests/ scripts/
+format python="3.12":
+    uv run --python {{python}} ruff format src/ tests/ scripts/
 
 # Lint code with ruff
 lint:
@@ -46,11 +46,11 @@ typecheck:
 
 # Download OCSF schemas (v1.7.0)
 download-schemas:
-    python3 scripts/download_schemas.py
+    uv run scripts/download_schemas.py
 
 # Regenerate type stub files from schemas
 regenerate-stubs:
-    python3 scripts/regenerate_stubs.py
+    uv run scripts/regenerate_stubs.py
 
 # Download schemas and regenerate stubs (full rebuild)
 rebuild: download-schemas regenerate-stubs
@@ -63,7 +63,7 @@ clean:
     find . -type d -name __pycache__ -exec rm -rf {} +
 
 # Build distribution packages
-build: install rebuild
+build: install-all rebuild
     hatch build
     just format
 

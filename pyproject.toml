@@ -26,13 +26,18 @@ classifiers = [
 ]
 keywords = ["ocsf", "security", "pydantic", "schema", "cybersecurity"]
 dependencies = [
-    "pydantic>=2.5,<3.0",
     "eval-type-backport>=0.2.0; python_version < '3.10'",
-    "build>=1.4.0",
+    "pydantic>=2.5,<3.0",
 ]
 
 [project.optional-dependencies]
-dev = ["pytest>=7.0", "pytest-cov>=4.0", "mypy>=1.0", "ruff>=0.1"]
+dev = [
+    "hatch>=1.15.1",
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+    "mypy>=1.0",
+    "ruff>=0.1",
+]
 generator = ["jinja2>=3.0", "httpx>=0.25"]
 
 [project.urls]
@@ -71,6 +76,3 @@ warn_unused_ignores = true
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-v --cov=ocsf --cov-report=term-missing"
-
-[dependency-groups]
-dev = ["hatch>=1.15.1"]
