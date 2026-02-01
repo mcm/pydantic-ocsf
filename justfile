@@ -42,7 +42,7 @@ lint-fix:
 
 # Type check with mypy
 typecheck:
-    uv run --python 3.12 mypy src/ocsf/ --ignore-missing-imports
+    uv run --python 3.12 mypy src/ocsf/ scripts/ --ignore-missing-imports
 
 # Download OCSF schemas (v1.7.0)
 download-schemas:
@@ -63,9 +63,9 @@ clean:
     find . -type d -name __pycache__ -exec rm -rf {} +
 
 # Build distribution packages
-build:
-    pip install --upgrade build
-    python -m build
+build: install rebuild
+    hatch build
+    just format
 
 # Run a quick development check (format, lint, test)
 dev-check: format lint-fix test

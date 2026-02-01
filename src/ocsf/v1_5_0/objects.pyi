@@ -1662,7 +1662,6 @@ class NetworkEndpoint(Endpoint):
     port: Any | None = None
     proxy_endpoint: Any | None = None
     svc_name: str | None = None
-    type_id: int | None = None
 
 class NetworkInterface(Entity):
     class TypeId(SiblingEnum):

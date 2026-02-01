@@ -103,7 +103,9 @@ class TestVersionModule:
         User = ocsf.v1_7_0.objects.User
 
         # Its dependencies should be loaded (with namespaced keys)
-        assert "objects:Account" in ocsf.v1_7_0._model_cache or "Account" in ocsf.v1_7_0._model_cache
+        assert (
+            "objects:Account" in ocsf.v1_7_0._model_cache or "Account" in ocsf.v1_7_0._model_cache
+        )
 
     def test_rebuild_all(self):
         """Test rebuild_all() method."""

@@ -1225,7 +1225,6 @@ class RemediationActivity(BaseEvent):
     countermeasures: list[Any] | None = None
     remediation: Any | None = None
     scan: Any | None = None
-    status_id: int | None = None
 
 class ScanActivity(BaseEvent):
     class ActivityId(SiblingEnum):

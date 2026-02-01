@@ -186,7 +186,7 @@ print(f"✓ v1.0.0 File: {file_old.name} (legacy)")
 print(f"  Different classes: {File_v1_7_0 is not File_v1_0_0}")
 
 # Show available versions (8 versions: v1.0.0 through v1.7.0)
-print(f"\n✓ Available OCSF versions:")
+print("\n✓ Available OCSF versions:")
 for v in ["1.7.0", "1.6.0", "1.5.0", "1.4.0", "1.3.0", "1.2.0", "1.1.0", "1.0.0"]:
     print(f"  - v{v}")
 
@@ -197,7 +197,7 @@ print("\nExample 9: Type Safety & IDE Support")
 print("-" * 70)
 
 # With .pyi stub files, IDEs provide full autocomplete
-user: User = User(name="Charlie", uid="user-999", type_id=1)
+user: User = User(name="Charlie", uid="user-999", type_id=User.TypeId.USER)
 
 # Type checker knows the fields
 print(f"✓ Type-safe access: {user.name}")

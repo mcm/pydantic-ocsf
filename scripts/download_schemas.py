@@ -14,7 +14,7 @@ import sys
 import tarfile
 from io import BytesIO
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 import httpx
 
@@ -36,7 +36,7 @@ SCHEMA_CACHE_DIR = Path(__file__).parent.parent / ".schema_cache"
 OUTPUT_DIR = Path(__file__).parent.parent / "src" / "ocsf" / "schemas"
 
 
-def load_cached_schema(version: str) -> dict | None:
+def load_cached_schema(version: str) -> dict[str, Any] | None:
     """Load schema from local cache directory.
 
     Args:
@@ -50,12 +50,12 @@ def load_cached_schema(version: str) -> dict | None:
     if schema_file.exists():
         print("    [*] Found schema in cache")
         with open(schema_file, encoding="utf-8") as f:
-            return json.load(f)
+            return cast(dict[str, Any], json.load(f))
 
     return None
 
 
-def save_cached_schema(version: str, schema: dict) -> None:
+def save_cached_schema(version: str, schema: dict[str, Any]) -> None:
     """Save schema to local cache directory.
 
     Args:
@@ -73,7 +73,7 @@ def save_cached_schema(version: str, schema: dict) -> None:
     return None
 
 
-def save_schema(version: str, schema: dict) -> Path:
+def save_schema(version: str, schema: dict[str, Any]) -> Path:
     """Save schema to output directory.
 
     Args:
@@ -93,7 +93,7 @@ def save_schema(version: str, schema: dict) -> Path:
     return output_file
 
 
-def download_schema(version: str) -> dict:
+def download_schema(version: str) -> dict[str, Any]:
     """Fetch and parse OCSF schema for a given version.
 
     Args:

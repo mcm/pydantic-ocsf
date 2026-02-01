@@ -28,6 +28,7 @@ keywords = ["ocsf", "security", "pydantic", "schema", "cybersecurity"]
 dependencies = [
     "pydantic>=2.5,<3.0",
     "eval-type-backport>=0.2.0; python_version < '3.10'",
+    "build>=1.4.0",
 ]
 
 [project.optional-dependencies]
@@ -44,9 +45,7 @@ include = ["/src", "/scripts"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/ocsf"]
-
-# [tool.hatch.build.hooks.custom]
-# path = "scripts/build_hook.py"
+artifacts = ["src/ocsf/schemas/v*.json"]
 
 [tool.ruff]
 line-length = 100
@@ -72,3 +71,6 @@ warn_unused_ignores = true
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-v --cov=ocsf --cov-report=term-missing"
+
+[dependency-groups]
+dev = ["hatch>=1.15.1"]

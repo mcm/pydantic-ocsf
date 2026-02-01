@@ -29,7 +29,6 @@ class AccountChange(Iam):
         @classmethod
         def from_label(cls, label: str) -> Self: ...
 
-    activity_id: int | None = None
     policies: list[Any] | None = None
     policy: Any | None = None
     user: Any
@@ -73,7 +72,6 @@ class ApiActivity(Application):
         @classmethod
         def from_label(cls, label: str) -> Self: ...
 
-    activity_id: int | None = None
     actor: Any
     api: Any
     dst_endpoint: Any | None = None
@@ -95,7 +93,6 @@ class ApplicationError(Application):
         @classmethod
         def from_label(cls, label: str) -> Self: ...
 
-    activity_id: int | None = None
     message: str | None = None
 
 class ApplicationLifecycle(Application):
@@ -170,7 +167,6 @@ class Authentication(Iam):
         @classmethod
         def from_label(cls, label: str) -> Self: ...
 
-    activity_id: int | None = None
     auth_factors: list[Any] | None = None
     auth_protocol: str | None = None
     auth_protocol_id: int | None = None
@@ -198,7 +194,6 @@ class AuthorizeSession(Iam):
         @classmethod
         def from_label(cls, label: str) -> Self: ...
 
-    activity_id: int | None = None
     dst_endpoint: Any | None = None
     group: Any | None = None
     privileges: list[str] | None = None
@@ -387,7 +382,6 @@ class DatastoreActivity(Application):
         @classmethod
         def from_label(cls, label: str) -> Self: ...
 
-    activity_id: int | None = None
     actor: Any
     database: Any | None = None
     databucket: Any | None = None
@@ -530,8 +524,6 @@ class Discovery(BaseEvent):
         @classmethod
         def from_label(cls, label: str) -> Self: ...
 
-    activity_id: int | None = None
-
 class DiscoveryResult(BaseEvent):
     class ActivityId(SiblingEnum):
         QUERY = 1
@@ -554,7 +546,6 @@ class DiscoveryResult(BaseEvent):
         @classmethod
         def from_label(cls, label: str) -> Self: ...
 
-    activity_id: int | None = None
     query_info: Any | None = None
     query_result: str | None = None
     query_result_id: int
@@ -599,7 +590,6 @@ class DnsActivity(Network):
         @classmethod
         def from_label(cls, label: str) -> Self: ...
 
-    activity_id: int | None = None
     answers: list[Any] | None = None
     connection_info: Any | None = None
     dst_endpoint: Any | None = None
@@ -754,7 +744,6 @@ class EntityManagement(Iam):
 
     access_list: list[str] | None = None
     access_mask: int | None = None
-    activity_id: int | None = None
     comment: str | None = None
     entity: Any
     entity_result: Any | None = None
@@ -787,7 +776,6 @@ class EventLogActvity(System):
         @classmethod
         def from_label(cls, label: str) -> Self: ...
 
-    activity_id: int | None = None
     actor: Any | None = None
     device: Any | None = None
     dst_endpoint: Any | None = None
@@ -823,7 +811,6 @@ class FileActivity(System):
         def from_label(cls, label: str) -> Self: ...
 
     access_mask: int | None = None
-    activity_id: int | None = None
     actor: Any
     component: str | None = None
     connection_uid: str | None = None
@@ -871,7 +858,6 @@ class FileHosting(Application):
     access_list: list[str] | None = None
     access_mask: int | None = None
     access_result: dict[str, Any] | None = None
-    activity_id: int | None = None
     actor: Any
     connection_info: Any | None = None
     dst_endpoint: Any | None = None
@@ -923,7 +909,6 @@ class Finding(BaseEvent):
         @classmethod
         def from_label(cls, label: str) -> Self: ...
 
-    activity_id: int | None = None
     activity_name: str | None = None
     comment: str | None = None
     confidence: str | None = None
@@ -954,7 +939,6 @@ class FtpActivity(Network):
         @classmethod
         def from_label(cls, label: str) -> Self: ...
 
-    activity_id: int | None = None
     codes: list[int] | None = None
     command: str | None = None
     command_responses: list[str] | None = None
@@ -976,7 +960,6 @@ class GroupManagement(Iam):
         @classmethod
         def from_label(cls, label: str) -> Self: ...
 
-    activity_id: int | None = None
     group: Any
     privileges: list[str] | None = None
     resource: Any | None = None
@@ -998,7 +981,6 @@ class HttpActivity(Network):
         @classmethod
         def from_label(cls, label: str) -> Self: ...
 
-    activity_id: int | None = None
     file: Any | None = None
     http_cookies: list[Any] | None = None
     http_request: Any | None = None
@@ -1133,7 +1115,6 @@ class KernelActivity(System):
         @classmethod
         def from_label(cls, label: str) -> Self: ...
 
-    activity_id: int | None = None
     kernel: Any
 
 class KernelExtensionActivity(System):
@@ -1146,7 +1127,6 @@ class KernelExtensionActivity(System):
         @classmethod
         def from_label(cls, label: str) -> Self: ...
 
-    activity_id: int | None = None
     actor: Any
     driver: Any
 
@@ -1170,7 +1150,6 @@ class MemoryActivity(System):
         @classmethod
         def from_label(cls, label: str) -> Self: ...
 
-    activity_id: int | None = None
     actual_permissions: int | None = None
     base_address: str | None = None
     process: Any
@@ -1187,7 +1166,6 @@ class ModuleActivity(System):
         @classmethod
         def from_label(cls, label: str) -> Self: ...
 
-    activity_id: int | None = None
     actor: Any
     module: Any
 
@@ -1220,7 +1198,6 @@ class NetworkActivity(Network):
         @classmethod
         def from_label(cls, label: str) -> Self: ...
 
-    activity_id: int | None = None
     url: Any | None = None
 
 class NetworkConnectionQuery(DiscoveryResult):
@@ -1272,7 +1249,6 @@ class NetworkFileActivity(Network):
         @classmethod
         def from_label(cls, label: str) -> Self: ...
 
-    activity_id: int | None = None
     actor: Any
     connection_info: Any | None = None
     dst_endpoint: Any | None = None
@@ -1314,7 +1290,6 @@ class NtpActivity(Network):
         @classmethod
         def from_label(cls, label: str) -> Self: ...
 
-    activity_id: int | None = None
     delay: int | None = None
     dispersion: int | None = None
     precision: int | None = None
@@ -1357,7 +1332,6 @@ class ProcessActivity(System):
         @classmethod
         def from_label(cls, label: str) -> Self: ...
 
-    activity_id: int | None = None
     actor: Any | None = None
     actual_permissions: int | None = None
     exit_code: int | None = None
@@ -1387,7 +1361,6 @@ class RdpActivity(Network):
         @classmethod
         def from_label(cls, label: str) -> Self: ...
 
-    activity_id: int | None = None
     capabilities: list[str] | None = None
     certificate_chain: list[str] | None = None
     device: Any | None = None
@@ -1422,12 +1395,10 @@ class RemediationActivity(BaseEvent):
         @classmethod
         def from_label(cls, label: str) -> Self: ...
 
-    activity_id: int | None = None
     command_uid: str
     countermeasures: list[Any] | None = None
     remediation: Any | None = None
     scan: Any | None = None
-    status_id: int | None = None
 
 class ScanActivity(Application):
     class ActivityId(SiblingEnum):
@@ -1447,7 +1418,6 @@ class ScanActivity(Application):
         @classmethod
         def from_label(cls, label: str) -> Self: ...
 
-    activity_id: int | None = None
     command_uid: str | None = None
     duration: int | None = None
     end_time: int | None = None
@@ -1480,7 +1450,6 @@ class ScheduledJobActivity(System):
         @classmethod
         def from_label(cls, label: str) -> Self: ...
 
-    activity_id: int | None = None
     actor: Any | None = None
     job: Any
 
@@ -1493,7 +1462,6 @@ class ScriptActivity(System):
         @classmethod
         def from_label(cls, label: str) -> Self: ...
 
-    activity_id: int | None = None
     script: Any
 
 class SecurityFinding(BaseEvent):
@@ -1553,7 +1521,6 @@ class SecurityFinding(BaseEvent):
         @classmethod
         def from_label(cls, label: str) -> Self: ...
 
-    activity_id: int | None = None
     analytic: Any | None = None
     attacks: list[Any] | None = None
     cis_csc: list[Any] | None = None
@@ -1610,7 +1577,6 @@ class SmbActivity(Network):
         @classmethod
         def from_label(cls, label: str) -> Self: ...
 
-    activity_id: int | None = None
     client_dialects: list[str] | None = None
     command: str | None = None
     dce_rpc: Any | None = None
@@ -1659,7 +1625,6 @@ class SshActivity(Network):
         @classmethod
         def from_label(cls, label: str) -> Self: ...
 
-    activity_id: int | None = None
     auth_type: str | None = None
     auth_type_id: int | None = None
     client_hassh: Any | None = None
@@ -1727,7 +1692,6 @@ class UserAccess(Iam):
         @classmethod
         def from_label(cls, label: str) -> Self: ...
 
-    activity_id: int | None = None
     privileges: list[str]
     resource: Any | None = None
     user: Any
@@ -1756,7 +1720,6 @@ class WebResourceAccessActivity(Application):
         @classmethod
         def from_label(cls, label: str) -> Self: ...
 
-    activity_id: int | None = None
     http_request: Any
     http_response: Any | None = None
     proxy: Any | None = None
@@ -1780,7 +1743,6 @@ class WebResourcesActivity(Application):
         @classmethod
         def from_label(cls, label: str) -> Self: ...
 
-    activity_id: int | None = None
     dst_endpoint: Any | None = None
     http_request: Any | None = None
     http_response: Any | None = None

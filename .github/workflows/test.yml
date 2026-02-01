@@ -74,7 +74,7 @@ jobs:
               run: ruff check src/ generator/ tests/
 
             - name: 🔎 Type check with mypy
-              run: mypy src/ocsf/ --ignore-missing-imports
+              run: mypy src/ocsf/ scripts/ --ignore-missing-imports
 
     verify-generation:
         name: Verify models can be generated

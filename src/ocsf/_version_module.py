@@ -73,9 +73,7 @@ class OCSFVersionModule(ModuleType):
             if self._events_module is None:
                 from ocsf._namespace_module import OCSFNamespaceModule
 
-                self._events_module = OCSFNamespaceModule(
-                    f"{self.__name__}.events", self, "events"
-                )
+                self._events_module = OCSFNamespaceModule(f"{self.__name__}.events", self, "events")
             return self._events_module
 
         # No direct model access - raise helpful error

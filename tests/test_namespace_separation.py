@@ -5,7 +5,7 @@ import pytest
 
 def test_import_from_objects_namespace():
     """Can import objects from objects namespace."""
-    from ocsf.v1_7_0.objects import User, Account, File
+    from ocsf.v1_7_0.objects import Account, File, User
 
     assert User is not None
     assert Account is not None
@@ -14,7 +14,7 @@ def test_import_from_objects_namespace():
 
 def test_import_from_events_namespace():
     """Can import events from events namespace."""
-    from ocsf.v1_7_0.events import FileActivity, ApiActivity
+    from ocsf.v1_7_0.events import ApiActivity, FileActivity
 
     assert FileActivity is not None
     assert ApiActivity is not None
@@ -22,8 +22,8 @@ def test_import_from_events_namespace():
 
 def test_finding_collision_resolved():
     """Finding exists in both namespaces as different classes."""
-    from ocsf.v1_7_0.objects import Finding as FindingObject
     from ocsf.v1_7_0.events import Finding as FindingEvent
+    from ocsf.v1_7_0.objects import Finding as FindingObject
 
     # Different classes
     assert FindingObject is not FindingEvent
@@ -33,8 +33,8 @@ def test_finding_collision_resolved():
 
 def test_application_collision_resolved():
     """Application exists in both namespaces as different classes."""
-    from ocsf.v1_7_0.objects import Application as AppObject
     from ocsf.v1_7_0.events import Application as AppEvent
+    from ocsf.v1_7_0.objects import Application as AppObject
 
     assert AppObject is not AppEvent
 
@@ -42,19 +42,19 @@ def test_application_collision_resolved():
 def test_wrong_namespace_raises_error():
     """Importing from wrong namespace raises helpful error."""
     with pytest.raises(ImportError, match="cannot import name"):
-        from ocsf.v1_7_0.objects import FileActivity  # Event, not object
+        from ocsf.v1_7_0.objects import FileActivity  # type: ignore # noqa: F401
 
     with pytest.raises(ImportError, match="cannot import name"):
-        from ocsf.v1_7_0.events import User  # Object, not event
+        from ocsf.v1_7_0.events import User  # type: ignore # noqa: F401
 
 
 def test_old_import_style_raises_error():
     """Old import style no longer works (breaking change)."""
     with pytest.raises(ImportError, match="cannot import name"):
-        from ocsf.v1_7_0 import User  # Should fail
+        from ocsf.v1_7_0 import User  # type: ignore # noqa: F401
 
     with pytest.raises(ImportError, match="cannot import name"):
-        from ocsf.v1_7_0 import FileActivity  # Should fail
+        from ocsf.v1_7_0 import FileActivity  # type: ignore # noqa: F401
 
 
 def test_version_module_only_exposes_namespaces():
@@ -73,8 +73,8 @@ def test_version_module_only_exposes_namespaces():
 
 def test_namespace_dir():
     """dir() on namespace modules returns only appropriate models."""
-    import ocsf.v1_7_0.objects
     import ocsf.v1_7_0.events
+    import ocsf.v1_7_0.objects
 
     objects_dir = dir(ocsf.v1_7_0.objects)
     events_dir = dir(ocsf.v1_7_0.events)
@@ -88,7 +88,7 @@ def test_namespace_dir():
 
 def test_top_level_namespace_access():
     """Can access namespaces from top-level ocsf package."""
-    from ocsf import objects, events
+    from ocsf import events, objects
 
     assert objects is not None
     assert events is not None
@@ -103,8 +103,8 @@ def test_top_level_namespace_access():
 
 def test_shared_model_cache():
     """Models are cached in parent module, accessible via namespaces."""
-    from ocsf.v1_7_0.objects import User
     from ocsf.v1_7_0 import _model_cache
+    from ocsf.v1_7_0.objects import User
 
     # User should be in the parent's cache with namespaced key
     assert "objects:User" in _model_cache
@@ -150,8 +150,8 @@ def test_enum_classes_accessible():
 
 def test_namespace_module_attributes():
     """Namespace modules have correct attributes."""
-    import ocsf.v1_7_0.objects
     import ocsf.v1_7_0.events
+    import ocsf.v1_7_0.objects
 
     # Check module name
     assert ocsf.v1_7_0.objects.__name__ == "ocsf.v1_7_0.objects"

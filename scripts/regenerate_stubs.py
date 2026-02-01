@@ -7,7 +7,7 @@ This is a standalone script that doesn't depend on pydantic being installed.
 import json
 import re
 from pathlib import Path
-from typing import Any
+from typing import Any, Optional
 
 
 def snake_to_pascal(name: str) -> str:
@@ -45,10 +45,11 @@ def generate_objects_stub(version: str, schema: dict[str, Any], output_dir: Path
     ]
 
     dict_attributes = schema.get("dictionary", {}).get("attributes", {})
+    all_objects = schema.get("objects", {})
 
     # Generate ONLY object stubs
-    for obj_name, obj_spec in sorted(schema.get("objects", {}).items()):
-        lines.extend(_generate_class_stub(obj_name, obj_spec, dict_attributes))
+    for obj_name, obj_spec in sorted(all_objects.items()):
+        lines.extend(_generate_class_stub(obj_name, obj_spec, dict_attributes, all_objects))
         lines.append("")
 
     output_path = output_dir / "objects.pyi"
@@ -73,10 +74,11 @@ def generate_events_stub(version: str, schema: dict[str, Any], output_dir: Path)
     ]
 
     dict_attributes = schema.get("dictionary", {}).get("attributes", {})
+    all_events = schema.get("events", {})
 
     # Generate ONLY event stubs
-    for event_name, event_spec in sorted(schema.get("events", {}).items()):
-        lines.extend(_generate_class_stub(event_name, event_spec, dict_attributes))
+    for event_name, event_spec in sorted(all_events.items()):
+        lines.extend(_generate_class_stub(event_name, event_spec, dict_attributes, all_events))
         lines.append("")
 
     output_path = output_dir / "events.pyi"
@@ -92,8 +94,8 @@ def generate_init_stub(version: str, schema: dict[str, Any], output_dir: Path) -
         "from __future__ import annotations",
         "",
         "# Namespace modules only - import from .objects or .events",
-        "from . import objects as objects",
         "from . import events as events",
+        "from . import objects as objects",
         "",
         "__all__ = ['objects', 'events']",
     ]
@@ -103,8 +105,43 @@ def generate_init_stub(version: str, schema: dict[str, Any], output_dir: Path) -
     print(f"  Generated __init__.pyi: {len(lines)} lines")
 
 
+def _get_parent_requirement(
+    field_name: str,
+    spec: dict[str, Any],
+    dict_attributes: dict[str, Any],
+    all_specs: dict[str, Any],
+) -> Optional[str]:
+    """Get the requirement status of a field from parent class hierarchy.
+
+    Returns 'required', 'optional', 'recommended', or None if field not found in parent.
+    """
+    if "extends" not in spec:
+        return None
+
+    parent_name = spec["extends"]
+
+    # Recursively check parent hierarchy
+    while parent_name:
+        parent_spec = all_specs.get(parent_name, {})
+        parent_attrs = parent_spec.get("attributes", {})
+
+        if field_name in parent_attrs:
+            parent_field = parent_attrs[field_name]
+            if isinstance(parent_field, dict):
+                # Merge with dictionary to get full spec
+                merged = {**dict_attributes.get(field_name, {}), **parent_field}
+                if "requirement" in merged:
+                    req: Optional[str] = merged.get("requirement")
+                    return req
+
+        # Move up the hierarchy
+        parent_name = parent_spec.get("extends")
+
+    return None
+
+
 def _generate_class_stub(
-    name: str, spec: dict[str, Any], dict_attributes: dict[str, Any]
+    name: str, spec: dict[str, Any], dict_attributes: dict[str, Any], all_specs: dict[str, Any]
 ) -> list[str]:
     """Generate stub lines for a single class."""
     lines = []
@@ -156,7 +193,7 @@ def _generate_class_stub(
         lines.append("        @property")
         lines.append("        def label(self) -> str: ...")
         lines.append("        @classmethod")
-        lines.append("        def from_label(cls, label: str) -> Self: ...")  # type: ignore
+        lines.append("        def from_label(cls, label: str) -> Self: ...")
         lines.append("")
 
     # Generate field stubs
@@ -173,9 +210,30 @@ def _generate_class_stub(
         # Merge with dictionary
         merged_spec = {**dict_attributes.get(field_name, {}), **field_spec}
 
-        # Build type annotation
-        type_annotation = _build_type_annotation(field_name, merged_spec)
+        # Check if field only provides enum metadata (child extending parent's field)
+        has_enum = "enum" in merged_spec and field_name.endswith("_id")
+        only_enum = has_enum and "requirement" not in field_spec and "extends" in spec
+
+        # Skip field if it only provides enum (inherits from parent)
+        # But keep the enum class which was already generated above
+        if only_enum:
+            # Check if parent actually defines this field
+            parent_req = _get_parent_requirement(field_name, spec, dict_attributes, all_specs)
+            if parent_req is not None:
+                # Parent defines it, skip redefinition
+                continue
+
+        # Build type annotation - use int for enum fields to avoid mypy variance issues
+        # The enum classes are available for IDE autocomplete, runtime uses int/IntEnum
+        # Use int type annotation (SiblingEnum extends IntEnum extends int)
+        # This avoids mypy errors about incompatible enum types in inheritance
+        type_annotation = "int" if has_enum else _build_type_annotation(field_name, merged_spec)
+
         is_required = merged_spec.get("requirement") == "required"
+
+        # Add None for optional fields if not already included
+        if not is_required and "| None" not in type_annotation:
+            type_annotation = f"{type_annotation} | None"
 
         if is_required:
             lines.append(f"    {field_name}: {type_annotation}")
