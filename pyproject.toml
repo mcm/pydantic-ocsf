@@ -50,7 +50,10 @@ include = ["/src", "/scripts"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/ocsf"]
-artifacts = ["src/ocsf/schemas/v*.json"]
+artifacts = ["src/ocsf/schemas/v*.json", "src/ocsf/v*/*.pyi"]
+
+[tool.pyright]
+reportMissingModuleSource = "none"
 
 [tool.ruff]
 line-length = 100

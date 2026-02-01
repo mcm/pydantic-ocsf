@@ -10,7 +10,11 @@ This example demonstrates the key features of pydantic-ocsf v2.0:
 - Type hints and IDE autocomplete support
 """
 
+import time
+
 import ocsf
+from ocsf.v1_7_0.events import IncidentFinding
+from ocsf.v1_7_0.objects import FindingInfo, Metadata, Product
 
 print(f"pydantic-ocsf v{ocsf.__version__}")
 print("=" * 70)
@@ -22,8 +26,8 @@ print("\nExample 1: Namespace Organization")
 print("-" * 70)
 
 # v2.0 separates objects and events into namespaces
-from ocsf.v1_7_0.objects import File, User
-from ocsf.v1_7_0.events import FileActivity
+from ocsf.v1_7_0.events import FileActivity  # noqa: E402
+from ocsf.v1_7_0.objects import File, User  # noqa: E402
 
 print("✓ Import from objects namespace: File, User")
 print("✓ Import from events namespace: FileActivity")
@@ -54,8 +58,8 @@ print("\nExample 3: Name Collision Resolution")
 print("-" * 70)
 
 # Some names exist in both objects and events namespaces
-from ocsf.v1_7_0.objects import Finding as FindingObject
-from ocsf.v1_7_0.events import Finding as FindingEvent
+from ocsf.v1_7_0.events import Finding as FindingEvent  # noqa: E402
+from ocsf.v1_7_0.objects import Finding as FindingObject  # noqa: E402
 
 print(f"✓ FindingObject: {FindingObject.__name__} from objects namespace")
 print(f"✓ FindingEvent: {FindingEvent.__name__} from events namespace")
@@ -174,8 +178,8 @@ print("  (Extra fields are preserved for forward compatibility)")
 print("\nExample 8: Multi-Version Support")
 print("-" * 70)
 
-from ocsf.v1_7_0.objects import File as File_v1_7_0
-from ocsf.v1_0_0.objects import File as File_v1_0_0
+from ocsf.v1_0_0.objects import File as File_v1_0_0  # noqa: E402
+from ocsf.v1_7_0.objects import File as File_v1_7_0  # noqa: E402
 
 # Different versions can be used simultaneously
 file_new = File_v1_7_0(name="new.txt", type_id=1)
@@ -198,10 +202,6 @@ for v in ocsf.available_versions():
 # =============================================================================
 print("\nExample 9: Type Safety & IDE Support")
 print("-" * 70)
-
-import time
-from ocsf.v1_7_0.events import IncidentFinding
-from ocsf.v1_7_0.objects import FindingInfo, Metadata, Product
 
 incident: IncidentFinding = IncidentFinding(
     activity_id=IncidentFinding.ActivityId.CREATE,
@@ -229,18 +229,16 @@ print("  (Your IDE provides autocomplete for all OCSF fields!)")
 print("\nExample 10: JIT Performance")
 print("-" * 70)
 
-import time
-
 # First access creates the model (JIT compilation)
 start = time.perf_counter()
-from ocsf.v1_7_0.objects import Process
+from ocsf.v1_7_0.objects import Process  # noqa: E402, F401
 
 end = time.perf_counter()
 first_load_ms = (end - start) * 1000
 
 # Subsequent accesses are cached (instant)
 start = time.perf_counter()
-from ocsf.v1_7_0.objects import Process as Process2
+from ocsf.v1_7_0.objects import Process as Process2  # noqa: E402, F401
 
 end = time.perf_counter()
 cached_load_ms = (end - start) * 1000
