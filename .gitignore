@@ -33,4 +33,4 @@ coverage.xml
 
 # JIT schemas and stubs (generated during build)
 src/ocsf/schemas/*.json
-src/ocsf/v*/__init__.pyi
+src/ocsf/v*/*.pyi

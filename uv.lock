@@ -161,22 +161,6 @@ wheels = [
 ]
 
 [[package]]
-name = "build"
-version = "1.4.0"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "colorama", marker = "os_name == 'nt'" },
-    { name = "importlib-metadata", marker = "python_full_version < '3.10.2'" },
-    { name = "packaging" },
-    { name = "pyproject-hooks" },
-    { name = "tomli", marker = "python_full_version < '3.11'" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/42/18/94eaffda7b329535d91f00fe605ab1f1e5cd68b2074d03f255c7d250687d/build-1.4.0.tar.gz", hash = "sha256:f1b91b925aa322be454f8330c6fb48b465da993d1e7e7e6fa35027ec49f3c936", size = 50054, upload-time = "2026-01-08T16:41:47.696Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/c5/0d/84a4380f930db0010168e0aa7b7a8fed9ba1835a8fbb1472bc6d0201d529/build-1.4.0-py3-none-any.whl", hash = "sha256:6a07c1b8eb6f2b311b96fcbdbce5dab5fe637ffda0fd83c9cac622e927501596", size = 24141, upload-time = "2026-01-08T16:41:46.453Z" },
-]
-
-[[package]]
 name = "certifi"
 version = "2026.1.4"
 source = { registry = "https://pypi.org/simple" }
@@ -1419,13 +1403,14 @@ name = "pydantic-ocsf"
 version = "2.0.0"
 source = { editable = "." }
 dependencies = [
-    { name = "build" },
     { name = "eval-type-backport", marker = "python_full_version < '3.10'" },
     { name = "pydantic" },
 ]
 
 [package.optional-dependencies]
 dev = [
+    { name = "hatch", version = "1.15.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
+    { name = "hatch", version = "1.16.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
     { name = "mypy" },
     { name = "pytest", version = "8.4.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
     { name = "pytest", version = "9.0.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
@@ -1437,16 +1422,10 @@ generator = [
     { name = "jinja2" },
 ]
 
-[package.dev-dependencies]
-dev = [
-    { name = "hatch", version = "1.15.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
-    { name = "hatch", version = "1.16.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
-]
-
 [package.metadata]
 requires-dist = [
-    { name = "build", specifier = ">=1.4.0" },
     { name = "eval-type-backport", marker = "python_full_version < '3.10'", specifier = ">=0.2.0" },
+    { name = "hatch", marker = "extra == 'dev'", specifier = ">=1.15.1" },
     { name = "httpx", marker = "extra == 'generator'", specifier = ">=0.25" },
     { name = "jinja2", marker = "extra == 'generator'", specifier = ">=3.0" },
     { name = "mypy", marker = "extra == 'dev'", specifier = ">=1.0" },
@@ -1456,9 +1435,6 @@ requires-dist = [
     { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.1" },
 ]
 provides-extras = ["dev", "generator"]
-
-[package.metadata.requires-dev]
-dev = [{ name = "hatch", specifier = ">=1.15.1" }]
 
 [[package]]
 name = "pygments"

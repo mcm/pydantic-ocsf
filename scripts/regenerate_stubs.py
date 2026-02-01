@@ -49,7 +49,9 @@ def generate_objects_stub(version: str, schema: dict[str, Any], output_dir: Path
 
     # Generate ONLY object stubs
     for obj_name, obj_spec in sorted(all_objects.items()):
-        lines.extend(_generate_class_stub(obj_name, obj_spec, dict_attributes, all_objects))
+        lines.extend(
+            _generate_class_stub(obj_name, obj_spec, dict_attributes, all_objects, is_event=False)
+        )
         lines.append("")
 
     output_path = output_dir / "objects.pyi"
@@ -78,7 +80,9 @@ def generate_events_stub(version: str, schema: dict[str, Any], output_dir: Path)
 
     # Generate ONLY event stubs
     for event_name, event_spec in sorted(all_events.items()):
-        lines.extend(_generate_class_stub(event_name, event_spec, dict_attributes, all_events))
+        lines.extend(
+            _generate_class_stub(event_name, event_spec, dict_attributes, all_events, is_event=True)
+        )
         lines.append("")
 
     output_path = output_dir / "events.pyi"
@@ -141,7 +145,11 @@ def _get_parent_requirement(
 
 
 def _generate_class_stub(
-    name: str, spec: dict[str, Any], dict_attributes: dict[str, Any], all_specs: dict[str, Any]
+    name: str,
+    spec: dict[str, Any],
+    dict_attributes: dict[str, Any],
+    all_specs: dict[str, Any],
+    is_event: bool = False,
 ) -> list[str]:
     """Generate stub lines for a single class."""
     lines = []
@@ -230,6 +238,10 @@ def _generate_class_stub(
         type_annotation = "int" if has_enum else _build_type_annotation(field_name, merged_spec)
 
         is_required = merged_spec.get("requirement") == "required"
+
+        # Make UID fields optional for events (they're auto-filled by validators)
+        if is_event and field_name in ("category_uid", "class_uid", "type_uid"):
+            is_required = False
 
         # Add None for optional fields if not already included
         if not is_required and "| None" not in type_annotation:

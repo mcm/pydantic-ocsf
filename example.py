@@ -199,6 +199,22 @@ for v in ocsf.available_versions():
 print("\nExample 9: Type Safety & IDE Support")
 print("-" * 70)
 
+import time
+from ocsf.v1_7_0.events import IncidentFinding
+from ocsf.v1_7_0.objects import FindingInfo, Metadata, Product
+
+incident: IncidentFinding = IncidentFinding(
+    activity_id=IncidentFinding.ActivityId.CREATE,
+    # class_uid=1,
+    # category_uid=1,
+    finding_info_list=[FindingInfo(uid="incident-1234")],
+    metadata=Metadata(product=Product(), version="1.7.0"),
+    severity_id=IncidentFinding.SeverityId.MEDIUM,
+    status_id=IncidentFinding.StatusId.NEW,
+    time=int(time.time() * 1000),
+    # type_uid=1,
+)
+
 # With .pyi stub files, IDEs provide full autocomplete
 user: User = User(name="Charlie", uid="user-999", type_id=User.TypeId.USER)
 
