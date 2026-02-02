@@ -89,10 +89,16 @@ class ModelFactory:
             # Convert to PascalCase for model name
             parent_name = snake_to_pascal(parent_schema_name)
             # Create parent first if not in cache
-            if parent_name not in model_cache:
-                parent_model = self.create_model(parent_name, model_cache)
-                model_cache[parent_name] = parent_model
-            base_class = model_cache[parent_name]
+            # Use namespaced cache key when namespace_filter is provided
+            if namespace_filter:
+                parent_cache_key = f"{namespace_filter}:{parent_name}"
+            else:
+                parent_cache_key = parent_name
+
+            if parent_cache_key not in model_cache:
+                parent_model = self.create_model(parent_name, model_cache, namespace_filter)
+                model_cache[parent_cache_key] = parent_model
+            base_class = model_cache[parent_cache_key]
 
         # Phase 2: Extract inline enums
         from ocsf._enum_factory import create_sibling_enum, extract_inline_enums

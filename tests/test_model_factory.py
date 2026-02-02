@@ -179,6 +179,8 @@ class TestModelFactory:
 
         event = ApiActivity.model_validate(
             {
+                "time": 1706000000000,
+                "severity_id": 1,
                 "activity_id": 1,
                 "metadata": {"version": "1.7.0", "product": {"name": "Test"}},
                 "actor": {"user": {"name": "test"}},
@@ -196,6 +198,8 @@ class TestModelFactory:
 
         event = ApiActivity.model_validate(
             {
+                "time": 1706000000000,
+                "severity_id": 1,
                 "activity_id": 1,
                 "metadata": {"version": "1.7.0", "product": {"name": "Test"}},
                 "actor": {"user": {"name": "test"}},
@@ -213,6 +217,8 @@ class TestModelFactory:
 
         event = ApiActivity.model_validate(
             {
+                "time": 1706000000000,
+                "severity_id": 1,
                 "activity_id": 1,
                 "metadata": {"version": "1.7.0", "product": {"name": "Test"}},
                 "actor": {"user": {"name": "test"}},
@@ -230,6 +236,8 @@ class TestModelFactory:
 
         event = ApiActivity.model_validate(
             {
+                "time": 1706000000000,
+                "severity_id": 1,
                 "category_uid": 99,
                 "class_uid": 999,
                 "type_uid": 99999,
@@ -254,6 +262,8 @@ class TestModelFactory:
         # Provide type_uid explicitly to test that validator doesn't override it
         event = ApiActivity.model_validate(
             {
+                "time": 1706000000000,
+                "severity_id": 1,
                 "class_uid": 3,
                 "type_uid": 999,  # Explicitly set, should not be recalculated
                 # Omit activity_id

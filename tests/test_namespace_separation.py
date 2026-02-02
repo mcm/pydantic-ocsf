@@ -160,3 +160,77 @@ def test_namespace_module_attributes():
     # Check parent reference
     assert hasattr(ocsf.v1_7_0.objects, "_parent")
     assert hasattr(ocsf.v1_7_0.events, "_parent")
+
+
+def test_parent_models_use_namespaced_cache_keys():
+    """Parent models should be cached with namespaced keys when using namespace imports."""
+    from ocsf import v1_7_0
+
+    # Both Actor and its parent Object should use namespaced keys
+    assert "objects:Actor" in v1_7_0._model_cache
+    assert "objects:Object" in v1_7_0._model_cache
+
+    # Object should not be duplicated with non-namespaced key when imported via namespace
+    # (It's OK if both exist, but they must be the same class)
+    if "Object" in v1_7_0._model_cache:
+        assert v1_7_0._model_cache["Object"] is v1_7_0._model_cache["objects:Object"]
+
+
+def test_no_duplicate_object_classes():
+    """Object class should not be duplicated when accessed via different paths."""
+    from ocsf.v1_7_0.events import IncidentFinding
+    from ocsf.v1_7_0.objects import Object
+
+    # Get the unmapped field's annotation
+    unmapped_field = IncidentFinding.model_fields["unmapped"]
+
+    # The annotation should directly reference the Object class
+    # (after model_rebuild, type annotations are resolved)
+    import typing
+
+    args = typing.get_args(unmapped_field.annotation)
+
+    # Find Object in the Union (Object | None)
+    object_from_annotation = None
+    for arg in args:
+        if arg is not type(None) and hasattr(arg, "__name__") and arg.__name__ == "Object":
+            object_from_annotation = arg
+            break
+
+    # Both should be the exact same class (same memory address)
+    assert object_from_annotation is not None, "Object not found in unmapped field annotation"
+    assert object_from_annotation is Object, "Object classes have different ids"
+
+
+def test_custom_unmapped_class_validates():
+    """Custom classes inheriting from Object should validate correctly in unmapped fields."""
+    from ocsf.v1_7_0.events import IncidentFinding
+    from ocsf.v1_7_0.objects import Object
+
+    # User's scenario: custom class inheriting from Object
+    class CommonUnmapped(Object):
+        pass
+
+    class Unmapped(CommonUnmapped):
+        pass
+
+    unmapped_instance = Unmapped()
+
+    # Verify isinstance works
+    assert isinstance(unmapped_instance, Object)
+
+    # Should not raise ValidationError
+    finding = IncidentFinding(
+        activity_id=1,
+        status_id=1,
+        finding_info_list=[],
+        metadata={"version": "1.7.0", "product": {"name": "Test"}},
+        severity_id=1,
+        time=1234567890,
+        unmapped=unmapped_instance,
+    )
+
+    # Verify the unmapped field was set correctly
+    assert finding.unmapped is unmapped_instance
+    assert isinstance(finding.unmapped, Object)
+    assert isinstance(finding.unmapped, Unmapped)
