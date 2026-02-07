@@ -154,12 +154,24 @@ def generate_objects_stub(version: str, schema: dict[str, Any], output_dir: Path
 
 def generate_events_stub(version: str, schema: dict[str, Any], output_dir: Path) -> None:
     """Generate events.pyi stub file."""
+    dict_attributes = schema.get("dictionary", {}).get("attributes", {})
+    all_events = schema.get("events", {})
+    all_objects = schema.get("objects", {})
+
+    # Find name collisions between objects and events
+    event_names = {snake_to_pascal(name) for name in all_events}
+    object_names = {snake_to_pascal(name) for name in all_objects}
+    collisions = event_names & object_names
+
+    # Build explicit import list for non-colliding object types
+    importable_objects = sorted(object_names - collisions)
+
     lines = [
         '"""OCSF Events - Type stubs (auto-generated)."""',
         "",
         "from __future__ import annotations",
         "",
-        "from typing import Any",
+        "from typing import TYPE_CHECKING, Any",
         "",
         "from typing_extensions import Self",
         "",
@@ -168,8 +180,17 @@ def generate_events_stub(version: str, schema: dict[str, Any], output_dir: Path)
         "",
     ]
 
-    dict_attributes = schema.get("dictionary", {}).get("attributes", {})
-    all_events = schema.get("events", {})
+    # Add TYPE_CHECKING import for object types
+    if importable_objects:
+        lines.append("if TYPE_CHECKING:")
+        lines.append("    # Import object types for type checking (excluding name collisions)")
+        # Split imports into multiple lines if too many
+        chunk_size = 10
+        for i in range(0, len(importable_objects), chunk_size):
+            chunk = importable_objects[i : i + chunk_size]
+            import_line = ", ".join(chunk)
+            lines.append(f"    from .objects import {import_line}")
+        lines.append("")
 
     # Generate ONLY event stubs
     for event_name, event_spec in sorted(all_events.items()):
@@ -380,7 +401,9 @@ def _build_type_annotation(field_name: str, spec: dict[str, Any]) -> str:
     is_required = spec.get("requirement") == "required"
 
     # Map OCSF types to Python types
+    # Includes both primitive types and constrained string types (email_t, url_t, etc.)
     type_map = {
+        # Core primitives
         "string_t": "str",
         "integer_t": "int",
         "long_t": "int",
@@ -390,15 +413,33 @@ def _build_type_annotation(field_name: str, spec: dict[str, Any]) -> str:
         "datetime_t": "str",
         "json_t": "dict[str, Any]",
         "object_t": "dict[str, Any]",
+        # Constrained string types (all resolve to str in Python)
+        "email_t": "str",
+        "file_path_t": "str",
+        "file_name_t": "str",
+        "file_hash_t": "str",
+        "hostname_t": "str",
+        "ip_t": "str",
+        "mac_t": "str",
+        "subnet_t": "str",
+        "url_t": "str",
+        "uuid_t": "str",
+        "resource_uid_t": "str",
+        "process_name_t": "str",
+        "username_t": "str",
+        # Port is numeric
+        "port_t": "int",
     }
 
     # Check if it's an object reference
+    # Priority: explicit object_type > type field (if in type_map) > object reference
     if "object_type" in spec:
         python_type = snake_to_pascal(spec["object_type"])
     elif ocsf_type in type_map:
         python_type = type_map[ocsf_type]
     else:
-        python_type = "Any"
+        # Type is not in type_map, assume it's an object reference (e.g., "user", "process", "file")
+        python_type = snake_to_pascal(ocsf_type)
 
     # Handle arrays
     if is_array:

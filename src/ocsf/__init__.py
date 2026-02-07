@@ -33,7 +33,7 @@ from ocsf._schema_loader import get_schema_loader
 # Install the JIT import hook
 install_hook()
 
-__version__ = "2.0.0"
+__version__ = "2.0.1"
 
 
 if TYPE_CHECKING:
