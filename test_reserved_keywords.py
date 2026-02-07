@@ -12,14 +12,21 @@ def test_reserved_keyword_serialization() -> None:
         uid="analytic-123",
     )
 
+    # Default serialization (uses aliases due to serialize_by_alias=True config)
+    data_default = analytic.model_dump(exclude_none=True)
+    print("Serialized (default - uses aliases):")
+    print(f"  Keys: {sorted(data_default.keys())}")
+    assert "type" in data_default, "Should have 'type' by default (serialize_by_alias=True)"
+    assert "type_" not in data_default, "Should NOT have 'type_' by default"
+
     # Serialize with by_alias=False (Python field names)
     data_no_alias = analytic.model_dump(by_alias=False, exclude_none=True)
-    print("Serialized with by_alias=False:")
+    print("\nSerialized with by_alias=False:")
     print(f"  Keys: {sorted(data_no_alias.keys())}")
     assert "type_" in data_no_alias, "Should have 'type_' when by_alias=False"
     assert "type" not in data_no_alias, "Should NOT have 'type' when by_alias=False"
 
-    # Serialize with by_alias=True (original OCSF names)
+    # Serialize with by_alias=True (explicit, same as default)
     data_with_alias = analytic.model_dump(by_alias=True, exclude_none=True)
     print("\nSerialized with by_alias=True:")
     print(f"  Keys: {sorted(data_with_alias.keys())}")
@@ -27,7 +34,7 @@ def test_reserved_keyword_serialization() -> None:
     assert "type_" not in data_with_alias, "Should NOT have 'type_' when by_alias=True"
 
     print("\n✅ Reserved keyword fields serialize correctly!")
-    print(f"   type_ (Python) → type (OCSF)")
+    print("   type_ (Python) → type (OCSF) [by default]")
 
 
 def test_reserved_keyword_deserialization() -> None:
