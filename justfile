@@ -25,38 +25,35 @@ test-verbose python="3.12":
     uv run --python {{python}} pytest tests/ -vv --cov=ocsf --cov-report=xml --cov-report=term
 
 # Check code formatting without making changes
-format-check:
-    uv run --python 3.12 ruff format --check src/ generator/ tests/
+format-check python="3.12":
+    uv run --python {{python}} ruff format --check src/ tests/ scripts/
 
 # Format code (fix formatting issues)
-format:
-    uv run --python 3.12 ruff format src/ generator/ tests/
+format python="3.12":
+    uv run --python {{python}} ruff format src/ tests/ scripts/
 
 # Lint code with ruff
 lint:
-    uv run --python 3.12 ruff check src/ generator/ tests/
+    uv run --python 3.12 ruff check src/ tests/ scripts/
 
 # Lint and auto-fix issues where possible
 lint-fix:
-    uv run --python 3.12 ruff check --fix src/ generator/ tests/
+    uv run --python 3.12 ruff check --fix src/ tests/ scripts/
 
 # Type check with mypy
 typecheck:
-    uv run --python 3.12 mypy src/ocsf/ --ignore-missing-imports
+    uv run --python 3.12 mypy src/ocsf/ scripts/ --ignore-missing-imports
 
-# Fetch OCSF schema (default version 1.7.0)
-fetch-schema version="1.7.0":
-    python -m generator.schema_fetcher {{version}}
+# Download OCSF schemas (v1.7.0)
+download-schemas:
+    uv run scripts/download_schemas.py
 
-# Generate models for a specific OCSF version
-generate-models version="1.7.0":
-    #!/usr/bin/env python3
-    from pathlib import Path
-    from generator.schema_parser import parse_schema
-    from generator.model_generator import generate_models
-    schema = parse_schema('{{version}}', cache_dir=Path('.schema_cache'))
-    generate_models(schema, Path('src/ocsf'))
-    print('✓ Model generation successful')
+# Regenerate type stub files from schemas
+regenerate-stubs:
+    uv run scripts/regenerate_stubs.py
+
+# Download schemas and regenerate stubs (full rebuild)
+rebuild: download-schemas regenerate-stubs
 
 # Clean build artifacts and caches
 clean:
@@ -66,9 +63,9 @@ clean:
     find . -type d -name __pycache__ -exec rm -rf {} +
 
 # Build distribution packages
-build:
-    pip install --upgrade build
-    python -m build
+build: install-all rebuild
+    hatch build
+    just format
 
 # Run a quick development check (format, lint, test)
 dev-check: format lint-fix test

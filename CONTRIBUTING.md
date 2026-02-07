@@ -40,9 +40,29 @@ git remote add upstream https://github.com/ORIGINAL_OWNER/pydantic-ocsf.git
 
 ### Install Dependencies
 
+We use [just](https://github.com/casey/just) as a command runner for common tasks. Install it first:
+
 ```bash
-# Install all dependencies including dev tools
-uv sync
+# macOS
+brew install just
+
+# Linux
+cargo install just
+# or use your package manager
+
+# Windows
+cargo install just
+# or use scoop: scoop install just
+```
+
+Then install project dependencies:
+
+```bash
+# Install all dependencies including dev and generator tools
+just install-all
+
+# Or just dev dependencies (without generator)
+just install
 
 # Activate the virtual environment (optional, uv run works without this)
 source .venv/bin/activate  # Linux/macOS
@@ -53,11 +73,14 @@ source .venv/bin/activate  # Linux/macOS
 ### Verify Installation
 
 ```bash
-# Run tests to ensure everything works
-uv run pytest tests/ -v
+# Download schemas and regenerate stubs
+just rebuild
 
-# Check that generation works
-uv run python scripts/generate.py
+# Run tests to ensure everything works
+just test
+
+# Run all checks (format, lint, typecheck, tests)
+just check
 ```
 
 ## Coding Standards
@@ -97,20 +120,20 @@ We use [Ruff](https://github.com/astral-sh/ruff) for linting and formatting.
 
 ```bash
 # Format all code
-uv run ruff format .
+just format
 
 # Check formatting without changes
-uv run ruff format --check .
+just format-check
 ```
 
 #### Linting
 
 ```bash
 # Lint all code
-uv run ruff check .
+just lint
 
 # Auto-fix issues where possible
-uv run ruff check --fix .
+just lint-fix
 ```
 
 ### Naming Conventions
@@ -182,14 +205,17 @@ from generator.utils import snake_to_pascal
 ### Running Tests
 
 ```bash
-# Run all tests
-uv run pytest tests/ -v
+# Run all tests with coverage
+just test
+
+# Run with verbose output
+just test-verbose
 
 # Run specific test file
 uv run pytest tests/test_serialization.py -v
 
-# Run with coverage report
-uv run pytest tests/ --cov=src/ocsf --cov-report=html
+# Run with HTML coverage report
+uv run pytest tests/ --cov=ocsf --cov-report=html
 
 # Run tests in parallel (faster)
 uv run pytest tests/ -n auto
@@ -344,25 +370,23 @@ def test_api_activity_validates_correctly():
 
 3. **Run the full test suite**
    ```bash
-   # Format code
-   uv run ruff format .
+   # Run all checks (format, lint, typecheck, tests)
+   just check
 
-   # Run linter
-   uv run ruff check .
-
-   # Run tests
-   uv run pytest tests/ -v
-
-   # Check coverage
-   uv run pytest tests/ --cov=src/ocsf --cov-report=term-missing
+   # Or run individually:
+   just format        # Format code
+   just lint          # Run linter
+   just typecheck     # Type check
+   just test          # Run tests with coverage
    ```
 
-4. **Regenerate models if you changed the generator**
+4. **Regenerate models if you changed the generator or schemas**
    ```bash
-   uv run python scripts/generate.py
+   # Download schemas and regenerate stubs
+   just rebuild
 
    # Verify generated code works
-   uv run pytest tests/ -v
+   just test
    ```
 
 5. **Commit your changes**
@@ -425,48 +449,70 @@ def test_api_activity_validates_correctly():
 
 ```
 pydantic-ocsf/
-├── src/ocsf/              # Generated OCSF models (DO NOT EDIT MANUALLY)
-│   ├── __init__.py
-│   ├── _base.py           # Base model class
-│   └── v1_7_0/            # OCSF version 1.7.0
-│       ├── events/        # Event classes
-│       ├── objects/       # Object classes
-│       └── enums/         # Enum classes
-├── generator/             # Code generation system
-│   ├── schema_fetcher.py  # Downloads OCSF schemas
-│   ├── schema_parser.py   # Parses JSON schemas
-│   ├── schema_types.py    # Schema type definitions
-│   ├── model_generator.py # Generates Python code
-│   ├── utils.py           # Helper functions
-│   └── templates/         # Jinja2 templates
-├── scripts/               # Utility scripts
-│   └── generate.py        # Main generation script
-├── tests/                 # Test suite
-│   ├── test_imports.py
-│   ├── test_serialization.py
-│   └── generator/         # Generator-specific tests
-├── pyproject.toml         # Project configuration
-└── README.md              # Project documentation
+├── src/ocsf/                    # OCSF package source
+│   ├── __init__.py              # Package entry point with JIT import hook
+│   ├── _base.py                 # Base model class (OCSFBaseModel)
+│   ├── _import_hook.py          # JIT import hook for version modules
+│   ├── _schema_loader.py        # Schema loading and caching
+│   ├── _model_factory.py        # Dynamic model generation
+│   ├── _version_module.py       # Version module implementation
+│   ├── _namespace_module.py     # Namespace module (objects/events)
+│   ├── schemas/                 # OCSF schema JSON files (generated, gitignored)
+│   │   ├── v1_0_0.json
+│   │   ├── v1_7_0.json
+│   │   └── checksums.json
+│   └── v1_7_0/                  # Type stubs for v1.7.0 (generated, gitignored)
+│       ├── __init__.pyi
+│       ├── objects.pyi          # Object type stubs
+│       └── events.pyi           # Event type stubs
+├── scripts/                     # Build and generation scripts
+│   ├── download_schemas.py      # Downloads OCSF schemas from GitHub
+│   └── regenerate_stubs.py      # Generates .pyi stub files
+├── tests/                       # Test suite
+│   ├── test_import_hook.py      # Import mechanism tests
+│   ├── test_namespace_separation.py
+│   ├── test_model_factory.py
+│   ├── test_circular_deps.py
+│   └── conftest.py
+├── .github/workflows/           # CI/CD workflows
+│   ├── test.yml                 # Test workflow
+│   └── publish.yml              # PyPI publishing workflow
+├── justfile                     # Command runner (build tasks)
+├── pyproject.toml               # Project configuration
+├── CHANGELOG.md                 # Release notes
+├── README.md                    # User documentation
+└── CONTRIBUTING.md              # This file
 ```
+
+**Key Directories:**
+- **`src/ocsf/`**: Package source code with JIT model generation system
+- **`src/ocsf/schemas/`**: OCSF schema JSON files (generated, not tracked in git)
+- **`src/ocsf/v*/`**: Type stub files for IDE autocomplete (generated, not tracked in git)
+- **`scripts/`**: Schema download and stub generation scripts
+- **`tests/`**: Comprehensive test suite
 
 ## Common Tasks
 
 ### Regenerating Models
 
-```bash
-# Regenerate all OCSF versions
-uv run python scripts/generate.py
+Schemas are downloaded and stubs regenerated using the justfile:
 
-# Generate specific version (TODO: add version flag support)
-# Currently generates all versions
+```bash
+# Download all OCSF schemas and regenerate stubs
+just rebuild
+
+# Or run steps individually:
+just download-schemas    # Download schemas to src/ocsf/schemas/
+just regenerate-stubs   # Generate .pyi stub files
 ```
 
 ### Adding a New OCSF Version
 
 1. Check available versions at https://github.com/ocsf/ocsf-schema/releases
-2. Update `scripts/generate.py` to include the new version
-3. Generate models: `uv run python scripts/generate.py`
-4. Test the new version: `uv run pytest tests/ -v`
+2. Update `scripts/download_schemas.py` to include the new version in the `VERSIONS` list
+3. Download and generate: `just rebuild`
+4. Test the new version: `just test`
+5. Update documentation to mention the new version
 
 ### Debugging Generated Code
 
@@ -504,11 +550,12 @@ uv sync
 ### Performance Profiling
 
 ```bash
-# Profile generation time
-time uv run python scripts/generate.py
+# Profile schema download and stub generation time
+time just rebuild
 
-# Profile with cProfile
-uv run python -m cProfile -o profile.stats scripts/generate.py
+# Profile with cProfile (for individual scripts)
+uv run python -m cProfile -o profile.stats scripts/download_schemas.py
+uv run python -m cProfile -o profile.stats scripts/regenerate_stubs.py
 
 # Analyze profile
 uv run python -m pstats profile.stats
@@ -538,17 +585,55 @@ uv run python -m pstats profile.stats
 
 (For maintainers)
 
-1. **Update version in `pyproject.toml`** to match the release version (e.g., `1.7.0.20260129`)
-2. **Update CHANGELOG.md** with release notes
-3. **Commit changes**: `git commit -am "chore: prepare release 1.7.0.20260129"`
-4. **Create release tag**: `git tag v1.7.0.20260129` (note: tag must match pyproject.toml version)
-5. **Push changes and tag**: `git push && git push --tags`
-6. GitHub Actions will:
+This project uses [Semantic Versioning](https://semver.org/) starting with v2.0.0:
+- **Major** (X.0.0): Breaking changes
+- **Minor** (2.X.0): New features (backward compatible)
+- **Patch** (2.0.X): Bug fixes
+
+### Creating a Release
+
+1. **Update version in `pyproject.toml`**
+   ```toml
+   version = "2.1.0"  # Example: new minor version
+   ```
+
+2. **Update `src/ocsf/__init__.py`**
+   ```python
+   __version__ = "2.1.0"
+   ```
+
+3. **Update CHANGELOG.md** with release notes
+   - Add new version section at the top
+   - Document breaking changes, new features, bug fixes
+   - Follow [Keep a Changelog](https://keepachangelog.com/) format
+
+4. **Commit changes**
+   ```bash
+   git add pyproject.toml src/ocsf/__init__.py CHANGELOG.md
+   git commit -m "chore: prepare release v2.1.0"
+   ```
+
+5. **Create and push tag** (must match pyproject.toml version)
+   ```bash
+   git tag v2.1.0
+   git push origin main
+   git push origin v2.1.0
+   ```
+
+6. **GitHub Actions will automatically:**
    - Validate the tag matches `pyproject.toml` version
-   - Build and publish to PyPI
-   - Create a GitHub release
+   - Download schemas and regenerate stubs
+   - Build the distribution
+   - Publish to PyPI
+   - Create a GitHub release with CHANGELOG excerpt
 
 **Important**: The git tag version (without `v` prefix) must exactly match the version in `pyproject.toml`, or the workflow will fail.
+
+### Version Numbering Guidelines
+
+- **v2.0.x → v2.1.0**: Adding new OCSF schema versions (backward compatible)
+- **v2.0.x → v2.0.y**: Bug fixes, stub regeneration, documentation updates
+- **v2.x → v3.0.0**: Removing schema versions, API changes, breaking changes
 
 ## License
 

@@ -3,7 +3,7 @@ name: Publish to PyPI
 on:
   push:
     tags:
-      - "v*.*.*.*" # Match version tags like v1.7.0.20260129
+      - "v*.*.*" # Match version tags like v2.0.0
 
 jobs:
   build:
@@ -18,6 +18,12 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+
+      - name: 📦 Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: 📦 Install just
+        uses: extractions/setup-just@v2
 
       - name: ✅ Validate version matches tag
         if: startsWith(github.ref, 'refs/tags/')
@@ -40,14 +46,18 @@ jobs:
 
       - name: 📦 Install build dependencies
         run: |
-          python -m pip install --upgrade pip
-          pip install build twine
+          uv tool install hatch
+          uv tool install twine
+          uv sync --extra generator
+
+      - name: 🏗️ Download schemas and regenerate stubs
+        run: just rebuild
 
       - name: 🏗️ Build distribution
-        run: python -m build
+        run: uvx hatch build
 
       - name: 🔍 Check distribution
-        run: twine check dist/*
+        run: uvx twine check dist/*
 
       - name: 📤 Store the distribution packages
         uses: actions/upload-artifact@v4
