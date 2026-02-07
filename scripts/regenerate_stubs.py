@@ -130,6 +130,7 @@ def generate_objects_stub(version: str, schema: dict[str, Any], output_dir: Path
         "",
         "from typing import Any",
         "",
+        "from pydantic import SerializeAsAny",
         "from typing_extensions import Self",
         "",
         "from ocsf._base import OCSFBaseModel",
@@ -173,6 +174,7 @@ def generate_events_stub(version: str, schema: dict[str, Any], output_dir: Path)
         "",
         "from typing import TYPE_CHECKING, Any",
         "",
+        "from pydantic import SerializeAsAny",
         "from typing_extensions import Self",
         "",
         "from ocsf._base import OCSFBaseModel",
@@ -433,13 +435,23 @@ def _build_type_annotation(field_name: str, spec: dict[str, Any]) -> str:
 
     # Check if it's an object reference
     # Priority: explicit object_type > type field (if in type_map) > object reference
+    needs_serialize_as_any = False
+
     if "object_type" in spec:
         python_type = snake_to_pascal(spec["object_type"])
+        # Check if it's the Object type which needs SerializeAsAny
+        needs_serialize_as_any = spec["object_type"] == "object"
     elif ocsf_type in type_map:
         python_type = type_map[ocsf_type]
     else:
         # Type is not in type_map, assume it's an object reference (e.g., "user", "process", "file")
         python_type = snake_to_pascal(ocsf_type)
+        # Check if it's the Object type which needs SerializeAsAny
+        needs_serialize_as_any = ocsf_type == "object"
+
+    # Wrap Object type with SerializeAsAny for proper serialization
+    if needs_serialize_as_any:
+        python_type = f"SerializeAsAny[{python_type}]"
 
     # Handle arrays
     if is_array:

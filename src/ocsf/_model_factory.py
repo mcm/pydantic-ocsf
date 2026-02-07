@@ -229,6 +229,8 @@ class ModelFactory:
         Returns:
             Python type annotation (may include forward references as strings)
         """
+        from pydantic import SerializeAsAny  # noqa: F401 - Used in string annotations
+
         from ocsf._utils import ocsf_type_to_python, snake_to_pascal
 
         # Merge with dictionary definition if field spec is minimal
@@ -242,14 +244,19 @@ class ModelFactory:
         ocsf_type = merged_spec.get("type", "string_t")
         is_array = merged_spec.get("is_array", False)
         is_required = merged_spec.get("requirement") == "required"
+        needs_serialize_as_any = False
 
         # Check if type references an object (OCSF uses object names as types)
         if ocsf_type in self.objects or ocsf_type in self.events:
             # This is an object reference - convert to PascalCase
             python_type = snake_to_pascal(ocsf_type)
+            # Check if it's the Object type which needs SerializeAsAny
+            needs_serialize_as_any = ocsf_type == "object"
         # Handle explicit object_type field
         elif "object_type" in merged_spec:
             python_type = snake_to_pascal(merged_spec["object_type"])
+            # Check if it's the Object type which needs SerializeAsAny
+            needs_serialize_as_any = merged_spec["object_type"] == "object"
         # Handle enum types
         elif "enum" in merged_spec:
             # For now, treat as int (Phase 2 will add enum support)
@@ -262,6 +269,10 @@ class ModelFactory:
                 object_type=None,
                 enum_name=None,
             )
+
+        # Wrap Object type with SerializeAsAny for proper serialization
+        if needs_serialize_as_any:
+            python_type = f"SerializeAsAny[{python_type}]"
 
         # Handle arrays
         type_annotation = f"list[{python_type}]" if is_array else python_type

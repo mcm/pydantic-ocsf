@@ -190,12 +190,22 @@ def test_no_duplicate_object_classes():
 
     args = typing.get_args(unmapped_field.annotation)
 
-    # Find Object in the Union (Object | None)
+    # Find Object in the Union (Object | None or Annotated[Object, ...] | None)
     object_from_annotation = None
     for arg in args:
-        if arg is not type(None) and hasattr(arg, "__name__") and arg.__name__ == "Object":
+        if arg is type(None):
+            continue
+        # Handle direct Object reference
+        if hasattr(arg, "__name__") and arg.__name__ == "Object":
             object_from_annotation = arg
             break
+        # Handle Annotated[Object, SerializeAsAny()] - use __origin__ directly
+        # (typing.get_origin() returns Annotated, not the wrapped type)
+        if hasattr(arg, "__origin__"):
+            origin = arg.__origin__
+            if hasattr(origin, "__name__") and origin.__name__ == "Object":
+                object_from_annotation = origin
+                break
 
     # Both should be the exact same class (same memory address)
     assert object_from_annotation is not None, "Object not found in unmapped field annotation"

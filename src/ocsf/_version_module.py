@@ -184,9 +184,11 @@ class OCSFVersionModule(ModuleType):
         """
         from typing import Any
 
+        from pydantic import SerializeAsAny
+
         # Build namespace with all available models + typing imports
         # Include both namespaced keys and non-namespaced model names
-        namespace: dict[str, Any] = {"Any": Any}
+        namespace: dict[str, Any] = {"Any": Any, "SerializeAsAny": SerializeAsAny}
 
         # Add models with both namespaced and non-namespaced keys
         for cache_key, model_cls in self._model_cache.items():
@@ -222,8 +224,10 @@ class OCSFVersionModule(ModuleType):
         """
         from typing import Any
 
+        from pydantic import SerializeAsAny
+
         # Build namespace with both namespaced and non-namespaced keys
-        namespace: dict[str, Any] = {"Any": Any}
+        namespace: dict[str, Any] = {"Any": Any, "SerializeAsAny": SerializeAsAny}
 
         for cache_key, model_cls in self._model_cache.items():
             namespace[cache_key] = model_cls
