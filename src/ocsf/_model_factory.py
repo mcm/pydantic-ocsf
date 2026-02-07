@@ -118,36 +118,48 @@ class ModelFactory:
         # Phase 3: Build field definitions
         field_defs = {}
 
-        for field_name, field_spec in attributes.items():
+        for schema_field_name, field_spec in attributes.items():
             # Skip special schema directives like $include
-            if field_name.startswith("$"):
+            if schema_field_name.startswith("$"):
                 continue
 
             # Skip non-dict field specs (shouldn't happen but be safe)
             if not isinstance(field_spec, dict):
                 continue
 
+            # Convert reserved keywords to have trailing underscore
+            field_name, field_alias = self._handle_reserved_keyword(schema_field_name)
+
             # Check if this field has an inline enum
-            if field_name in enum_classes:
+            if schema_field_name in enum_classes:
                 # Use the enum type
-                enum_cls = enum_classes[field_name]
+                enum_cls = enum_classes[schema_field_name]
                 is_required = field_spec.get("requirement") == "required"
 
                 # Build type annotation with enum
                 field_type_annotation = enum_cls if is_required else f"{enum_cls.__name__} | None"
             else:
-                field_type_annotation = self._build_field_type(field_name, field_spec)
+                field_type_annotation = self._build_field_type(schema_field_name, field_spec)
 
             is_required = field_spec.get("requirement") == "required"
 
-            # Create field with appropriate default
+            # Create field with appropriate default and alias
             if is_required:
-                field_defs[field_name] = (field_type_annotation, Field(...))
+                if field_alias:
+                    field_defs[field_name] = (field_type_annotation, Field(..., alias=field_alias))
+                else:
+                    field_defs[field_name] = (field_type_annotation, Field(...))
             else:
-                field_defs[field_name] = (
-                    field_type_annotation,
-                    Field(default=None),
-                )
+                if field_alias:
+                    field_defs[field_name] = (
+                        field_type_annotation,
+                        Field(default=None, alias=field_alias),
+                    )
+                else:
+                    field_defs[field_name] = (
+                        field_type_annotation,
+                        Field(default=None),
+                    )
 
         # Phase 3b: Infer sibling label fields for enum-backed ID fields
         # Per OCSF spec, sibling attributes are not explicitly in the schema
@@ -338,6 +350,71 @@ class ModelFactory:
                 return self._resolve_category_uid(parent_spec)
 
         return None
+
+    def _handle_reserved_keyword(self, field_name: str) -> tuple[str, str | None]:
+        """Handle reserved keyword field names.
+
+        Fields that are Python reserved keywords need a trailing underscore
+        (e.g., type -> type_) and should use the original name as an alias
+        for serialization.
+
+        Args:
+            field_name: Field name from schema (e.g., "type", "class", "normal_field")
+
+        Returns:
+            Tuple of (python_field_name, alias)
+            - python_field_name: Field name to use in Python (e.g., "type_", "class_", "normal_field")
+            - alias: Original name to use for serialization (e.g., "type", "class") or None
+        """
+        # Python reserved keywords that need underscore suffix
+        RESERVED_KEYWORDS = {
+            "False",
+            "None",
+            "True",
+            "and",
+            "as",
+            "assert",
+            "async",
+            "await",
+            "break",
+            "class",
+            "continue",
+            "def",
+            "del",
+            "elif",
+            "else",
+            "except",
+            "finally",
+            "for",
+            "from",
+            "global",
+            "if",
+            "import",
+            "in",
+            "is",
+            "lambda",
+            "nonlocal",
+            "not",
+            "or",
+            "pass",
+            "raise",
+            "return",
+            "try",
+            "while",
+            "with",
+            "yield",
+            "type",
+        }
+
+        # Check if field name is a reserved keyword
+        if field_name in RESERVED_KEYWORDS or field_name.lower() in {
+            k.lower() for k in RESERVED_KEYWORDS
+        }:
+            # Return field name with underscore and original name as alias
+            return (f"{field_name}_", field_name)
+
+        # Not a reserved keyword, return as-is with no alias
+        return (field_name, None)
 
     def get_all_model_names(self) -> list[str]:
         """Get all available model names in this schema (in PascalCase).

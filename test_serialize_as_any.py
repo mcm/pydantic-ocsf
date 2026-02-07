@@ -4,7 +4,7 @@ from ocsf.v1_7_0.events import IncidentFinding
 from ocsf.v1_7_0.objects import FindingInfo, Metadata, Object, Product
 
 
-def test_unmapped_serialization():
+def test_unmapped_serialization() -> None:
     """Test that Object fields serialize correctly with SerializeAsAny."""
     # Create a custom class inheriting from Object
     class CustomUnmapped(Object):
@@ -32,7 +32,7 @@ def test_unmapped_serialization():
     print("✅ unmapped field serializes correctly with SerializeAsAny")
 
 
-def test_unmapped_list_serialization():
+def test_unmapped_list_serialization() -> None:
     """Test that list[Object] fields serialize correctly."""
     # Create a custom class
     class CustomObject(Object):
@@ -49,7 +49,7 @@ def test_unmapped_list_serialization():
     )
 
     # Serialize and verify
-    data = finding.model_dump()
+    _ = finding.model_dump()
 
     print("✅ list[Object] fields serialize correctly")
 
