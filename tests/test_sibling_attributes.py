@@ -54,10 +54,12 @@ class TestFileActivitySiblingAttributes:
     """Test sibling attributes for FileActivity event."""
 
     def test_file_activity_has_activity_field(self):
-        """Test that FileActivity has inferred activity field."""
+        """Test that FileActivity has inferred activity_name field."""
         from ocsf.v1_7_0.events import FileActivity
 
-        assert "activity" in FileActivity.model_fields, "activity field should be inferred"
+        assert "activity_name" in FileActivity.model_fields, (
+            "activity_name field should be inferred from activity_id sibling"
+        )
 
     def test_file_activity_activity_enum_exists(self):
         """Test that ActivityId enum is generated."""
@@ -68,7 +70,7 @@ class TestFileActivitySiblingAttributes:
         assert FileActivity.ActivityId.DELETE == 4
 
     def test_file_activity_sibling_reconciliation(self):
-        """Test activity_id/activity sibling reconciliation."""
+        """Test activity_id/activity_name sibling reconciliation."""
         from ocsf.v1_7_0.events import FileActivity
 
         # Only ID provided
@@ -81,7 +83,7 @@ class TestFileActivitySiblingAttributes:
             device={"hostname": "test", "type_id": 0},
             file={"name": "test.txt", "type_id": 1},
         )
-        assert event.activity == "Create", "activity should be auto-filled"
+        assert event.activity_name == "Create", "activity_name should be auto-filled"
 
     def test_file_activity_severity_sibling(self):
         """Test severity_id/severity sibling pair."""

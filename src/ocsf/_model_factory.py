@@ -162,13 +162,23 @@ class ModelFactory:
                     )
 
         # Phase 3b: Infer sibling label fields for enum-backed ID fields
-        # Per OCSF spec, sibling attributes are not explicitly in the schema
-        # and must be inferred from _id enum fields
+        # Per OCSF spec, sibling attributes may be explicitly in the schema or
+        # defined in the dictionary's 'sibling' attribute, or must be inferred
         from ocsf._utils import infer_sibling_label_field
 
         for field_name in enum_classes:
             if field_name.endswith("_id"):
-                label_field = infer_sibling_label_field(field_name)
+                # First, check if the dictionary definition specifies a sibling field
+                dict_def = self.dict_attributes.get(field_name, {})
+                explicit_sibling = dict_def.get("sibling")
+
+                if explicit_sibling:
+                    # Use the explicit sibling name from the dictionary
+                    # Handle reserved keywords (e.g., "type" -> "type_")
+                    label_field, _ = self._handle_reserved_keyword(explicit_sibling)
+                else:
+                    # Fall back to inference if no explicit sibling
+                    label_field = infer_sibling_label_field(field_name)
 
                 # Only add if not already defined (some are explicit in schema)
                 if label_field not in field_defs:
@@ -187,8 +197,16 @@ class ModelFactory:
 
         for field_name in enum_classes:
             if field_name.endswith("_id"):
-                # Infer the label field name using the same logic as Phase 3b
-                label_field = infer_sibling_label_field(field_name)
+                # Use the same logic as Phase 3b to determine the label field
+                dict_def = self.dict_attributes.get(field_name, {})
+                explicit_sibling = dict_def.get("sibling")
+
+                if explicit_sibling:
+                    # Use the explicit sibling name from the dictionary
+                    label_field, _ = self._handle_reserved_keyword(explicit_sibling)
+                else:
+                    # Fall back to inference
+                    label_field = infer_sibling_label_field(field_name)
 
                 # Check if label field exists in our field definitions
                 # (either from schema or inferred in Phase 3b)
