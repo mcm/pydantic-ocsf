@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.4] - 2026-02-15
+
+### Fixed
+
+- Fixed reserved keyword sibling fields to serialize with correct aliases
+- The `type_` field (sibling of `type_id`) now correctly serializes as `type` instead of `type_`
+- Affects 33 models (1 event, 32 objects) with `type_id` fields
+- Ensures OCSF-compliant JSON output for all reserved keyword sibling fields
+
 ## [2.0.3] - 2026-02-14
 
 ### Fixed

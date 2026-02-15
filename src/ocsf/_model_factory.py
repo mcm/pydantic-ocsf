@@ -175,18 +175,29 @@ class ModelFactory:
                 if explicit_sibling:
                     # Use the explicit sibling name from the dictionary
                     # Handle reserved keywords (e.g., "type" -> "type_")
-                    label_field, _ = self._handle_reserved_keyword(explicit_sibling)
+                    label_field, label_alias = self._handle_reserved_keyword(explicit_sibling)
                 else:
                     # Fall back to inference if no explicit sibling
                     label_field = infer_sibling_label_field(field_name)
+                    label_alias = None
 
                 # Only add if not already defined (some are explicit in schema)
                 if label_field not in field_defs:
-                    # Add as optional string field
-                    field_defs[label_field] = (
-                        "str | None",
-                        Field(default=None, description=f"Label for {field_name}"),
-                    )
+                    # Add as optional string field with alias if needed
+                    if label_alias:
+                        field_defs[label_field] = (
+                            "str | None",
+                            Field(
+                                default=None,
+                                alias=label_alias,
+                                description=f"Label for {field_name}",
+                            ),
+                        )
+                    else:
+                        field_defs[label_field] = (
+                            "str | None",
+                            Field(default=None, description=f"Label for {field_name}"),
+                        )
 
         # Phase 4: Prepare validators
         validators_dict = {}
@@ -203,7 +214,10 @@ class ModelFactory:
 
                 if explicit_sibling:
                     # Use the explicit sibling name from the dictionary
-                    label_field, _ = self._handle_reserved_keyword(explicit_sibling)
+                    # Note: We capture the alias but don't use it here because the Field
+                    # definition already has it set (from Phase 3b). We only need the
+                    # Python field name to reference the field in validators.
+                    label_field, _label_alias = self._handle_reserved_keyword(explicit_sibling)
                 else:
                     # Fall back to inference
                     label_field = infer_sibling_label_field(field_name)
