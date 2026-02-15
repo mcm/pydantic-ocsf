@@ -214,19 +214,23 @@ class ModelFactory:
 
                 if explicit_sibling:
                     # Use the explicit sibling name from the dictionary
-                    # Note: We capture the alias but don't use it here because the Field
-                    # definition already has it set (from Phase 3b). We only need the
-                    # Python field name to reference the field in validators.
-                    label_field, _label_alias = self._handle_reserved_keyword(explicit_sibling)
+                    label_field, label_alias = self._handle_reserved_keyword(explicit_sibling)
+                    # For the reconciler (mode='before' validator), use the OCSF field name
+                    # (alias) if present, since it operates on raw input data
+                    reconciler_label_field = label_alias if label_alias else label_field
                 else:
                     # Fall back to inference
                     label_field = infer_sibling_label_field(field_name)
+                    reconciler_label_field = label_field
 
                 # Check if label field exists in our field definitions
                 # (either from schema or inferred in Phase 3b)
                 if label_field in field_defs:
                     enum_cls = enum_classes[field_name]
-                    reconciler = create_sibling_reconciler(field_name, label_field, enum_cls)
+                    # Pass the OCSF field name to the reconciler (not Python field name)
+                    reconciler = create_sibling_reconciler(
+                        field_name, reconciler_label_field, enum_cls
+                    )
                     validator_name = f"_reconcile_{field_name}"
                     validators_dict[validator_name] = reconciler
 

@@ -8,7 +8,10 @@ All notable changes to this project will be documented in this file.
 
 - Fixed reserved keyword sibling fields to serialize with correct aliases
 - The `type_` field (sibling of `type_id`) now correctly serializes as `type` instead of `type_`
-- Affects 33 models (1 event, 32 objects) with `type_id` fields
+- Removed `populate_by_name=True` from OCSFBaseModel to prevent duplicate field generation
+- Fixed sibling reconciler to use OCSF field names (aliases) instead of Python field names
+- Eliminates duplicate fields in serialization output (e.g., both `type` and `type_` appearing)
+- Affects 61 models with reserved keyword fields
 - Ensures OCSF-compliant JSON output for all reserved keyword sibling fields
 
 ## [2.0.3] - 2026-02-14
