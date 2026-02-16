@@ -202,7 +202,12 @@ class ModelFactory:
         # Phase 4: Prepare validators
         validators_dict = {}
 
-        # Phase 4a: Add sibling reconciliation validators
+        # Phase 4a: Create and add normalizer FIRST (MUST run before reconcilers)
+        from ocsf._normalizer import create_normalizer
+
+        validators_dict["_normalize_field_names_to_aliases"] = create_normalizer()
+
+        # Phase 4b: Add sibling reconciliation validators
         from ocsf._sibling_validator import create_sibling_reconciler
         from ocsf._utils import infer_sibling_label_field
 
@@ -234,7 +239,7 @@ class ModelFactory:
                     validator_name = f"_reconcile_{field_name}"
                     validators_dict[validator_name] = reconciler
 
-        # Phase 4b: Add UID pre-fill validator for events only
+        # Phase 4c: Add UID pre-fill validator for events only
         if namespace_filter == "events" or (
             namespace_filter is None and schema_name in self.events
         ):

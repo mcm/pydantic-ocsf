@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.6] - 2026-02-16
+
+### Fixed
+
+- Fixed sibling reconciler to support OCSF "Other" (ID=99) exception
+- When `foo_id=99`, the `foo` label field can now contain any custom value
+- When `foo_id=99` is provided without `foo`, it still auto-fills "Other"
+- Sibling reconciler now handles Python field names (e.g., `type_`) before normalization
+- Fixed sibling reconciler consistency check exception handling to properly raise validation errors
+- Round-trip serialization now works correctly: `Analytic(type_="Risk", type_id=99)` preserves "Risk"
+- Moved field name normalization into model factory to ensure correct validator execution order
+
 ## [2.0.5] - 2026-02-15
 
 Complete fix for reserved keyword sibling field serialization issues. This release includes all fixes from development commits for proper OCSF-compliant JSON output.
