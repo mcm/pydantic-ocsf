@@ -413,10 +413,22 @@ def _generate_class_stub(
         if not is_required and "| None" not in type_annotation:
             type_annotation = f"{type_annotation} | None"
 
+        # Check if this creates a type incompatibility with parent class
+        # (making a required field optional is a known issue in OCSF schemas)
+        needs_type_ignore = False
+        if not is_required and "extends" in spec:
+            parent_req = _get_parent_requirement(field_name, spec, dict_attributes, all_specs)
+            if parent_req == "required":
+                # Parent requires this field, but child makes it optional
+                # This is a schema design issue - add type ignore comment
+                needs_type_ignore = True
+
+        type_ignore_comment = "  # type: ignore[assignment]" if needs_type_ignore else ""
+
         if is_required:
-            lines.append(f"    {field_name}: {type_annotation}")
+            lines.append(f"    {field_name}: {type_annotation}{type_ignore_comment}")
         else:
-            lines.append(f"    {field_name}: {type_annotation} = None")
+            lines.append(f"    {field_name}: {type_annotation} = None{type_ignore_comment}")
 
         has_fields = True
         processed_fields.add(field_name)
