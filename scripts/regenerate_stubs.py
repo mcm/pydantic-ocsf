@@ -188,12 +188,15 @@ def generate_events_stub(version: str, schema: dict[str, Any], output_dir: Path)
     if importable_objects:
         lines.append("if TYPE_CHECKING:")
         lines.append("    # Import object types for type checking (excluding name collisions)")
-        # Split imports into multiple lines if too many
-        chunk_size = 10
-        for i in range(0, len(importable_objects), chunk_size):
-            chunk = importable_objects[i : i + chunk_size]
-            import_line = ", ".join(chunk)
-            lines.append(f"    from .objects import {import_line}")
+        # Use a single import statement with parentheses for better formatting
+        lines.append("    from .objects import (")
+        for i, obj in enumerate(importable_objects):
+            # Add comma to all but the last item
+            if i < len(importable_objects) - 1:
+                lines.append(f"        {obj},")
+            else:
+                lines.append(f"        {obj},")
+        lines.append("    )")
         lines.append("")
 
     # Generate ONLY event stubs
