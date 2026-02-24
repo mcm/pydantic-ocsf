@@ -106,6 +106,16 @@ class ModelFactory:
         attributes = spec.get("attributes", {})
         inline_enums = extract_inline_enums(attributes, self.dictionary)
 
+        # Special case: Observable.TypeId is a derived enum
+        # Its values are collected from all "observable" field definitions across the schema
+        if name == "Observable" and "type_id" in attributes:
+            from ocsf._utils import extract_observable_type_ids
+
+            # Extract all observable type_id values from the entire schema
+            observable_types = extract_observable_type_ids(self.schema)
+            # Override the inline enum for type_id with the derived values
+            inline_enums["type_id"] = (observable_types, "type_id")
+
         # Create enum classes
         enum_classes = {}
         for field_name, (enum_values, sibling_id) in inline_enums.items():

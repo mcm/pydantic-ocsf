@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import re
+from typing import Any
 
 
 def snake_to_pascal(name: str) -> str:
@@ -203,3 +204,113 @@ def infer_sibling_label_field(id_field: str) -> str:
         return f"{base}_"
 
     return base
+
+
+def extract_observable_type_ids(schema: dict[str, Any]) -> dict[int, str]:
+    """Extract all observable type_id values from the schema.
+
+    Observable.TypeId is a derived enum - its values are collected from all
+    places in the schema where the "observable" field is defined. This function
+    scans the entire schema to collect these definitions.
+
+    Per OCSF specification, observables can be defined in 6 ways:
+    1. Observable by dictionary type (e.g., email_t)
+    2. Observable by dictionary attribute (e.g., cmd_line)
+    3. Observable by object (e.g., container)
+    4. Observable by event class attribute
+    5. Observable by object attribute (e.g., cve.uid)
+    6. Observable by class-specific attribute path
+
+    Args:
+        schema: Parsed OCSF schema dictionary
+
+    Returns:
+        Dictionary mapping observable type_id (int) to caption (str)
+        Includes the standard 0 (Unknown) and 99 (Other) values
+
+    Example:
+        {
+            0: "Unknown",
+            1: "Hostname",
+            2: "IP Address",
+            5: "Email Address",
+            ...
+            99: "Other"
+        }
+    """
+    observable_types: dict[int, str] = {}
+
+    # Always include standard values
+    observable_types[0] = "Unknown"
+    observable_types[99] = "Other"
+
+    # 1. Scan dictionary types for observable definitions
+    dictionary = schema.get("dictionary", {})
+    dict_types = dictionary.get("types", {})
+    if dict_types and isinstance(dict_types, dict):
+        type_attrs = dict_types.get("attributes", {})
+        if type_attrs:
+            for type_name, type_def in type_attrs.items():
+                if isinstance(type_def, dict) and "observable" in type_def:
+                    obs_id = type_def["observable"]
+                    if isinstance(obs_id, int):
+                        # Use the caption as the label
+                        caption = type_def.get("caption", snake_to_pascal(type_name))
+                        observable_types[obs_id] = caption
+
+    # 2. Scan dictionary attributes for observable definitions
+    dict_attributes = dictionary.get("attributes", {})
+    for attr_name, attr_def in dict_attributes.items():
+        if isinstance(attr_def, dict) and "observable" in attr_def:
+            obs_id = attr_def["observable"]
+            if isinstance(obs_id, int):
+                caption = attr_def.get("caption", snake_to_pascal(attr_name))
+                observable_types[obs_id] = caption
+
+    # 3. Scan objects for top-level observable definitions (observable by object)
+    objects = schema.get("objects", {})
+    for obj_name, obj_spec in objects.items():
+        if isinstance(obj_spec, dict):
+            # Object-level observable
+            if "observable" in obj_spec:
+                obs_id = obj_spec["observable"]
+                if isinstance(obs_id, int):
+                    caption = obj_spec.get("caption", snake_to_pascal(obj_name))
+                    observable_types[obs_id] = caption
+
+            # 5. Object attribute observables
+            obj_attrs = obj_spec.get("attributes", {})
+            for attr_name, attr_def in obj_attrs.items():
+                if isinstance(attr_def, dict) and "observable" in attr_def:
+                    obs_id = attr_def["observable"]
+                    if isinstance(obs_id, int):
+                        # For attribute-level observables, try to create a descriptive name
+                        # combining the object and attribute
+                        caption = attr_def.get("caption", f"{obj_name}.{attr_name}")
+                        observable_types[obs_id] = caption
+
+    # 4 & 6. Scan events for attribute and path-based observables
+    events = schema.get("events", {})
+    for event_name, event_spec in events.items():
+        if isinstance(event_spec, dict):
+            # Event attribute observables
+            event_attrs = event_spec.get("attributes", {})
+            for attr_name, attr_def in event_attrs.items():
+                if isinstance(attr_def, dict) and "observable" in attr_def:
+                    obs_id = attr_def["observable"]
+                    if isinstance(obs_id, int):
+                        caption = attr_def.get("caption", f"{event_name}.{attr_name}")
+                        observable_types[obs_id] = caption
+
+            # Class-specific attribute path observables
+            observables_def = event_spec.get("observables", {})
+            if isinstance(observables_def, dict):
+                for _path, obs_id in observables_def.items():
+                    if isinstance(obs_id, int):
+                        # For path-based, we don't have a good caption source
+                        # Use a generic label or try to derive from the path
+                        # For now, use a placeholder - these are less common
+                        if obs_id not in observable_types:
+                            observable_types[obs_id] = f"Observable {obs_id}"
+
+    return observable_types
