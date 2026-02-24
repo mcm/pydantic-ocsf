@@ -200,7 +200,12 @@ def generate_events_stub(version: str, schema: dict[str, Any], output_dir: Path)
     for event_name, event_spec in sorted(all_events.items()):
         lines.extend(
             _generate_class_stub(
-                event_name, event_spec, dict_attributes, all_events, is_event=True, full_schema=schema
+                event_name,
+                event_spec,
+                dict_attributes,
+                all_events,
+                is_event=True,
+                full_schema=schema,
             )
         )
         lines.append("")
@@ -270,7 +275,7 @@ def _generate_class_stub(
     dict_attributes: dict[str, Any],
     all_specs: dict[str, Any],
     is_event: bool = False,
-    full_schema: dict[str, Any] | None = None,
+    full_schema: Optional[dict[str, Any]] = None,
 ) -> list[str]:
     """Generate stub lines for a single class."""
     lines = []
@@ -303,35 +308,33 @@ def _generate_class_stub(
 
     # Special case: Observable.TypeId is a derived enum
     # Its values are collected from all "observable" field definitions across the schema
-    if name == "observable" and full_schema is not None:
-        # Check if we have a type_id field
-        if "type_id" in attributes:
-            # Import the extraction function
-            import sys
-            from pathlib import Path
+    if name == "observable" and full_schema is not None and "type_id" in attributes:
+        # Import the extraction function
+        import sys
+        from pathlib import Path
 
-            # Add src directory to path to import from ocsf package
-            src_dir = Path(__file__).parent.parent / "src"
-            if str(src_dir) not in sys.path:
-                sys.path.insert(0, str(src_dir))
+        # Add src directory to path to import from ocsf package
+        src_dir = Path(__file__).parent.parent / "src"
+        if str(src_dir) not in sys.path:
+            sys.path.insert(0, str(src_dir))
 
-            from ocsf._utils import extract_observable_type_ids
+        from ocsf._utils import extract_observable_type_ids
 
-            # Extract all observable type_id values from the entire schema
-            observable_types = extract_observable_type_ids(full_schema)
+        # Extract all observable type_id values from the entire schema
+        observable_types = extract_observable_type_ids(full_schema)
 
-            # Replace the TypeId enum in enums_to_generate with the derived version
-            enums_to_generate = [
-                (enum_name, enum_vals)
-                for enum_name, enum_vals in enums_to_generate
-                if enum_name != "TypeId"
-            ]
-            # Add the derived TypeId enum
-            # Convert dict[int, str] to dict[str, dict] format expected by stub generation
-            derived_enum = {
-                str(type_id): {"caption": caption} for type_id, caption in observable_types.items()
-            }
-            enums_to_generate.append(("TypeId", derived_enum))
+        # Replace the TypeId enum in enums_to_generate with the derived version
+        enums_to_generate = [
+            (enum_name, enum_vals)
+            for enum_name, enum_vals in enums_to_generate
+            if enum_name != "TypeId"
+        ]
+        # Add the derived TypeId enum
+        # Convert dict[int, str] to dict[str, dict] format expected by stub generation
+        derived_enum = {
+            str(type_id): {"caption": caption} for type_id, caption in observable_types.items()
+        }
+        enums_to_generate.append(("TypeId", derived_enum))
 
     # Generate nested enum classes and track sibling ID fields
     sibling_id_fields = []  # Track ID fields that have enums

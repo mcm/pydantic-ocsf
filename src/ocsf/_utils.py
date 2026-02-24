@@ -306,11 +306,10 @@ def extract_observable_type_ids(schema: dict[str, Any]) -> dict[int, str]:
             observables_def = event_spec.get("observables", {})
             if isinstance(observables_def, dict):
                 for _path, obs_id in observables_def.items():
-                    if isinstance(obs_id, int):
+                    if isinstance(obs_id, int) and obs_id not in observable_types:
                         # For path-based, we don't have a good caption source
                         # Use a generic label or try to derive from the path
                         # For now, use a placeholder - these are less common
-                        if obs_id not in observable_types:
-                            observable_types[obs_id] = f"Observable {obs_id}"
+                        observable_types[obs_id] = f"Observable {obs_id}"
 
     return observable_types
