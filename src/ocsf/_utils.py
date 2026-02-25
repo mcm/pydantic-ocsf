@@ -284,9 +284,26 @@ def extract_observable_type_ids(schema: dict[str, Any]) -> dict[int, str]:
                 if isinstance(attr_def, dict) and "observable" in attr_def:
                     obs_id = attr_def["observable"]
                     if isinstance(obs_id, int):
-                        # For attribute-level observables, try to create a descriptive name
-                        # combining the object and attribute
-                        caption = attr_def.get("caption", f"{obj_name}.{attr_name}")
+                        # Try to get explicit caption first
+                        if "caption" in attr_def:
+                            caption = attr_def["caption"]
+                        else:
+                            # Build human-readable caption from object caption
+                            obj_caption = obj_spec.get("caption", snake_to_pascal(obj_name))
+                            # Special case: if attribute is "uid"
+                            if attr_name == "uid":
+                                # Check if this caption would conflict with an existing entry
+                                # (e.g., user object vs user.uid both become "User")
+                                if obj_caption in observable_types.values():
+                                    # Add "UID" suffix to avoid conflict
+                                    caption = f"{obj_caption} UID"
+                                else:
+                                    # No conflict, use just the object caption
+                                    caption = obj_caption
+                            else:
+                                # Otherwise: "Object Attribute" (e.g., "Group Name")
+                                attr_caption = snake_to_pascal(attr_name)
+                                caption = f"{obj_caption} {attr_caption}"
                         observable_types[obs_id] = caption
 
     # 4 & 6. Scan events for attribute and path-based observables
