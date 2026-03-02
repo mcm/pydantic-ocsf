@@ -160,7 +160,9 @@ class ModelFactory:
             # using the schema's requirement (required → no | None suffix).
             if schema_field_name == "type_uid":
                 is_required = False
-                if not isinstance(field_type_annotation, str) or not field_type_annotation.endswith("| None"):
+                if not isinstance(field_type_annotation, str) or not field_type_annotation.endswith(
+                    "| None"
+                ):
                     field_type_annotation = f"{field_type_annotation} | None"
 
             # Create field with appropriate default and alias
