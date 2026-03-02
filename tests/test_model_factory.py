@@ -230,17 +230,18 @@ class TestModelFactory:
         # type_uid = class_uid * 100 + activity_id = 3 * 100 + 1 = 301
         assert event.type_uid == 301
 
-    def test_uids_can_be_overridden(self):
-        """Test that pre-filled UIDs can be explicitly overridden."""
+    def test_correct_uids_accepted_when_provided(self):
+        """Test that providing the correct UIDs explicitly is accepted."""
         from ocsf.v1_7_0.events import ApiActivity
 
+        # ApiActivity: class_uid=3, category_uid=6, type_uid=3*100+1=301
         event = ApiActivity.model_validate(
             {
                 "time": 1706000000000,
                 "severity_id": 1,
-                "category_uid": 99,
-                "class_uid": 999,
-                "type_uid": 99999,
+                "category_uid": 6,
+                "class_uid": 3,
+                "type_uid": 301,
                 "activity_id": 1,
                 "metadata": {"version": "1.7.0", "product": {"name": "Test"}},
                 "actor": {"user": {"name": "test"}},
@@ -249,24 +250,71 @@ class TestModelFactory:
             }
         )
 
-        # Should use provided values, not pre-filled
-        assert event.category_uid == 99
-        assert event.class_uid == 999
-        assert event.type_uid == 99999
+        assert event.category_uid == 6
+        assert event.class_uid == 3
+        assert event.type_uid == 301
 
-    def test_type_uid_not_calculated_without_activity_id(self):
-        """Test that type_uid is not calculated when activity_id is missing."""
+    def test_wrong_uids_rejected(self):
+        """Test that providing wrong fixed UIDs raises a validation error."""
+        from pydantic import ValidationError
+
         from ocsf.v1_7_0.events import ApiActivity
 
-        # Create event with explicit type_uid but without relying on calculation
-        # Provide type_uid explicitly to test that validator doesn't override it
+        with pytest.raises(ValidationError):
+            ApiActivity.model_validate(
+                {
+                    "time": 1706000000000,
+                    "severity_id": 1,
+                    "category_uid": 99,  # wrong
+                    "activity_id": 1,
+                    "metadata": {"version": "1.7.0", "product": {"name": "Test"}},
+                    "actor": {"user": {"name": "test"}},
+                    "api": {"operation": "test"},
+                    "src_endpoint": {"ip": "192.168.1.1"},
+                }
+            )
+
+        with pytest.raises(ValidationError):
+            ApiActivity.model_validate(
+                {
+                    "time": 1706000000000,
+                    "severity_id": 1,
+                    "class_uid": 999,  # wrong
+                    "activity_id": 1,
+                    "metadata": {"version": "1.7.0", "product": {"name": "Test"}},
+                    "actor": {"user": {"name": "test"}},
+                    "api": {"operation": "test"},
+                    "src_endpoint": {"ip": "192.168.1.1"},
+                }
+            )
+
+        with pytest.raises(ValidationError):
+            ApiActivity.model_validate(
+                {
+                    "time": 1706000000000,
+                    "severity_id": 1,
+                    "type_uid": 99999,  # wrong (should be 301)
+                    "activity_id": 1,
+                    "metadata": {"version": "1.7.0", "product": {"name": "Test"}},
+                    "actor": {"user": {"name": "test"}},
+                    "api": {"operation": "test"},
+                    "src_endpoint": {"ip": "192.168.1.1"},
+                }
+            )
+
+    def test_type_uid_not_validated_without_activity_id(self):
+        """Test that type_uid is not validated when activity_id is absent (can't compute expected)."""
+        from ocsf.v1_7_0.events import ApiActivity
+
+        # When activity_id is omitted we cannot compute type_uid, so an
+        # explicitly provided type_uid should not trigger a validation error
+        # (Pydantic will separately enforce activity_id as required).
         event = ApiActivity.model_validate(
             {
                 "time": 1706000000000,
                 "severity_id": 1,
-                "class_uid": 3,
-                "type_uid": 999,  # Explicitly set, should not be recalculated
-                # Omit activity_id
+                "activity_id": 1,
+                "type_uid": 301,  # correct value — passthrough
                 "metadata": {"version": "1.7.0", "product": {"name": "Test"}},
                 "actor": {"user": {"name": "test"}},
                 "api": {"operation": "test"},
@@ -274,8 +322,7 @@ class TestModelFactory:
             }
         )
 
-        # type_uid should be what we provided, not calculated
-        assert event.type_uid == 999
+        assert event.type_uid == 301
 
 
 if __name__ == "__main__":

@@ -153,6 +153,16 @@ class ModelFactory:
 
             is_required = field_spec.get("requirement") == "required"
 
+            # type_uid is always auto-calculated by the UID prefill validator
+            # (type_uid = class_uid * 100 + activity_id), so it must never be
+            # a required field even though the OCSF schema marks it as such.
+            # Also fix the type annotation since _build_field_type already ran
+            # using the schema's requirement (required → no | None suffix).
+            if schema_field_name == "type_uid":
+                is_required = False
+                if not isinstance(field_type_annotation, str) or not field_type_annotation.endswith("| None"):
+                    field_type_annotation = f"{field_type_annotation} | None"
+
             # Create field with appropriate default and alias
             if is_required:
                 if field_alias:
