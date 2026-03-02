@@ -256,9 +256,8 @@ class TestModelFactory:
 
     def test_wrong_uids_rejected(self):
         """Test that providing wrong fixed UIDs raises a validation error."""
-        from pydantic import ValidationError
-
         from ocsf.v1_7_0.events import ApiActivity
+        from pydantic import ValidationError
 
         with pytest.raises(ValidationError):
             ApiActivity.model_validate(
